@@ -1,225 +1,366 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaCheck } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaClock,
+  FaUserMd,
+  FaSearch,
+  FaPlus,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa";
 
-const speciesOptions = [
-  { emoji: "🐱", label: "Kucing" },
-  { emoji: "🐶", label: "Anjing" },
-  { emoji: "🐰", label: "Kelinci" },
-  { emoji: "🦜", label: "Burung" },
-  { emoji: "🐹", label: "Hamster" },
-  { emoji: "🐢", label: "Reptil" },
-  { emoji: "🐟", label: "Ikan" },
-  { emoji: "🐾", label: "Lainnya" },
+const appointmentData = [
+  {
+    id: 1,
+    pet: "Mochi",
+    owner: "Budi Santoso",
+    doctor: "Dr. Amanda",
+    date: "12 Mei 2026",
+    time: "09:00",
+    type: "Vaccination",
+    status: "Completed",
+    emoji: "🐱",
+  },
+  {
+    id: 2,
+    pet: "Rocky",
+    owner: "Dewi Lestari",
+    doctor: "Dr. Kevin",
+    date: "12 Mei 2026",
+    time: "10:30",
+    type: "Checkup",
+    status: "Pending",
+    emoji: "🐶",
+  },
+  {
+    id: 3,
+    pet: "Bella",
+    owner: "Andi Saputra",
+    doctor: "Dr. Sarah",
+    date: "13 Mei 2026",
+    time: "13:00",
+    type: "Surgery",
+    status: "Cancelled",
+    emoji: "🐰",
+  },
+  {
+    id: 4,
+    pet: "Leo",
+    owner: "Nabila Putri",
+    doctor: "Dr. Amanda",
+    date: "14 Mei 2026",
+    time: "15:00",
+    type: "Grooming",
+    status: "Completed",
+    emoji: "🐶",
+  },
 ];
 
-const genderOptions = [
-  { value: "Jantan", emoji: "♂️" },
-  { value: "Betina", emoji: "♀️" },
-];
-
-export default function AddPet() {
+export default function Appointments() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
-    name: "", species: "", breed: "", gender: "",
-    age: "", weight: "", color: "", microchip: "",
-    ownerName: "", ownerPhone: "", ownerEmail: "", ownerAddress: "",
-    notes: "", allergies: "",
-  });
 
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const [search, setSearch] = useState("");
 
-  const steps = ["Info Pet", "Data Pemilik", "Catatan Medis"];
+  const filtered = appointmentData.filter(
+    (a) =>
+      a.pet.toLowerCase().includes(search.toLowerCase()) ||
+      a.owner.toLowerCase().includes(search.toLowerCase()) ||
+      a.doctor.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Completed":
+        return "bg-emerald-100 text-emerald-700";
+      case "Pending":
+        return "bg-amber-100 text-amber-700";
+      case "Cancelled":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
 
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => navigate("/pets")}
-          className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
-        >
-          <FaArrowLeft className="text-xs" />
-        </button>
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Tambah Pet Baru</h1>
-          <p className="text-xs text-gray-400">Lengkapi data hewan peliharaan</p>
+      <div className="max-w-7xl mx-auto">
+
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl">📅</span>
+
+              <h1 className="text-2xl font-bold text-gray-800">
+                Appointments
+              </h1>
+            </div>
+
+            <p className="text-sm text-gray-400">
+              Kelola jadwal pemeriksaan hewan
+            </p>
+          </div>
+
+          <button
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium shadow-lg shadow-emerald-200 transition"
+          >
+            <FaPlus className="text-xs" />
+            Tambah Appointment
+          </button>
+
         </div>
-      </div>
 
-      {/* Step indicator */}
-      <div className="flex items-center gap-0 mb-8 max-w-lg">
-        {steps.map((s, i) => (
-          <div key={s} className="flex items-center flex-1">
-            <div className="flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition ${step > i + 1 ? "bg-emerald-500 text-white" : step === i + 1 ? "bg-emerald-500 text-white ring-4 ring-emerald-100" : "bg-white border-2 border-gray-200 text-gray-400"}`}>
-                {step > i + 1 ? <FaCheck className="text-xs" /> : i + 1}
+        {/* STATS */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+          <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
+
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-3xl">📋</span>
+
+              <div className="w-10 h-10 rounded-2xl bg-gray-100 flex items-center justify-center">
+                <FaCalendarAlt className="text-gray-600" />
               </div>
-              <p className={`text-[10px] mt-1 font-medium whitespace-nowrap ${step === i + 1 ? "text-emerald-600" : "text-gray-400"}`}>{s}</p>
             </div>
-            {i < steps.length - 1 && (
-              <div className={`flex-1 h-0.5 mb-4 mx-2 transition ${step > i + 1 ? "bg-emerald-400" : "bg-gray-200"}`} />
-            )}
+
+            <h2 className="text-3xl font-bold text-gray-800">
+              {appointmentData.length}
+            </h2>
+
+            <p className="text-sm text-gray-400 mt-1">
+              Total Appointment
+            </p>
+
           </div>
-        ))}
-      </div>
 
-      <div className="max-w-2xl">
+          <div className="bg-white rounded-3xl border border-emerald-100 p-5 shadow-sm">
 
-        {/* ── STEP 1: Info Pet ── */}
-        {step === 1 && (
-          <div className="space-y-5">
-            {/* Species picker */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Pilih Jenis Hewan <span className="text-red-400">*</span></p>
-              <div className="grid grid-cols-4 gap-2">
-                {speciesOptions.map((s) => (
-                  <button
-                    key={s.label}
-                    onClick={() => set("species", s.label)}
-                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition ${form.species === s.label ? "border-emerald-400 bg-emerald-50" : "border-gray-100 bg-gray-50 hover:border-gray-200"}`}
-                  >
-                    <span className="text-2xl">{s.emoji}</span>
-                    <span className={`text-xs font-medium ${form.species === s.label ? "text-emerald-600" : "text-gray-500"}`}>{s.label}</span>
-                  </button>
-                ))}
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-3xl">✅</span>
+
+              <div className="w-10 h-10 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                <FaCheckCircle className="text-emerald-600" />
               </div>
             </div>
 
-            {/* Name & Breed */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-              <p className="text-sm font-semibold text-gray-700">Detail Hewan</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs text-gray-500 font-medium mb-1.5 block">Nama Pet <span className="text-red-400">*</span></label>
-                  <input value={form.name} onChange={e => set("name", e.target.value)} type="text" placeholder="cth. Mochi" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 font-medium mb-1.5 block">Ras / Breed</label>
-                  <input value={form.breed} onChange={e => set("breed", e.target.value)} type="text" placeholder="cth. Persia" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-                </div>
-              </div>
+            <h2 className="text-3xl font-bold text-emerald-600">
+              {
+                appointmentData.filter(
+                  (a) => a.status === "Completed"
+                ).length
+              }
+            </h2>
 
-              {/* Gender */}
-              <div>
-                <label className="text-xs text-gray-500 font-medium mb-1.5 block">Jenis Kelamin</label>
-                <div className="flex gap-3">
-                  {genderOptions.map((g) => (
-                    <button
-                      key={g.value}
-                      onClick={() => set("gender", g.value)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium transition ${form.gender === g.value ? "border-emerald-400 bg-emerald-50 text-emerald-700" : "border-gray-200 text-gray-500 hover:border-gray-300"}`}
-                    >
-                      {g.emoji} {g.value}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <p className="text-sm text-gray-400 mt-1">
+              Completed
+            </p>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="text-xs text-gray-500 font-medium mb-1.5 block">Umur</label>
-                  <input value={form.age} onChange={e => set("age", e.target.value)} type="text" placeholder="cth. 2 tahun" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 font-medium mb-1.5 block">Berat (kg)</label>
-                  <input value={form.weight} onChange={e => set("weight", e.target.value)} type="number" placeholder="cth. 4.2" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 font-medium mb-1.5 block">Warna Bulu</label>
-                  <input value={form.color} onChange={e => set("color", e.target.value)} type="text" placeholder="cth. Putih" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500 font-medium mb-1.5 block">Nomor Microchip (opsional)</label>
-                <input value={form.microchip} onChange={e => set("microchip", e.target.value)} type="text" placeholder="cth. 900182000012345" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-              </div>
-            </div>
           </div>
-        )}
 
-        {/* ── STEP 2: Data Pemilik ── */}
-        {step === 2 && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-            <p className="text-sm font-semibold text-gray-700">Data Pemilik Hewan</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-gray-500 font-medium mb-1.5 block">Nama Lengkap <span className="text-red-400">*</span></label>
-                <input value={form.ownerName} onChange={e => set("ownerName", e.target.value)} type="text" placeholder="cth. Budi Santoso" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 font-medium mb-1.5 block">No. Telepon <span className="text-red-400">*</span></label>
-                <input value={form.ownerPhone} onChange={e => set("ownerPhone", e.target.value)} type="tel" placeholder="cth. 0812-3456-7890" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
+          <div className="bg-white rounded-3xl border border-amber-100 p-5 shadow-sm">
+
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-3xl">⏳</span>
+
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center">
+                <FaClock className="text-amber-600" />
               </div>
             </div>
-            <div>
-              <label className="text-xs text-gray-500 font-medium mb-1.5 block">Email</label>
-              <input value={form.ownerEmail} onChange={e => set("ownerEmail", e.target.value)} type="email" placeholder="cth. budi@email.com" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 font-medium mb-1.5 block">Alamat</label>
-              <textarea value={form.ownerAddress} onChange={e => set("ownerAddress", e.target.value)} rows={3} placeholder="cth. Jl. Sudirman No. 12, Pekanbaru" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition resize-none" />
-            </div>
+
+            <h2 className="text-3xl font-bold text-amber-600">
+              {
+                appointmentData.filter(
+                  (a) => a.status === "Pending"
+                ).length
+              }
+            </h2>
+
+            <p className="text-sm text-gray-400 mt-1">
+              Pending
+            </p>
+
           </div>
-        )}
 
-        {/* ── STEP 3: Catatan Medis ── */}
-        {step === 3 && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-              <p className="text-sm font-semibold text-gray-700">Catatan Medis Awal</p>
-              <div>
-                <label className="text-xs text-gray-500 font-medium mb-1.5 block">Alergi / Kondisi Khusus</label>
-                <input value={form.allergies} onChange={e => set("allergies", e.target.value)} type="text" placeholder="cth. Alergi antibiotik penisilin" className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 font-medium mb-1.5 block">Catatan Tambahan</label>
-                <textarea value={form.notes} onChange={e => set("notes", e.target.value)} rows={4} placeholder="Tuliskan riwayat atau kondisi khusus lainnya..." className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition resize-none" />
+          <div className="bg-white rounded-3xl border border-red-100 p-5 shadow-sm">
+
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-3xl">❌</span>
+
+              <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center">
+                <FaTimesCircle className="text-red-600" />
               </div>
             </div>
 
-            {/* Summary preview */}
-            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
-              <p className="text-sm font-semibold text-emerald-700 mb-3">Ringkasan Data</p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                {[
-                  ["Nama Pet", form.name || "-"],
-                  ["Jenis", form.species || "-"],
-                  ["Ras", form.breed || "-"],
-                  ["Umur", form.age || "-"],
-                  ["Berat", form.weight ? `${form.weight} kg` : "-"],
-                  ["Pemilik", form.ownerName || "-"],
-                  ["Telepon", form.ownerPhone || "-"],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between">
-                    <span className="text-emerald-500">{k}</span>
-                    <span className="font-semibold text-emerald-800">{v}</span>
+            <h2 className="text-3xl font-bold text-red-600">
+              {
+                appointmentData.filter(
+                  (a) => a.status === "Cancelled"
+                ).length
+              }
+            </h2>
+
+            <p className="text-sm text-gray-400 mt-1">
+              Cancelled
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* SEARCH */}
+        <div className="bg-white rounded-3xl border border-gray-100 p-5 mb-6 shadow-sm">
+
+          <div className="relative max-w-md">
+
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 text-sm" />
+
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              type="text"
+              placeholder="Cari appointment..."
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
+            />
+
+          </div>
+
+        </div>
+
+        {/* APPOINTMENT LIST */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+          {filtered.map((item) => (
+
+            <div
+              key={item.id}
+              className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm hover:shadow-xl hover:border-emerald-200 transition"
+            >
+
+              {/* TOP */}
+              <div className="flex items-start justify-between mb-5">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="w-16 h-16 rounded-3xl bg-emerald-50 flex items-center justify-center text-4xl">
+                    {item.emoji}
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Navigation buttons */}
-        <div className="flex justify-between mt-6">
-          <button
-            onClick={() => step > 1 ? setStep(step - 1) : navigate("/pets")}
-            className="px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition font-medium"
-          >
-            {step === 1 ? "Batal" : "← Kembali"}
-          </button>
-          <button
-            onClick={() => step < 3 ? setStep(step + 1) : navigate("/pets")}
-            className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium shadow-md shadow-emerald-200 transition"
-          >
-            {step === 3 ? "✓ Simpan Pet" : "Lanjut →"}
-          </button>
+                  <div>
+
+                    <h3 className="font-bold text-gray-800 text-lg">
+                      {item.pet}
+                    </h3>
+
+                    <p className="text-xs text-gray-400">
+                      Owner : {item.owner}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusStyle(
+                    item.status
+                  )}`}
+                >
+                  {item.status}
+                </span>
+
+              </div>
+
+              {/* INFO */}
+              <div className="space-y-3 mb-5">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <FaCalendarAlt />
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">
+                      Tanggal
+                    </p>
+
+                    <p className="font-semibold text-gray-700">
+                      {item.date}
+                    </p>
+                  </div>
+
+                </div>
+
+                <div className="flex items-center gap-3">
+
+                  <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <FaClock />
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">
+                      Jam
+                    </p>
+
+                    <p className="font-semibold text-gray-700">
+                      {item.time}
+                    </p>
+                  </div>
+
+                </div>
+
+                <div className="flex items-center gap-3">
+
+                  <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                    <FaUserMd />
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-400">
+                      Dokter
+                    </p>
+
+                    <p className="font-semibold text-gray-700">
+                      {item.doctor}
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* FOOTER */}
+              <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
+
+                <div>
+                  <p className="text-xs text-gray-400">
+                    Treatment
+                  </p>
+
+                  <p className="font-semibold text-gray-700">
+                    {item.type}
+                  </p>
+                </div>
+
+                <button
+                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition"
+                >
+                  Detail
+                </button>
+
+              </div>
+
+            </div>
+
+          ))}
+
         </div>
+
       </div>
+
     </div>
   );
 }

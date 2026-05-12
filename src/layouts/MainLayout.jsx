@@ -4,24 +4,26 @@ import Sidebar from "../components/Sidebar";
 
 export default function MainLayout() {
   return (
-    <div className="w-screen min-h-screen flex bg-[#F3F4F6] overflow-hidden">
+    <div className="min-h-screen bg-[#F3F4F6]">
 
-      {/* Sidebar Fixed */}
-      <aside className="w-64 h-screen fixed left-0 top-0 bg-white shadow-md">
+      {/* SIDEBAR */}
+      <aside className="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 z-40">
         <Sidebar />
       </aside>
 
-      {/* Main Content */}
-      <div className="ml-64 flex-1 w-full min-h-screen">
+      {/* CONTENT */}
+      <div className="ml-64 min-h-screen flex flex-col">
 
-        {/* Header Full Width */}
-        <div className="w-full">
+        {/* HEADER */}
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-200">
           <Header />
-        </div>
+        </header>
 
-        {/* Page Content */}
-        <main className="w-full p-6">
-          <Outlet />
+        {/* PAGE */}
+        <main className="flex-1 w-full overflow-y-auto">
+          <div className="max-w-7xl mx-auto p-6">
+            <Outlet />
+          </div>
         </main>
 
       </div>
