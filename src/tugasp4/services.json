@@ -1,0 +1,233 @@
+[
+  {
+    "id": 1,
+    "name": "Web Development",
+    "category": "IT",
+    "price": 300,
+    "rating": 4.8,
+    "image": "https://b856188.smushcdn.com/856188/wp-content/uploads/2024/02/Susah-Tidak-Menjadi-Web-Developer-Berikut-ini-3-Jobdesk-Utama-Web-Developer-1200x600.png?lossy=2&strip=1&webp=1",
+    "provider": { "name": "Tech Corp", "location": "Jakarta" },
+    "details": { "duration": "3 bulan", "level": "Advanced" },
+    "contact": { "email": "web@mail.com", "phone": "081111" }
+  },
+  {
+    "id": 2,
+    "name": "Mobile App Development",
+    "category": "IT",
+    "price": 350,
+    "rating": 4.7,
+    "image": "https://media.geeksforgeeks.org/wp-content/uploads/20250607112207275971/What-is-Mobile-App-Development-Process__.webp",
+    "provider": { "name": "App Studio", "location": "Bandung" },
+    "details": { "duration": "4 bulan", "level": "Advanced" },
+    "contact": { "email": "app@mail.com", "phone": "081112" }
+  },
+  {
+    "id": 3,
+    "name": "UI/UX Design",
+    "category": "Design",
+    "price": 250,
+    "rating": 4.6,
+    "image": "https://dashboard.primakara.ac.id/uploads/Tips_Belajar_UI_UX_Design_Secara_Otodidak_Untuk_Pemula_c20d5bcaeb.jpg",
+    "provider": { "name": "Creative Studio", "location": "Jakarta" },
+    "details": { "duration": "2 bulan", "level": "Intermediate" },
+    "contact": { "email": "uiux@mail.com", "phone": "081113" }
+  },
+  {
+    "id": 4,
+    "name": "Graphic Design",
+    "category": "Design",
+    "price": 200,
+    "rating": 4.5,
+    "image": "https://learn.g2.com/hs-fs/hubfs/iStock-1191609321%20(1).jpg?width=900&name=iStock-1191609321%20(1).jpg",
+    "provider": { "name": "Design Hub", "location": "Surabaya" },
+    "details": { "duration": "1.5 bulan", "level": "Beginner" },
+    "contact": { "email": "graphic@mail.com", "phone": "081114" }
+  },
+  {
+    "id": 5,
+    "name": "Digital Marketing",
+    "category": "Marketing",
+    "price": 280,
+    "rating": 4.6,
+    "image": "https://i0.wp.com/suvarna.id/wp-content/uploads/2022/05/Digital-Marketing-1.jpg?w=2000&ssl=1",
+    "provider": { "name": "MarketPro", "location": "Bandung" },
+    "details": { "duration": "2 bulan", "level": "Intermediate" },
+    "contact": { "email": "dm@mail.com", "phone": "081115" }
+  },
+  {
+    "id": 6,
+    "name": "SEO Optimization",
+    "category": "Marketing",
+    "price": 220,
+    "rating": 4.4,
+    "image": "https://www.intellibright.com/wp-content/uploads/2025/04/Search-Engine-Optimization.jpg",
+    "provider": { "name": "SEO Agency", "location": "Jakarta" },
+    "details": { "duration": "1 bulan", "level": "Intermediate" },
+    "contact": { "email": "seo@mail.com", "phone": "081116" }
+  },
+  {
+    "id": 7,
+    "name": "Content Writing",
+    "category": "Business",
+    "price": 150,
+    "rating": 4.3,
+    "image": "https://contentwriters.com/blog/wp-content/uploads/content-writer-750x500.jpg",
+    "provider": { "name": "ContentLab", "location": "Yogyakarta" },
+    "details": { "duration": "1 bulan", "level": "Beginner" },
+    "contact": { "email": "write@mail.com", "phone": "081117" }
+  },
+  {
+    "id": 8,
+    "name": "Business Consulting",
+    "category": "Business",
+    "price": 400,
+    "rating": 4.9,
+    "image": "https://online.jwu.edu/wp-content/uploads/2025/07/what-is-a-business-consultant-2048x1367.jpg",
+    "provider": { "name": "BizConsult", "location": "Jakarta" },
+    "details": { "duration": "3 bulan", "level": "Advanced" },
+    "contact": { "email": "biz@mail.com", "phone": "081118" }
+  },
+  {
+    "id": 9,
+    "name": "Photography",
+    "category": "Design",
+    "price": 180,
+    "rating": 4.5,
+    "image": "https://rebeccaholmesphotography.com/wp-content/uploads/2021/05/Photography-Training-Rebecca-Holmes-Photography.jpg",
+    "provider": { "name": "PhotoPro", "location": "Bali" },
+    "details": { "duration": "1 bulan", "level": "Beginner" },
+    "contact": { "email": "photo@mail.com", "phone": "081119" }
+  },
+  {
+    "id": 10,
+    "name": "Video Editing",
+    "category": "Design",
+    "price": 230,
+    "rating": 4.6,
+    "image": "https://www.midiaresearch.com/storage/uploads/blog/featured/2244/cover_image-1721122691.jpg",
+    "provider": { "name": "VideoLab", "location": "Surabaya" },
+    "details": { "duration": "2 bulan", "level": "Intermediate" },
+    "contact": { "email": "video@mail.com", "phone": "081120" }
+  },
+  {
+    "id": 11,
+    "name": "Data Analysis",
+    "category": "IT",
+    "price": 320,
+    "rating": 4.7,
+    "image": "https://online.york.ac.uk/media/mageplaza/blog/post/m/a/man-in-a-suit-standing-behind-a-hologram-of-data-analytics.png",
+    "provider": { "name": "DataCorp", "location": "Jakarta" },
+    "details": { "duration": "3 bulan", "level": "Advanced" },
+    "contact": { "email": "data@mail.com", "phone": "081121" }
+  },
+  {
+    "id": 12,
+    "name": "Cyber Security",
+    "category": "IT",
+    "price": 370,
+    "rating": 4.8,
+    "image": "https://humanfocus.co.uk/wp-content/uploads/what-is-cyber-security.jpg",
+    "provider": { "name": "SecureIT", "location": "Bandung" },
+    "details": { "duration": "4 bulan", "level": "Advanced" },
+    "contact": { "email": "security@mail.com", "phone": "081122" }
+  },
+  {
+    "id": 13,
+    "name": "Social Media Management",
+    "category": "Marketing",
+    "price": 210,
+    "rating": 4.5,
+    "image": "https://careertraining.tulsacc.edu/common/images/2/23553/2305prod-GES2143-Certified-Social-Media-Manager-935x572.jpg",
+    "provider": { "name": "SocialPro", "location": "Jakarta" },
+    "details": { "duration": "2 bulan", "level": "Intermediate" },
+    "contact": { "email": "social@mail.com", "phone": "081123" }
+  },
+  {
+    "id": 14,
+    "name": "Copywriting",
+    "category": "Marketing",
+    "price": 190,
+    "rating": 4.4,
+    "image": "https://ap-southeast-2-seek-apac.graphassets.com/AEzBCRO50TYyqbV6XzRDQz/resize=width:1500,height:987/ic601sVrRV2Lyfat1ayP",
+    "provider": { "name": "CopyLab", "location": "Bandung" },
+    "details": { "duration": "1 bulan", "level": "Beginner" },
+    "contact": { "email": "copy@mail.com", "phone": "081124" }
+  },
+  {
+    "id": 15,
+    "name": "Public Speaking",
+    "category": "Business",
+    "price": 260,
+    "rating": 4.6,
+    "image": "https://portalnews.stekom.ac.id/media/2528/4-dasar-public-speaking-yang-wajib-anda-kuasai.jpg",
+    "provider": { "name": "SpeakUp", "location": "Jakarta" },
+    "details": { "duration": "1.5 bulan", "level": "Intermediate" },
+    "contact": { "email": "speak@mail.com", "phone": "081125" }
+  },
+  {
+    "id": 16,
+    "name": "Project Management",
+    "category": "Business",
+    "price": 340,
+    "rating": 4.7,
+    "image": "https://valueconsulttraining.com/wp-content/uploads/2024/10/sertifikasi-project-management.jpg.webp",
+    "provider": { "name": "PM Corp", "location": "Surabaya" },
+    "details": { "duration": "3 bulan", "level": "Advanced" },
+    "contact": { "email": "pm@mail.com", "phone": "081126" }
+  },
+  {
+    "id": 17,
+    "name": "Animation Design",
+    "category": "Design",
+    "price": 270,
+    "rating": 4.6,
+    "image": "https://www.andacademy.com/resources/wp-content/uploads/2025/01/Feature-1.webp",
+    "provider": { "name": "AnimStudio", "location": "Bali" },
+    "details": { "duration": "2 bulan", "level": "Intermediate" },
+    "contact": { "email": "anim@mail.com", "phone": "081127" }
+  },
+  {
+    "id": 18,
+    "name": "Cloud Computing",
+    "category": "IT",
+    "price": 380,
+    "rating": 4.9,
+    "image": "https://cdn.prod.website-files.com/643d2eea03135260bdaca209/6585cea39ae01230757b9f31_QuantumCloud.webp",
+    "provider": { "name": "CloudTech", "location": "Jakarta" },
+    "details": { "duration": "4 bulan", "level": "Advanced" },
+    "contact": { "email": "cloud@mail.com", "phone": "081128" }
+  },
+  {
+    "id": 19,
+    "name": "E-commerce Strategy",
+    "category": "Business",
+    "price": 290,
+    "rating": 4.5,
+    "image": "https://www.e2msolutions.com/app/uploads/2018/08/The-Step-by-Step-Guide-to-Building-an-E-Commerce-Marketing-Strategy.jpg",
+    "provider": { "name": "EcomPro", "location": "Bandung" },
+    "details": { "duration": "2 bulan", "level": "Intermediate" },
+    "contact": { "email": "ecom@mail.com", "phone": "081129" }
+  },
+  {
+    "id": 20,
+    "name": "Branding Strategy",
+    "category": "Marketing",
+    "price": 310,
+    "rating": 4.7,
+    "image": "https://buttercup.in/wp-content/uploads/2019/05/brand-strategy-icon.jpg",
+    "provider": { "name": "BrandLab", "location": "Jakarta" },
+    "details": { "duration": "2 bulan", "level": "Advanced" },
+    "contact": { "email": "brand@mail.com", "phone": "081130" }
+  },
+  {
+    "id": 20,
+    "name": "Soul Of Anarchy",
+    "category": "Marketing",
+    "price": 999,
+    "rating": 5,
+    "image": "/img/soa.png",
+    "provider": { "name": "BrandLab", "location": "Jakarta" },
+    "details": { "duration": "2 bulan", "level": "Advanced" },
+    "contact": { "email": "brand@mail.com", "phone": "08113032" }
+  }
+]

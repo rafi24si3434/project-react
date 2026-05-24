@@ -1,0 +1,63 @@
+/* Styling halaman */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ffd6e7, #e0f7ff);
+    margin: 0;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Card lucu */
+.card {
+    max-width: 420px;
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 20px;
+    border: 3px solid #ffb6d9;
+    
+    transition: all 0.3s ease;
+    
+    box-shadow: 0 10px 25px rgba(255, 182, 217, 0.4);
+}
+
+/* Efek saat kursor diarahkan */
+.card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 
+        0 15px 30px rgba(255, 182, 217, 0.6);
+    border-color: #ff8cc6;
+}
+
+/* Judul */
+h1 {
+    text-align: center;
+    color: #ff5fa2;
+    margin-bottom: 10px;
+}
+
+/* Paragraf */
+p {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Garis */
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(to right, #ffb6d9, #ffd6a5, #ffb6d9);
+    border-radius: 10px;
+}
+
+/* Greeting */
+small {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #ff7ab8;
+    font-style: italic;
+}
