@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import Modal from "../components/Modal";
 import ToastNotification from "../components/ToastNotification";
@@ -10,6 +11,7 @@ const initialVax = [
 ];
 
 export default function Vaccinations() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -44,7 +46,7 @@ export default function Vaccinations() {
           </thead>
           <tbody>
             {filteredVax.map((v) => (
-              <tr key={v.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+              <tr key={v.id} onClick={() => navigate(`/vaccinations/${v.id}`)} className="border-b border-gray-50 hover:bg-gray-50/50 cursor-pointer">
                 <td className="py-4 font-semibold text-gray-800">{v.pet}</td>
                 <td className="py-4 text-gray-600 font-medium">{v.type}</td>
                 <td className="py-4 text-gray-500">{v.date}</td>

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import Modal from "../components/Modal";
 import ToastNotification from "../components/ToastNotification";
@@ -11,6 +12,7 @@ const initialItems = [
 ];
 
 export default function Inventory() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -45,7 +47,7 @@ export default function Inventory() {
           </thead>
           <tbody>
             {filteredItems.map((i) => (
-              <tr key={i.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+              <tr key={i.id} onClick={() => navigate(`/inventory/${i.id}`)} className="border-b border-gray-50 hover:bg-gray-50/50 cursor-pointer">
                 <td className="py-4 text-gray-500 text-xs">{i.id}</td>
                 <td className="py-4 font-bold text-gray-800">{i.name}</td>
                 <td className="py-4 text-gray-600">{i.category}</td>

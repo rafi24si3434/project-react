@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import StatusBadge from "../components/StatusBadge";
 import Modal from "../components/Modal";
@@ -11,6 +12,7 @@ const initialRecords = [
 ];
 
 export default function MedicalRecords() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -62,7 +64,7 @@ export default function MedicalRecords() {
             </thead>
             <tbody>
               {filteredRecords.map((r, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <tr key={i} onClick={() => navigate(`/medical-records/${r.id}`)} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer">
                   <td className="py-4 font-semibold text-emerald-600">{r.id}</td>
                   <td className="py-4 text-gray-600">{r.date}</td>
                   <td className="py-4">

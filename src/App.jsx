@@ -24,8 +24,11 @@ const PetOwners = lazy(() => import("./pages/PetOwners"));
 const PetOwnersDetail = lazy(() => import("./pages/PetOwnersDetail"));
 
 const MedicalRecords = lazy(() => import("./pages/MedicalRecords"));
+const MedicalRecordsDetail = lazy(() => import("./pages/MedicalRecordsDetail"));
 const Vaccinations = lazy(() => import("./pages/Vaccinations"));
+const VaccinationsDetail = lazy(() => import("./pages/VaccinationsDetail"));
 const Inventory = lazy(() => import("./pages/Inventory"));
+const InventoryDetail = lazy(() => import("./pages/InventoryDetail"));
 
 function App() {
   return (
@@ -59,8 +62,11 @@ function App() {
 
           {/* Klinik & Inventori */}
           <Route path="/medical-records" element={<MedicalRecords />} />
+          <Route path="/medical-records/:id" element={<MedicalRecordsDetail />} />
           <Route path="/vaccinations" element={<Vaccinations />} />
+          <Route path="/vaccinations/:id" element={<VaccinationsDetail />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path="/inventory/:id" element={<InventoryDetail />} />
 
           {/* Error Pages */}
           <Route path="/400" element={<ErrorPage code="400" />} />
