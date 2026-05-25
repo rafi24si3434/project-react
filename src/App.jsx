@@ -29,6 +29,7 @@ const Vaccinations = lazy(() => import("./pages/Vaccinations"));
 const VaccinationsDetail = lazy(() => import("./pages/VaccinationsDetail"));
 const Inventory = lazy(() => import("./pages/Inventory"));
 const InventoryDetail = lazy(() => import("./pages/InventoryDetail"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 function App() {
   return (
@@ -67,6 +68,7 @@ function App() {
           <Route path="/vaccinations/:id" element={<VaccinationsDetail />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/inventory/:id" element={<InventoryDetail />} />
+          <Route path="/settings" element={<Settings />} />
 
           {/* Error Pages */}
           <Route path="/400" element={<ErrorPage code="400" />} />

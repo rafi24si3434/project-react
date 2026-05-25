@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaThLarge,
   FaPaw,
@@ -43,6 +43,8 @@ const todayAppointments = [
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+
   const menuClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 cursor-pointer
      ${
@@ -165,7 +167,10 @@ export default function Sidebar() {
           <FaCog className="text-base text-gray-400" />
           Pengaturan
         </NavLink>
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-50 hover:text-red-500 transition cursor-pointer">
+        <button 
+          onClick={() => navigate("/login")}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:bg-red-50 hover:text-red-500 transition cursor-pointer"
+        >
           <FaSignOutAlt className="text-base" />
           Keluar
         </button>
