@@ -90,7 +90,7 @@ export default function AddPet() {
 
             {/* Name & Breed */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
-              <p className="text-sm font-semibold text-gray-700">Detail Hewan</p>
+              <p className="text-sm font-semibold text-gray-700">Detail Hewann</p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-gray-500 font-medium mb-1.5 block">Nama Pet <span className="text-red-400">*</span></label>
