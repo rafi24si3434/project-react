@@ -10,6 +10,14 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const appointmentData = [
   {
@@ -231,132 +239,39 @@ export default function Appointments() {
         </div>
 
         {/* APPOINTMENT LIST */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-          {filtered.map((item) => (
-
-            <div
-              key={item.id}
-              className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm hover:shadow-xl hover:border-emerald-200 transition"
-            >
-
-              {/* TOP */}
-              <div className="flex items-start justify-between mb-5">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="w-16 h-16 rounded-3xl bg-emerald-50 flex items-center justify-center text-4xl">
-                    {item.emoji}
-                  </div>
-
-                  <div>
-
-                    <h3 className="font-bold text-gray-800 text-lg">
-                      {item.pet}
-                    </h3>
-
-                    <p className="text-xs text-gray-400">
-                      Owner : {item.owner}
-                    </p>
-
-                  </div>
-
-                </div>
-
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusStyle(
-                    item.status
-                  )}`}
-                >
-                  {item.status}
-                </span>
-
-              </div>
-
-              {/* INFO */}
-              <div className="space-y-3 mb-5">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <FaCalendarAlt />
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-400">
-                      Tanggal
-                    </p>
-
-                    <p className="font-semibold text-gray-700">
-                      {item.date}
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className="flex items-center gap-3">
-
-                  <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <FaClock />
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-400">
-                      Jam
-                    </p>
-
-                    <p className="font-semibold text-gray-700">
-                      {item.time}
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className="flex items-center gap-3">
-
-                  <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                    <FaUserMd />
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-gray-400">
-                      Dokter
-                    </p>
-
-                    <p className="font-semibold text-gray-700">
-                      {item.doctor}
-                    </p>
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* FOOTER */}
-              <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
-
-                <div>
-                  <p className="text-xs text-gray-400">
-                    Treatment
-                  </p>
-
-                  <p className="font-semibold text-gray-700">
-                    {item.type}
-                  </p>
-                </div>
-
-                <button
-                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition"
-                >
-                  Detail
-                </button>
-
-              </div>
-
-            </div>
-
-          ))}
-
+        <div className="bg-white rounded-3xl border border-gray-100 p-1 shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Pasien</TableHead>
+                <TableHead>Pemilik</TableHead>
+                <TableHead>Dokter</TableHead>
+                <TableHead>Jadwal</TableHead>
+                <TableHead>Treatment</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{item.emoji}</span> {item.pet}
+                    </div>
+                  </TableCell>
+                  <TableCell>{item.owner}</TableCell>
+                  <TableCell>{item.doctor}</TableCell>
+                  <TableCell>{item.date} · {item.time}</TableCell>
+                  <TableCell>{item.type}</TableCell>
+                  <TableCell>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusStyle(item.status)}`}>
+                      {item.status}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
 
       </div>

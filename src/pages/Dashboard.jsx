@@ -8,6 +8,7 @@ import StatusBadge from "../components/StatusBadge";
 import SearchBar from "../components/SearchBar";
 import Modal from "../components/Modal";
 import ToastNotification from "../components/ToastNotification";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // ─── Data ───────────────────────────────────────────────────────────────────
 
@@ -107,12 +108,28 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-4 gap-5 mb-8">
-        <StatCard emoji="🩺" value="24" label="Kunjungan Hari Ini" badge="+3 dari kemarin" badgeBg="#d1fae5" badgeText="#065f46" accentColor="#10b981" />
-        <StatCard emoji="📋" value="8" label="Antrian Sekarang" badge="4 sedang diproses" badgeBg="#dbeafe" badgeText="#1e40af" accentColor="#3b82f6" />
-        <StatCard emoji="🐾" value="312" label="Total Pasien Aktif" badge="+12 bulan ini" badgeBg="#fce7f3" badgeText="#9d174d" accentColor="#ec4899" />
-        <StatCard emoji="💰" value="Rp 4,2 Jt" label="Pendapatan Hari Ini" badge="Target 85%" badgeBg="#fef3c7" badgeText="#92400e" accentColor="#f59e0b" />
+      {/* Stat Cards Modern */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+          <p className="text-gray-500 text-sm font-medium">Kunjungan Hari Ini</p>
+          <h1 className="text-4xl font-bold mt-2 text-gray-800">24</h1>
+          <span className="text-emerald-500 text-sm font-medium mt-2 inline-block">+3 dari kemarin</span>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+          <p className="text-gray-500 text-sm font-medium">Antrian Sekarang</p>
+          <h1 className="text-4xl font-bold mt-2 text-gray-800">8</h1>
+          <span className="text-blue-500 text-sm font-medium mt-2 inline-block">4 sedang diproses</span>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+          <p className="text-gray-500 text-sm font-medium">Pasien Aktif</p>
+          <h1 className="text-4xl font-bold mt-2 text-gray-800">312</h1>
+          <span className="text-pink-500 text-sm font-medium mt-2 inline-block">+12 bulan ini</span>
+        </div>
+        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+          <p className="text-gray-500 text-sm font-medium">Pendapatan Hari Ini</p>
+          <h1 className="text-4xl font-bold mt-2 text-gray-800">Rp 4.2 Jt</h1>
+          <span className="text-amber-500 text-sm font-medium mt-2 inline-block">Target 85%</span>
+        </div>
       </div>
 
       {/* Middle Section */}
@@ -177,25 +194,16 @@ export default function Dashboard() {
                 onChange={(e) => setSearchQuery(e.target.value)} 
                 placeholder="Cari pasien / pemilik..."
               />
-              <div className="flex bg-gray-100 p-1 rounded-xl">
-                {["hari-ini", "minggu-ini"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`text-xs font-medium px-4 py-1.5 rounded-lg transition-all ${
-                      activeTab === tab
-                        ? "bg-white text-emerald-600 shadow-sm"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    {tab === "hari-ini" ? "Hari Ini" : "Minggu Ini"}
-                  </button>
-                ))}
-              </div>
+              <Tabs defaultValue="hari-ini" className="w-[200px]">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="hari-ini">Hari Ini</TabsTrigger>
+                  <TabsTrigger value="minggu-ini">Minggu Ini</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
           </div>
           
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto mt-2">
             <table className="w-full text-sm">
               <thead>
                 <tr>

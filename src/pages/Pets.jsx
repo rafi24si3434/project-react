@@ -7,6 +7,13 @@ import {
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import petsData from "../data/Pets";
 
@@ -235,13 +242,23 @@ export default function Pets() {
 
               {/* ACTION */}
               <div className="border-t border-gray-100 pt-3 flex justify-end gap-2">
-
-                <button
-                  onClick={() => navigate(`/pets/${pet.id}`)}
-                  className="w-8 h-8 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-100 transition"
-                >
-                  <FaEye className="text-xs" />
-                </button>
+                
+                <Dialog>
+                  <DialogTrigger className="bg-emerald-500 text-white px-4 py-1.5 text-xs font-medium rounded-xl hover:bg-emerald-600 transition">
+                    Detail Pet
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Detail Hewan</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 mt-4">
+                      <p><strong>Nama :</strong> {pet.name}</p>
+                      <p><strong>Jenis :</strong> {pet.type}</p>
+                      <p><strong>Umur :</strong> {pet.age} Tahun</p>
+                      <p><strong>Pemilik :</strong> {pet.owner}</p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 <button className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center hover:bg-emerald-100 transition">
                   <FaEdit className="text-xs" />
@@ -342,14 +359,24 @@ export default function Pets() {
 
                   <td className="px-4 py-4">
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
 
-                      <button
-                        onClick={() => navigate(`/pets/${pet.id}`)}
-                        className="w-8 h-8 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-100 transition"
-                      >
-                        <FaEye className="text-xs" />
-                      </button>
+                      <Dialog>
+                        <DialogTrigger className="bg-emerald-500 text-white px-3 py-1.5 text-xs font-medium rounded-xl hover:bg-emerald-600 transition">
+                          Detail Pet
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Detail Hewan</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-3 mt-4">
+                            <p><strong>Nama :</strong> {pet.name}</p>
+                            <p><strong>Jenis :</strong> {pet.type}</p>
+                            <p><strong>Umur :</strong> {pet.age} Tahun</p>
+                            <p><strong>Pemilik :</strong> {pet.owner}</p>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
 
                       <button className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center hover:bg-emerald-100 transition">
                         <FaEdit className="text-xs" />
