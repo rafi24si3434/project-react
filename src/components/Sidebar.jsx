@@ -1,100 +1,130 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import {
-  FaThLarge,
-  FaPaw,
-  FaCalendarCheck,
-  FaUserFriends,
-  FaFileMedical,
-  FaSyringe,
-  FaBoxOpen,
-  FaCog,
-  FaSignOutAlt,
-} from "react-icons/fa";
+import { 
+  LayoutDashboard, 
+  PawPrint, 
+  CalendarCheck, 
+  Users, 
+  ClipboardList, 
+  Syringe, 
+  Package, 
+  Settings, 
+  LogOut 
+} from "lucide-react";
 
 const menuItems = [
   {
     group: "Utama",
     items: [
-      { to: "/", label: "Dashboard", icon: FaThLarge, end: true },
+      { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
     ],
   },
   {
     group: "Manajemen",
     items: [
-      { to: "/pets", label: "Pets", icon: FaPaw },
-      { to: "/appointments", label: "Appointments", icon: FaCalendarCheck },
-      { to: "/pet-owners", label: "Pet Owners", icon: FaUserFriends },
+      { to: "/pets", label: "Pets", icon: PawPrint },
+      { to: "/appointments", label: "Appointments", icon: CalendarCheck },
+      { to: "/pet-owners", label: "Pet Owners", icon: Users },
     ],
   },
   {
     group: "Klinik",
     items: [
-      { to: "/medical-records", label: "Rekam Medis", icon: FaFileMedical },
-      { to: "/vaccinations", label: "Vaksinasi", icon: FaSyringe },
-      { to: "/inventory", label: "Inventori", icon: FaBoxOpen },
+      { to: "/medical-records", label: "Rekam Medis", icon: ClipboardList },
+      { to: "/vaccinations", label: "Vaksinasi", icon: Syringe },
+      { to: "/inventory", label: "Inventori", icon: Package },
     ],
   },
-];
-
-const todayAppointments = [
-  { emoji: "🐱", name: "Mochi", time: "09:30", status: "Sekarang" },
-  { emoji: "🐶", name: "Rex", time: "10:45", status: "Berikutnya" },
-  { emoji: "🐰", name: "Lola", time: "13:00", status: "Menunggu" },
 ];
 
 export default function Sidebar() {
   const navigate = useNavigate();
 
-  const menuClass = ({ isActive }) =>
-    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 cursor-pointer
-     ${
-       isActive
-         ? "bg-emerald-500 text-white font-medium shadow-md shadow-emerald-200"
-         : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-     }`;
-
-  const iconClass = (isActive) =>
-    `text-base flex-shrink-0 ${isActive ? "text-white" : "text-gray-400"}`;
-
   return (
-    <div className="h-screen bg-white border-r shadow-sm p-4 flex flex-col">
-      <h1 className="text-2xl font-bold text-emerald-500 mb-8 px-2">
-        PetCare CRM
-      </h1>
-
-      <nav className="space-y-3 flex-1 overflow-y-auto">
-        <NavLink to="/" end className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/pets" className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Pets
-        </NavLink>
-        <NavLink to="/appointments" className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Appointments
-        </NavLink>
-        <NavLink to="/pet-owners" className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Pet Owners
-        </NavLink>
-        <div className="pt-4 pb-2">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-4">Klinik</p>
+    <div className="h-screen bg-white border-r shadow-sm p-4 flex flex-col justify-between">
+      <div>
+        {/* Brand Header */}
+        <div className="flex items-center gap-3 mb-8 px-2 py-1">
+          <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-emerald-200">
+            <PawPrint className="w-5 h-5" />
+          </div>
+          <h1 className="text-xl font-bold text-gray-800 tracking-tight">
+            PetCare <span className="text-emerald-500">CRM</span>
+          </h1>
         </div>
-        <NavLink to="/medical-records" className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Rekam Medis
-        </NavLink>
-        <NavLink to="/vaccinations" className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Vaksinasi
-        </NavLink>
-        <NavLink to="/inventory" className={({ isActive }) => `block w-full text-left rounded-xl py-3 px-4 font-medium transition ${isActive ? 'bg-emerald-500 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
-          Inventori
-        </NavLink>
-      </nav>
 
-      <div className="pt-4 border-t border-gray-100 space-y-2">
-        <NavLink to="/settings" className="block w-full text-left rounded-xl py-3 px-4 font-medium transition text-gray-600 hover:bg-gray-100">
-          Pengaturan
+        {/* Navigation Menu */}
+        <nav className="space-y-6 overflow-y-auto max-h-[calc(100vh-220px)] pr-1">
+          {menuItems.map((group, groupIdx) => (
+            <div key={groupIdx} className="space-y-1.5">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">
+                {group.group}
+              </p>
+              <div className="space-y-1">
+                {group.items.map((item, itemIdx) => {
+                  const Icon = item.icon;
+                  return (
+                    <NavLink
+                      key={itemIdx}
+                      to={item.to}
+                      end={item.end}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
+                         ${
+                           isActive
+                             ? "bg-emerald-500 text-white shadow-md shadow-emerald-150"
+                             : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                         }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <Icon
+                            className={`w-5 h-5 transition-transform duration-200 group-hover:scale-105 ${
+                              isActive ? "text-white" : "text-gray-400 group-hover:text-emerald-500"
+                            }`}
+                          />
+                          <span>{item.label}</span>
+                        </>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </div>
+
+      {/* Sidebar Footer */}
+      <div className="pt-4 border-t border-gray-150 space-y-1">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
+             ${
+               isActive
+                 ? "bg-emerald-500 text-white shadow-md"
+                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+             }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <Settings
+                className={`w-5 h-5 transition-transform duration-200 group-hover:rotate-45 ${
+                  isActive ? "text-white" : "text-gray-400 group-hover:text-emerald-500"
+                }`}
+              />
+              <span>Pengaturan</span>
+            </>
+          )}
         </NavLink>
-        <button onClick={() => navigate("/login")} className="block w-full text-left rounded-xl py-3 px-4 font-medium transition text-red-500 hover:bg-red-50">
-          Keluar
+        <button
+          onClick={() => navigate("/login")}
+          className="flex w-full items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer group"
+        >
+          <LogOut className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5 text-red-400 group-hover:text-red-600" />
+          <span>Keluar</span>
         </button>
       </div>
     </div>
