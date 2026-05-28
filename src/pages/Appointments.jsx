@@ -10,7 +10,8 @@ import {
   User,
   Stethoscope,
   Activity,
-  PawPrint
+  PawPrint,
+  CalendarCheck
 } from "lucide-react";
 import {
   Table,
