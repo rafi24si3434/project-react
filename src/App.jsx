@@ -23,6 +23,7 @@ const Appointments = lazy(() => import("./pages/Appointments"));
 const PetOwners = lazy(() => import("./pages/PetOwners"));
 const PetOwnersDetail = lazy(() => import("./pages/PetOwnersDetail"));
 const CustomerCrm = lazy(() => import("./pages/CustomerCrm"));
+const CustomerCrmDetail = lazy(() => import("./pages/CustomerCrmDetail"));
 
 const MedicalRecords = lazy(() => import("./pages/MedicalRecords"));
 const MedicalRecordsDetail = lazy(() => import("./pages/MedicalRecordsDetail"));
@@ -62,6 +63,7 @@ function App() {
           <Route path="/pet-owners" element={<PetOwners />} />
           <Route path="/pet-owners/:id" element={<PetOwnersDetail />} />
           <Route path="/customers" element={<CustomerCrm />} />
+          <Route path="/customers/:id" element={<CustomerCrmDetail />} />
 
           {/* Klinik & Inventori */}
           <Route path="/medical-records" element={<MedicalRecords />} />

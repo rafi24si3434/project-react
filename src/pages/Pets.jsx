@@ -3,17 +3,9 @@ import { useNavigate } from "react-router-dom";
 import {
   FaSearch,
   FaPlus,
-  FaEye,
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 import petsData from "../data/Pets";
 
@@ -177,6 +169,7 @@ export default function Pets() {
 
             <div
               key={pet.id}
+              onClick={() => navigate(`/pets/${pet.id}`)}
               className="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-lg hover:border-emerald-200 transition cursor-pointer"
             >
 
@@ -195,7 +188,6 @@ export default function Pets() {
 
               {/* PET NAME */}
               <h2
-                onClick={() => navigate(`/pets/${pet.id}`)}
                 className="font-bold text-gray-800 text-lg hover:text-emerald-600 transition cursor-pointer"
               >
                 {pet.name}
@@ -242,29 +234,27 @@ export default function Pets() {
 
               {/* ACTION */}
               <div className="border-t border-gray-100 pt-3 flex justify-end gap-2">
-                
-                <Dialog>
-                  <DialogTrigger className="bg-emerald-500 text-white px-4 py-1.5 text-xs font-medium rounded-xl hover:bg-emerald-600 transition">
-                    Detail Pet
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Detail Hewan</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-3 mt-4">
-                      <p><strong>Nama :</strong> {pet.name}</p>
-                      <p><strong>Jenis :</strong> {pet.type}</p>
-                      <p><strong>Umur :</strong> {pet.age} Tahun</p>
-                      <p><strong>Pemilik :</strong> {pet.owner}</p>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/pets/${pet.id}`);
+                  }}
+                  className="bg-emerald-500 text-white px-4 py-1.5 text-xs font-medium rounded-xl hover:bg-emerald-600 transition"
+                >
+                  Detail Pet
+                </button>
 
-                <button className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center hover:bg-emerald-100 transition">
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center hover:bg-emerald-100 transition"
+                >
                   <FaEdit className="text-xs" />
                 </button>
 
-                <button className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition">
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
+                >
                   <FaTrash className="text-xs" />
                 </button>
 
@@ -313,13 +303,11 @@ export default function Pets() {
 
                 <tr
                   key={pet.id}
+                  onClick={() => navigate(`/pets/${pet.id}`)}
                   className="border-b border-gray-50 hover:bg-gray-50 transition"
                 >
 
-                  <td
-                    onClick={() => navigate(`/pets/${pet.id}`)}
-                    className="px-4 py-4 cursor-pointer"
-                  >
+                  <td className="px-4 py-4 cursor-pointer">
 
                     <div className="flex items-center gap-3">
 
@@ -361,28 +349,27 @@ export default function Pets() {
 
                     <div className="flex gap-2 items-center">
 
-                      <Dialog>
-                        <DialogTrigger className="bg-emerald-500 text-white px-3 py-1.5 text-xs font-medium rounded-xl hover:bg-emerald-600 transition">
-                          Detail Pet
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Detail Hewan</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-3 mt-4">
-                            <p><strong>Nama :</strong> {pet.name}</p>
-                            <p><strong>Jenis :</strong> {pet.type}</p>
-                            <p><strong>Umur :</strong> {pet.age} Tahun</p>
-                            <p><strong>Pemilik :</strong> {pet.owner}</p>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/pets/${pet.id}`);
+                        }}
+                        className="bg-emerald-500 text-white px-3 py-1.5 text-xs font-medium rounded-xl hover:bg-emerald-600 transition"
+                      >
+                        Detail Pet
+                      </button>
 
-                      <button className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center hover:bg-emerald-100 transition">
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center hover:bg-emerald-100 transition"
+                      >
                         <FaEdit className="text-xs" />
                       </button>
 
-                      <button className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition">
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
+                      >
                         <FaTrash className="text-xs" />
                       </button>
 
