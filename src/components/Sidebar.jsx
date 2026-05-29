@@ -8,7 +8,8 @@ import {
   Syringe, 
   Package, 
   Settings, 
-  LogOut 
+  LogOut,
+  Contact
 } from "lucide-react";
 
 const menuItems = [
@@ -21,6 +22,7 @@ const menuItems = [
   {
     group: "Manajemen",
     items: [
+      { to: "/customers", label: "Customer CRM", icon: Contact },
       { to: "/pets", label: "Pets", icon: PawPrint },
       { to: "/appointments", label: "Appointments", icon: CalendarCheck },
       { to: "/pet-owners", label: "Pet Owners", icon: Users },
