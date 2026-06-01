@@ -24,6 +24,9 @@ const PetOwners = lazy(() => import("./pages/PetOwners"));
 const PetOwnersDetail = lazy(() => import("./pages/PetOwnersDetail"));
 const CustomerCrm = lazy(() => import("./pages/CustomerCrm"));
 const CustomerCrmDetail = lazy(() => import("./pages/CustomerCrmDetail"));
+const Campaigns = lazy(() => import("./pages/Campaigns"));
+const Feedback = lazy(() => import("./pages/Feedback"));
+const Vets = lazy(() => import("./pages/Vets"));
 
 const MedicalRecords = lazy(() => import("./pages/MedicalRecords"));
 const MedicalRecordsDetail = lazy(() => import("./pages/MedicalRecordsDetail"));
@@ -64,6 +67,9 @@ function App() {
           <Route path="/pet-owners/:id" element={<PetOwnersDetail />} />
           <Route path="/customers" element={<CustomerCrm />} />
           <Route path="/customers/:id" element={<CustomerCrmDetail />} />
+          <Route path="/campaigns" element={<Campaigns />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/vets" element={<Vets />} />
 
           {/* Klinik & Inventori */}
           <Route path="/medical-records" element={<MedicalRecords />} />

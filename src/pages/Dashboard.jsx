@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend
+  AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend
 } from "recharts";
 import { 
   TrendingUp, Users, Calendar, Activity, 
   Sparkles, Clock, AlertCircle, Heart, ArrowRight,
   PlusCircle, Stethoscope, BriefcaseMedical, ChevronRight,
-  Flame, BellDot, HeartPulse
+  Flame, BellDot, HeartPulse, ShieldAlert, DollarSign, Send,
+  ArrowUpRight, AlertTriangle, CheckCircle, HelpCircle
 } from "lucide-react";
 
 import StatCard from "../components/StatCard";
@@ -16,41 +17,40 @@ import Modal from "../components/Modal";
 import ToastNotification from "../components/ToastNotification";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// ─── Data ───────────────────────────────────────────────────────────────────
+// ─── DATA ───────────────────────────────────────────────────────────────────
 
 const chartData = [
-  { name: "Jan", Kucing: 42, Anjing: 35, Burung: 12, Lainnya: 8 },
-  { name: "Feb", Kucing: 38, Anjing: 30, Burung: 10, Lainnya: 9 },
-  { name: "Mar", Kucing: 55, Anjing: 40, Burung: 15, Lainnya: 12 },
-  { name: "Apr", Kucing: 48, Anjing: 45, Burung: 12, Lainnya: 10 },
-  { name: "Mei", Kucing: 60, Anjing: 38, Burung: 18, Lainnya: 15 },
-  { name: "Jun", Kucing: 52, Anjing: 50, Burung: 14, Lainnya: 11 },
+  { name: "Jan", Kucing: 42, Anjing: 35, Burung: 12, Lainnya: 8, Total: 97 },
+  { name: "Feb", Kucing: 38, Anjing: 30, Burung: 10, Lainnya: 9, Total: 87 },
+  { name: "Mar", Kucing: 55, Anjing: 40, Burung: 15, Lainnya: 12, Total: 122 },
+  { name: "Apr", Kucing: 48, Anjing: 45, Burung: 12, Lainnya: 10, Total: 115 },
+  { name: "Mei", Kucing: 60, Anjing: 38, Burung: 18, Lainnya: 15, Total: 131 },
+  { name: "Jun", Kucing: 52, Anjing: 50, Burung: 14, Lainnya: 11, Total: 127 },
 ];
 
 const petTypes = [
-  { emoji: "🐱", name: "Kucing", count: 124, max: 124, color: "#10b981" },
-  { emoji: "🐶", name: "Anjing", count: 98, max: 124, color: "#3b82f6" },
-  { emoji: "🐰", name: "Kelinci", count: 34, max: 124, color: "#8b5cf6" },
-  { emoji: "🦜", name: "Burung", count: 28, max: 124, color: "#f59e0b" },
-  { emoji: "🐹", name: "Hamster", count: 18, max: 124, color: "#ec4899" },
-  { emoji: "🐢", name: "Reptil", count: 10, max: 124, color: "#059669" },
+  { emoji: "🐱", name: "Kucing", count: 124, max: 150, color: "bg-emerald-500", text: "text-emerald-600" },
+  { emoji: "🐶", name: "Anjing", count: 98, max: 150, color: "bg-blue-500", text: "text-blue-600" },
+  { emoji: "🐰", name: "Kelinci", count: 34, max: 150, color: "bg-violet-500", text: "text-violet-600" },
+  { emoji: "🦜", name: "Burung", count: 28, max: 150, color: "bg-amber-500", text: "text-amber-600" },
+  { emoji: "🐹", name: "Hamster", count: 18, max: 150, color: "bg-pink-500", text: "text-pink-600" },
+  { emoji: "🐢", name: "Reptil", count: 10, max: 150, color: "bg-teal-500", text: "text-teal-600" },
 ];
 
 const initialVisits = [
-  { id: 1, emoji: "🐱", name: "Mochi", breed: "Kucing Persia", owner: "Budi S.", complaint: "Vaksin rutin", status: "Selesai" },
-  { id: 2, emoji: "🐶", name: "Rex", breed: "Golden Retriever", owner: "Rina A.", complaint: "Demam tinggi & dehidrasi", status: "Proses" },
-  { id: 3, emoji: "🦜", name: "Polly", breed: "Kakak Tua", owner: "Hendra K.", complaint: "Bulu rontok", status: "Antri" },
-  { id: 4, emoji: "🐰", name: "Lola", breed: "Holland Lop", owner: "Siti M.", complaint: "Nafsu makan turun drastis", status: "Antri" },
-  { id: 5, emoji: "🐱", name: "Luna", breed: "Scottish Fold", owner: "Dinda P.", complaint: "Sterilisasi", status: "Selesai" },
+  { id: 1, emoji: "🐱", name: "Mochi", breed: "Kucing Persia", owner: "Budi S.", complaint: "Vaksin rutin booster", status: "Selesai", doctor: "drh. Nisa Putri" },
+  { id: 2, emoji: "🐶", name: "Rex", breed: "Golden Retriever", owner: "Rina A.", complaint: "Demam tinggi & dehidrasi", status: "Proses", doctor: "drh. Aditya Ramadhan" },
+  { id: 3, emoji: "🦜", name: "Polly", breed: "Kakak Tua", owner: "Hendra K.", complaint: "Bulu rontok parah", status: "Antri", doctor: "drh. Citra Maharani" },
+  { id: 4, emoji: "🐰", name: "Lola", breed: "Holland Lop", owner: "Siti M.", complaint: "Nafsu makan turun drastis", status: "Antri", doctor: "drh. Farhan Akbar" },
+  { id: 5, emoji: "🐱", name: "Luna", breed: "Scottish Fold", owner: "Dinda P.", complaint: "Sterilisasi steril", status: "Selesai", doctor: "drh. Vania Lestari" },
 ];
 
 const scheduleItems = [
-  { time: "08:00", name: "Mochi", detail: "Vaksinasi & pemeriksaan rutin · Budi S.", color: "#10b981" },
-  { time: "09:30", name: "Rex — Golden Retriever", detail: "Pengobatan demam & infus · Rina A.", color: "#3b82f6" },
-  { time: "10:45", name: "Polly — Kakak Tua", detail: "Dermatologi bulu · Hendra K.", color: "#f59e0b" },
-  { time: "13:00", name: "Lola — Kelinci Holland", detail: "Konsultasi nutrisi · Siti M.", color: "#ec4899" },
-  { time: "14:30", name: "Bruno — Bulldog Prancis", detail: "Post-op checkup · Agus T.", color: "#8b5cf6" },
-  { time: "16:00", name: "Kiki — Hamster Syrien", detail: "Grooming & cek gigi · Dewi L.", color: "#10b981" },
+  { time: "08:00 - Poli Umum", name: "Mochi (Kucing)", detail: "Vaksinasi · Budi S. · drh. Nisa", color: "#10b981", active: true },
+  { time: "09:30 - Poli Bedah", name: "Rex (Golden Retriever)", detail: "Infus Demam · Rina A. · drh. Aditya", color: "#3b82f6", active: true },
+  { time: "10:45 - Poli Eksotis", name: "Polly (Kakak Tua)", detail: "Dermatologi · Hendra K. · drh. Citra", color: "#f59e0b", active: false },
+  { time: "13:00 - Poli Gigi", name: "Lola (Kelinci)", detail: "Cek Nutrisi · Siti M. · drh. Farhan", color: "#ec4899", active: false },
+  { time: "14:30 - Poli Kulit & Bulu", name: "Bruno (Bulldog)", detail: "Post-Op Check · Agus T. · drh. Vania", color: "#8b5cf6", active: false },
 ];
 
 const clinicalInsights = [
@@ -59,26 +59,25 @@ const clinicalInsights = [
     title: "Antisipasi Cuaca Pancaroba",
     content: "Kasus flu kucing diprediksi naik 25% minggu ini. Sarankan vaksinasi booster Tricat/Tetracat pada pasien kucing yang belum berimunisasi tahun ini.",
     badge: "Kesehatan",
-    color: "emerald"
+    color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
   },
   {
     id: 2,
     title: "Feline-Friendly Environment",
     content: "Hari ini terdaftar 124 kucing. Direkomendasikan menyemprotkan Feliway pheromone diffuser di Ruang Vet A agar pasien kucing merasa lebih rileks.",
     badge: "Kenyamanan",
-    color: "teal"
+    color: "text-teal-400 bg-teal-500/10 border-teal-500/20"
   },
   {
     id: 3,
     title: "Optimasi Jam Sibuk Klinik",
     content: "Puncak antrean hari ini diproyeksikan pukul 13:00 - 14:30. Pastikan kelengkapan alat infus steril di Ruang Vet B siap sebelum istirahat siang.",
     badge: "Operasional",
-    color: "amber"
+    color: "text-amber-400 bg-amber-500/10 border-amber-500/20"
   }
 ];
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("hari-ini");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   
@@ -101,7 +100,8 @@ export default function Dashboard() {
   const filteredVisits = useMemo(() => {
     return initialVisits.filter(v => 
       v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      v.owner.toLowerCase().includes(searchQuery.toLowerCase())
+      v.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.doctor.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery]);
 
@@ -125,35 +125,36 @@ export default function Dashboard() {
     if (hour >= 5 && hour < 11) {
       return {
         greeting: "Selamat Pagi",
-        tip: "Mari awali hari dengan senyuman hangat & semangat perawatan terbaik!",
-        gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+        tip: "Awali hari dengan senyuman hangat & berikan pelayanan terbaik untuk anabul pasien!",
+        gradient: "from-emerald-600 via-teal-600 to-cyan-600",
         icon: "☀️"
       };
     } else if (hour >= 11 && hour < 15) {
       return {
         greeting: "Selamat Siang",
-        tip: "Jangan lupa istirahat makan siang & tetap terhidrasi ya, dr. Sari!",
-        gradient: "from-amber-500 via-emerald-500 to-teal-600",
+        tip: "Jam makan siang & hidrasi penting, dr. Sari! Tetap bersemangat!",
+        gradient: "from-amber-600 via-emerald-600 to-teal-700",
         icon: "☀️"
       };
     } else if (hour >= 15 && hour < 18) {
       return {
         greeting: "Selamat Sore",
-        tip: "Shift sore berjalan dengan lancar. Tetap berikan energi positif!",
-        gradient: "from-orange-500 via-rose-500 to-indigo-600",
+        tip: "Shift sore berjalan aman. Pastikan rekap kunjungan anabul terisi rapi!",
+        gradient: "from-orange-600 via-rose-600 to-indigo-700",
         icon: "🌇"
       };
     } else {
       return {
         greeting: "Selamat Malam",
-        tip: "Shift malam tenang. Terima kasih atas dedikasi luar biasa Anda hari ini!",
-        gradient: "from-indigo-950 via-purple-900 to-slate-950 border border-indigo-900/50",
+        tip: "Terima kasih atas dedikasi luar biasa Anda dalam merawat anabul malam ini!",
+        gradient: "from-slate-900 via-indigo-950 to-slate-900 border border-slate-800",
         icon: "🌙"
       };
     }
   };
 
   const greetingConfig = getGreetingConfig();
+  
   const formatClock = (date) => {
     return date.toLocaleTimeString("id-ID", {
       hour: "2-digit",
@@ -175,210 +176,207 @@ export default function Dashboard() {
   const activeInsight = clinicalInsights[activeInsightIndex];
 
   return (
-    <div className="min-h-screen p-1.5 opacity-100 transition-opacity duration-500">
+    <div className="p-6 bg-gray-50 min-h-screen space-y-6">
       
-      {/* ─── Top Welcome & Digital Clock Banner ─── */}
-      <div className={`relative rounded-3xl overflow-hidden shadow-xl p-8 mb-8 text-white bg-gradient-to-r ${greetingConfig.gradient}`}>
-        {/* Background decorative glowing circles */}
-        <div className="absolute right-0 top-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-        <div className="absolute left-1/3 bottom-0 w-60 h-60 bg-white/5 rounded-full blur-2xl -ml-20 -mb-20"></div>
+      {/* ─── ALERT BANNER / RUNNING CLIPS ─── */}
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 px-5 flex items-center justify-between text-xs text-amber-800 shadow-sm animate-pulse">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4.5 w-4.5 text-amber-500 shrink-0" />
+          <span className="font-extrabold tracking-wide text-[10px] bg-amber-500 text-white rounded px-1.5 py-0.5 uppercase">Alert Klinik</span>
+          <span className="font-semibold text-amber-700">Peringatan: Stok Vaksin Rabies & Parvo tersisa 5 dosis. Segera lakukan repeat order ke supplier!</span>
+        </div>
+        <span className="text-[10px] font-bold text-amber-600 hidden md:block">Hari Ini</span>
+      </div>
+
+      {/* ─── TOP WELCOME BANNER & LIVE CLOCK ─── */}
+      <div className={`relative rounded-3xl overflow-hidden shadow-lg p-7 text-white bg-gradient-to-r ${greetingConfig.gradient}`}>
+        <div className="absolute right-0 top-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16" />
+        <div className="absolute left-1/3 bottom-0 w-60 h-60 bg-white/5 rounded-full blur-2xl -ml-20 -mb-20" />
         
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-white/20 animate-bounce">
+          <div className="flex items-center gap-4.5">
+            <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-white/25 shrink-0">
               {greetingConfig.icon}
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
                 {greetingConfig.greeting}, dr. Sari!
               </h1>
-              <p className="text-xs md:text-sm text-white/80 font-medium mt-1 leading-relaxed max-w-lg">
+              <p className="text-xs md:text-sm text-white/80 font-semibold mt-1.5 leading-relaxed max-w-lg">
                 {greetingConfig.tip}
               </p>
             </div>
           </div>
           
-          {/* Glassmorphic Live Clock & Date Widget */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center md:items-end min-w-[220px] shadow-lg">
-            <div className="flex items-center gap-2 text-white/90 mb-1">
-              <Clock className="w-4 h-4 text-emerald-300 animate-spin-slow" />
-              <span className="text-xs font-bold uppercase tracking-wider">LIVE CLINIC CLOCK</span>
+          {/* Glassmorphic Digital Clock */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 flex flex-col items-center md:items-end min-w-[220px] shadow-md shrink-0">
+            <div className="flex items-center gap-1.5 text-white/80 mb-0.5">
+              <Clock className="w-3.5 h-3.5 text-emerald-300 animate-spin-slow" />
+              <span className="text-[9px] font-bold uppercase tracking-widest">LIVE DIGITAL CLOCK</span>
             </div>
-            <h2 className="text-3xl font-black tracking-widest font-mono text-emerald-200">
+            <h2 className="text-3xl font-black tracking-widest font-mono text-emerald-150">
               {formatClock(currentTime)}
             </h2>
-            <p className="text-[11px] text-white/70 font-semibold mt-1">
+            <p className="text-[10px] text-white/70 font-bold mt-1">
               {formatDate(currentTime)}
             </p>
           </div>
         </div>
       </div>
 
-      {/* ─── Action Cards Panel ─── */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-bold text-gray-800 tracking-tight flex items-center gap-2">
-          <Activity className="w-5 h-5 text-emerald-500" /> Ringkasan Analitik
-        </h2>
-        <div className="flex gap-3">
-          <button className="text-xs px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:shadow-sm transition-all font-semibold cursor-pointer">
-            Semua Pasien
-          </button>
-          <button 
-            onClick={handleNewPatientClick}
-            className="text-xs px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-lg transition-all font-bold transform hover:-translate-y-0.5 flex items-center gap-1.5 cursor-pointer"
-          >
-            <PlusCircle className="w-4 h-4" /> Pasien Baru
-          </button>
-        </div>
+      {/* ─── QUICK ACTIONS GRID HUB ─── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Registrasi Pasien", desc: "Input anabul baru", icon: PlusCircle, action: handleNewPatientClick, color: "bg-emerald-50 text-emerald-600 hover:border-emerald-300" },
+          { label: "Jadwal Temu Baru", desc: "Buat janji pemeriksaan", icon: Calendar, action: () => triggerToast("Membuka penjadwalan janji temu..."), color: "bg-blue-50 text-blue-600 hover:border-blue-300" },
+          { label: "Cek Rekam Medis", desc: "Cari riwayat klinis", icon: BriefcaseMedical, action: () => triggerToast("Mengarahkan ke Rekam Medis..."), color: "bg-violet-50 text-violet-600 hover:border-violet-300" },
+          { label: "Kirim Broadcast", desc: "Blast WhatsApp/Email", icon: Send, action: () => triggerToast("Mengalihkan ke Broadcast Hub..."), color: "bg-pink-50 text-pink-600 hover:border-pink-300" },
+        ].map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={idx}
+              onClick={item.action}
+              className={`p-4 rounded-2xl border border-gray-100 bg-white shadow-sm flex items-center gap-3.5 cursor-pointer transition hover:-translate-y-0.5 hover:shadow-md ${item.color}`}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white border border-gray-150 shrink-0">
+                <Icon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-black tracking-tight text-gray-800">{item.label}</p>
+                <p className="text-[10px] text-gray-400 font-bold truncate mt-0.5">{item.desc}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* ─── Stat Cards Modern ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        
-        {/* Kunjungan Hari Ini */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 border border-gray-150 p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-110 opacity-60" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Kunjungan Hari Ini</p>
-              <h1 className="text-3xl font-extrabold mt-2 text-gray-800 tracking-tight">24</h1>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-inner group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
-              <Calendar className="w-6 h-6" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2 relative z-10">
-            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+3</span>
-            <span className="text-gray-400 text-xs font-medium">dibanding kemarin</span>
-          </div>
-        </div>
-
-        {/* Antrian Sekarang */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 border border-gray-150 p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-110 opacity-60" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Antrian Sekarang</p>
-              <h1 className="text-3xl font-extrabold mt-2 text-gray-800 tracking-tight">8</h1>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shadow-inner group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
-              <Activity className="w-6 h-6 animate-pulse" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2 relative z-10">
-            <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">4</span>
-            <span className="text-gray-400 text-xs font-medium">sedang diproses</span>
-          </div>
-        </div>
-
-        {/* Pasien Aktif */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 border border-gray-150 p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-110 opacity-60" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Pasien Aktif</p>
-              <h1 className="text-3xl font-extrabold mt-2 text-gray-800 tracking-tight">312</h1>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center shadow-inner group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
-              <Users className="w-6 h-6" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2 relative z-10">
-            <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">+12</span>
-            <span className="text-gray-400 text-xs font-medium">terdaftar bulan ini</span>
-          </div>
-        </div>
-
-        {/* Pendapatan Hari Ini */}
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 border border-gray-150 p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-110 opacity-60" />
-          <div className="flex justify-between items-start relative z-10">
-            <div>
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Pendapatan Hari Ini</p>
-              <h1 className="text-3xl font-extrabold mt-2 text-gray-800 tracking-tight">Rp 4.2 Jt</h1>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shadow-inner group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
-              <TrendingUp className="w-6 h-6" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-2 relative z-10">
-            <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">85%</span>
-            <span className="text-gray-400 text-xs font-medium">dari target harian</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Middle Section (Chart & Pet Grid) ─── */}
-      <div className="grid grid-cols-5 gap-6 mb-8">
-        
-        {/* Chart */}
-        <div className="col-span-3 bg-white rounded-2xl border border-gray-150 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h2 className="text-base font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-500" /> Kunjungan Pasien Bulanan (2026)
-          </h2>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={chartData} barSize={12}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#64748b", fontWeight: 500 }} axisLine={false} tickLine={false} dy={10} />
-              <YAxis tick={{ fontSize: 12, fill: "#64748b", fontWeight: 500 }} axisLine={false} tickLine={false} dx={-10} />
-              <Tooltip
-                cursor={{ fill: '#f8fafc' }}
-                contentStyle={{ borderRadius: '16px', border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)", fontSize: 13, fontWeight: 500 }}
-              />
-              <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12, paddingTop: '20px', fontWeight: 500 }} />
-              <Bar dataKey="Kucing" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="Anjing" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="Burung" stackId="a" fill="#f59e0b" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="Lainnya" stackId="a" fill="#ec4899" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Pet Grid */}
-        <div className="col-span-2 bg-white rounded-2xl border border-gray-150 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <h2 className="text-base font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <Stethoscope className="w-4 h-4 text-emerald-500" /> Pasien Sering Berkunjung
-          </h2>
-          <div className="grid grid-cols-3 gap-3">
-            {petTypes.map((pet) => (
-              <div
-                key={pet.name}
-                className="bg-gray-50 rounded-xl p-4 text-center cursor-pointer hover:bg-white hover:shadow-md transition-all duration-300 border border-gray-100 group"
-              >
-                <div className="text-3xl mb-2 transition-transform duration-300 group-hover:-translate-y-1">{pet.emoji}</div>
-                <p className="text-sm font-semibold text-gray-700">{pet.name}</p>
-                <p className="text-[11px] text-gray-400 font-medium mt-0.5">{pet.count} pasien</p>
-                <div className="h-1.5 rounded-full mt-3 bg-gray-200 overflow-hidden">
-                  <div
-                    className="h-1.5 rounded-full transition-all duration-1000 ease-out"
-                    style={{
-                      width: `${(pet.count / pet.max) * 100}%`,
-                      background: pet.color,
-                    }}
-                  />
+      {/* ─── STAT CARDS PANEL ─── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {[
+          { label: "Kunjungan Hari Ini", val: "24", sub: "+3 anabul", desc: "dibanding kemarin", color: "emerald", icon: Calendar },
+          { label: "Antrian Pasien", val: "8", sub: "4 anabul", desc: "sedang diperiksa", color: "blue", icon: Activity },
+          { label: "Total Pasien Aktif", val: "312", sub: "+12 bulan ini", desc: "anabul terdaftar", color: "violet", icon: Users },
+          { label: "Pendapatan Harian", val: "Rp 4.2Jt", sub: "85%", desc: "dari target harian", color: "amber", icon: TrendingUp },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          const colorMap = {
+            emerald: { bg: "bg-emerald-50 text-emerald-600", dot: "bg-emerald-100 text-emerald-700" },
+            blue: { bg: "bg-blue-50 text-blue-600", dot: "bg-blue-100 text-blue-700" },
+            violet: { bg: "bg-violet-50 text-violet-600", dot: "bg-violet-100 text-violet-700" },
+            amber: { bg: "bg-amber-50 text-amber-600", dot: "bg-amber-100 text-amber-700" },
+          };
+          const c = colorMap[stat.color];
+          return (
+            <div key={i} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm flex items-start justify-between hover:shadow-md transition">
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{stat.label}</p>
+                <h3 className="text-2xl font-black text-gray-800 mt-2">{stat.val}</h3>
+                <div className="mt-3 flex items-center gap-1.5 text-[10px]">
+                  <span className={`px-2 py-0.5 rounded-full font-bold ${c.dot}`}>{stat.sub}</span>
+                  <span className="text-gray-400 font-semibold">{stat.desc}</span>
                 </div>
               </div>
-            ))}
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${c.bg}`}>
+                <Icon className="h-5.5 w-5.5" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ─── MIDDLE SECTION: CHARTS & PET TYPES DISTRIBUTION ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Main Area Chart */}
+        <div className="lg:col-span-2 bg-white border border-gray-150 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-5">
+            <div>
+              <h3 className="font-bold text-gray-800 text-sm">Statistik Pasien Bulanan</h3>
+              <p className="text-[11px] text-gray-400 mt-0.5">Volume kunjungan anabul per jenis spesies</p>
+            </div>
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" /> +15.4% Trafik
+            </span>
+          </div>
+
+          <div className="h-[230px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorKucing" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorAnjing" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: "14px", border: "1px solid #e2e8f0", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.05)" }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 11, paddingTop: "10px", fontWeight: 600 }} />
+                <Area type="monotone" dataKey="Kucing" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#colorKucing)" />
+                <Area type="monotone" dataKey="Anjing" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#colorAnjing)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Pet Species Distribution */}
+        <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-gray-800 text-sm">Spesies Pasien Terbanyak</h3>
+            <p className="text-[11px] text-gray-400 mt-0.5">Persentase sebaran pasien klinik</p>
+          </div>
+
+          <div className="space-y-3.5 my-4">
+            {petTypes.map((pet) => {
+              const percent = Math.round((pet.count / pet.max) * 100);
+              return (
+                <div key={pet.name} className="space-y-1 text-xs">
+                  <div className="flex justify-between items-center font-semibold text-gray-700">
+                    <span className="flex items-center gap-1.5">
+                      <span>{pet.emoji}</span>
+                      <span>{pet.name}</span>
+                    </span>
+                    <span className={pet.text}>{pet.count} Pasien ({percent}%)</span>
+                  </div>
+                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ${pet.color}`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* ─── Bottom Section (Visits Table, Schedule, & AI Insights) ─── */}
-      <div className="grid grid-cols-3 gap-6">
+      {/* ─── BOTTOM SECTION: VISITS, SHIFTS & AI CLINICAL ADVISOR ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        {/* Recent Visits Table */}
-        <div className="col-span-2 bg-white rounded-2xl border border-gray-150 p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
-              <BriefcaseMedical className="w-4 h-4 text-emerald-500" /> Kunjungan Terbaru
-            </h2>
-            <div className="flex gap-4 items-center self-end sm:self-auto">
+        {/* Recent Visits Tracker */}
+        <div className="lg:col-span-2 bg-white border border-gray-150 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+            <div>
+              <h3 className="font-bold text-gray-800 text-sm">Tracker Kunjungan Pasien</h3>
+              <p className="text-xs text-gray-400 mt-0.5">Triage prioritas pemeriksaan medis hari ini</p>
+            </div>
+            
+            <div className="flex items-center gap-2 self-end sm:self-auto">
               <SearchBar 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)} 
-                placeholder="Cari pasien / pemilik..."
+                placeholder="Cari pasien / dokter..."
               />
-              <Tabs defaultValue="hari-ini" className="w-[180px]">
+              <Tabs defaultValue="hari-ini" className="w-[170px]">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="hari-ini">Hari Ini</TabsTrigger>
                   <TabsTrigger value="minggu-ini">Minggu Ini</TabsTrigger>
@@ -386,52 +384,57 @@ export default function Dashboard() {
               </Tabs>
             </div>
           </div>
-          
-          <div className="overflow-x-auto mt-2">
-            <table className="w-full text-sm">
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
               <thead>
-                <tr>
-                  <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider pb-3 border-b border-gray-100">Pasien</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider pb-3 border-b border-gray-100">Pemilik</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider pb-3 border-b border-gray-100">Keluhan</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider pb-3 border-b border-gray-100">Triage</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider pb-3 border-b border-gray-100">Status</th>
+                <tr className="text-xs font-bold text-gray-400 uppercase tracking-wide border-b border-gray-50 bg-gray-50/50">
+                  <th className="py-2.5 px-3">Anabul Pasien</th>
+                  <th className="py-2.5 px-3">Pemilik</th>
+                  <th className="py-2.5 px-3">Keluhan Klinis</th>
+                  <th className="py-2.5 px-3">Dokter Penanggung Jawab</th>
+                  <th className="py-2.5 px-3 text-right">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredVisits.length > 0 ? (
                   filteredVisits.map((v) => {
-                    const isUrgent = v.complaint.toLowerCase().includes("demam") || v.complaint.toLowerCase().includes("turun drastis");
+                    const isUrgent = v.complaint.toLowerCase().includes("demam") || v.complaint.toLowerCase().includes("rontok parah") || v.complaint.toLowerCase().includes("turun drastis");
                     return (
-                      <tr key={v.id} className="border-b border-gray-50 last:border-none hover:bg-gray-50/50 transition-colors group">
-                        <td className="py-3 flex items-center gap-3">
-                          <span className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition-transform">{v.emoji}</span>
-                          <div>
-                            <p className="font-semibold text-gray-800 text-sm">{v.name}</p>
-                            <p className="text-xs text-gray-400 font-medium">{v.breed}</p>
+                      <tr key={v.id} className="border-b border-gray-50 hover:bg-gray-50/40 transition">
+                        <td className="py-3 px-3 flex items-center gap-2.5">
+                          <span className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-lg shadow-sm shrink-0">
+                            {v.emoji}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="font-bold text-gray-800 text-xs truncate">{v.name}</p>
+                            <p className="text-[10px] text-gray-400 font-semibold">{v.breed}</p>
                           </div>
                         </td>
-                        <td className="py-3 text-sm font-medium text-gray-600">{v.owner}</td>
-                        <td className="py-3 text-sm text-gray-500">{v.complaint}</td>
-                        <td className="py-3">
-                          {isUrgent ? (
-                            <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-red-100 animate-pulse">
-                              <HeartPulse className="w-3 h-3 text-red-500" /> PRIORITAS
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 bg-gray-50 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-150">
-                              Normal
-                            </span>
-                          )}
+                        <td className="py-3 px-3 text-xs font-bold text-gray-600">{v.owner}</td>
+                        <td className="py-3 px-3 text-xs text-gray-500">
+                          <div className="flex flex-col gap-1">
+                            <span>{v.complaint}</span>
+                            {isUrgent ? (
+                              <span className="w-fit inline-flex items-center gap-1 bg-red-50 text-red-600 text-[9px] font-black px-1.5 py-0.25 rounded border border-red-100 animate-pulse">
+                                <HeartPulse className="h-2.5 w-2.5" /> TRIAGE URGENT
+                              </span>
+                            ) : (
+                              <span className="w-fit inline-flex items-center gap-1 bg-gray-50 text-gray-500 text-[9px] font-bold px-1.5 py-0.25 rounded border border-gray-150">
+                                Normal
+                              </span>
+                            )}
+                          </div>
                         </td>
-                        <td className="py-3"><StatusBadge status={v.status} /></td>
+                        <td className="py-3 px-3 text-xs font-semibold text-emerald-600">{v.doctor}</td>
+                        <td className="py-3 px-3 text-right"><StatusBadge status={v.status} /></td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan="5" className="py-8 text-center text-gray-400 text-sm font-medium">
-                      Data tidak ditemukan
+                    <td colSpan="5" className="py-8 text-center text-gray-400 text-xs font-semibold">
+                      Pasien tidak ditemukan.
                     </td>
                   </tr>
                 )}
@@ -440,71 +443,84 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right Side Column (Schedule & AI Insights) */}
-        <div className="flex flex-col gap-6">
+        {/* RIGHT COLUMN: AI CLINICAL INSIGHTS & SCHEDULE SHIFTS */}
+        <div className="space-y-6">
           
-          {/* AI Clinical Insights Widget */}
-          <div className="bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[190px]">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-8 -mt-8 blur-2xl" />
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+          {/* AI Clinical Advisor */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[180px]">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl" />
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                    <Sparkles className="h-4 w-4 animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black tracking-widest text-emerald-400">ASISTEN AI KLINIK</h3>
-                    <p className="text-[10px] text-gray-400 font-semibold">Tip Medis Hari Ini</p>
+                    <h4 className="text-[10px] font-black tracking-widest text-emerald-400">ASISTEN AI VET</h4>
+                    <p className="text-[9px] text-gray-500 font-bold">Clinical Advice Log</p>
                   </div>
                 </div>
-                <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${activeInsight.color}`}>
                   {activeInsight.badge}
                 </span>
               </div>
-              
-              <div className="mt-2 min-h-[90px] flex flex-col justify-center">
-                <h4 className="text-sm font-bold text-emerald-100 flex items-center gap-1.5">
+
+              <div className="min-h-[70px]">
+                <h5 className="text-xs font-extrabold text-emerald-100 flex items-center gap-1.5">
                   💡 {activeInsight.title}
-                </h4>
-                <p className="text-xs text-slate-300 leading-relaxed font-medium mt-1">
+                </h5>
+                <p className="text-xs text-slate-400 leading-relaxed font-semibold mt-1">
                   {activeInsight.content}
                 </p>
               </div>
             </div>
-            
-            <div className="mt-4 pt-3 border-t border-emerald-900/60 flex justify-between items-center text-[10px] text-gray-400">
-              <button 
+
+            <div className="mt-4 pt-3 border-t border-slate-850 flex justify-between items-center text-[10px] text-gray-500">
+              <button
                 onClick={nextInsight}
-                className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 transition-colors cursor-pointer group"
+                className="text-emerald-400 hover:text-emerald-300 font-extrabold flex items-center gap-1 transition-colors group cursor-pointer"
               >
-                Tip Berikutnya <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                Tips Berikutnya <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition" />
               </button>
               <span>Auto-Sync Aktif</span>
             </div>
           </div>
 
-          {/* Schedule */}
-          <div className="bg-white rounded-2xl border border-gray-150 p-6 shadow-sm hover:shadow-md transition-shadow flex-1">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-emerald-500" /> Jadwal Hari Ini
-              </h2>
-              <button className="text-xs font-semibold text-emerald-500 hover:text-emerald-600 transition-colors">Lihat Semua</button>
+          {/* Today Vets & Schedules Shift */}
+          <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-150 pb-3">
+              <h3 className="font-bold text-gray-800 text-sm flex items-center gap-2">
+                <Stethoscope className="h-4 w-4 text-emerald-500" /> Jadwal & Poli Aktif
+              </h3>
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                5 Shift Hari Ini
+              </span>
             </div>
-            <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
-              {scheduleItems.map((item, i) => (
-                <div key={i} className="flex gap-4 items-start bg-gray-50 hover:bg-emerald-50/30 transition-colors rounded-xl p-3 border border-gray-50 hover:border-emerald-100 cursor-pointer group">
+
+            <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+              {scheduleItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-3 bg-gray-50 hover:bg-emerald-50/30 border border-gray-50 hover:border-emerald-200 rounded-xl transition cursor-pointer group"
+                >
                   <div className="flex flex-col items-center">
-                    <div
-                      className="w-2.5 h-2.5 rounded-full mb-1 shadow-sm transition-transform group-hover:scale-125"
-                      style={{ background: item.color }}
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shadow-sm shrink-0 mt-1"
+                      style={{ backgroundColor: item.color }}
                     />
-                    <div className="w-[1px] h-full bg-gray-200 mt-1"></div>
+                    <div className="w-[1px] h-6 bg-gray-250 mt-1" />
                   </div>
-                  <div className="-mt-1">
-                    <p className="text-[10px] font-bold text-gray-400 mb-0.5">{item.time}</p>
-                    <p className="text-xs font-bold text-gray-800 group-hover:text-emerald-700 transition-colors">{item.name}</p>
-                    <p className="text-[11px] text-gray-500 font-medium mt-0.5 leading-relaxed">{item.detail}</p>
+                  <div className="min-w-0 -mt-0.5 text-xs">
+                    <div className="flex justify-between items-center gap-2 mb-0.5">
+                      <span className="text-[9px] font-black text-gray-400 uppercase">{item.time}</span>
+                      {item.active && (
+                        <span className="bg-emerald-100 text-emerald-700 text-[8px] font-bold px-1.5 rounded animate-pulse">AKTIF</span>
+                      )}
+                    </div>
+                    <p className="font-extrabold text-gray-800 group-hover:text-emerald-700 transition">{item.name}</p>
+                    <p className="text-[10px] text-gray-400 font-semibold mt-0.5 truncate">{item.detail}</p>
                   </div>
                 </div>
               ))}
@@ -512,22 +528,22 @@ export default function Dashboard() {
           </div>
 
         </div>
-
       </div>
 
-      {/* ─── Modals & Toasts ─── */}
+      {/* ─── REGISTER PATIENT MODAL ─── */}
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmAddPatient}
-        title="Pendaftaran Pasien Baru"
-        confirmText="Lanjutkan ke Form"
+        title="Registrasi Pasien Baru"
+        confirmText="Buka Form Pendaftaran"
       >
-        <p className="text-sm text-gray-500 leading-relaxed">
-          Anda akan dialihkan ke halaman pendaftaran pasien baru. Pastikan Anda sudah menyiapkan data rekam medis pasien jika ada.
+        <p className="text-xs text-gray-500 leading-relaxed font-semibold">
+          Anda akan diarahkan ke modul formulir penambahan pasien baru (/pets/add). Pastikan semua data rekam medis awal dan kontak pemilik anabul telah disiapkan terlebih dahulu.
         </p>
       </Modal>
 
+      {/* TOAST FEEDBACK ALERT */}
       <ToastNotification 
         isVisible={showToast} 
         onClose={() => setShowToast(false)} 

@@ -1,28 +1,25 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Tambahkan Link
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-// Import semua ikon yang dibutuhkan
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa"; 
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaPaw } from "react-icons/fa";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  // Ubah dataForm menjadi form agar sesuai dengan JSX
   const [form, setForm] = useState({
     email: "emilys",
     password: "emilyspass",
   });
 
-  const [showPass, setShowPass] = useState(false); // Tambahkan state showPass
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [focusField, setFocusField] = useState("");
 
-  // Fungsi helper set untuk mempermudah update state (sesuai JSX Anda)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
     setError("");
 
@@ -30,8 +27,8 @@ export default function Login() {
       const response = await axios.post(
         "https://dummyjson.com/user/login",
         {
-          username: form.email, // Ambil dari form.email
-          password: form.password, // Ambil dari form.password
+          username: form.email,
+          password: form.password,
         },
         {
           headers: {
@@ -42,11 +39,8 @@ export default function Login() {
 
       localStorage.setItem("user", JSON.stringify(response.data));
       navigate("/");
-
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Username atau password salah"
-      );
+      setError(err.response?.data?.message || "Username atau password salah");
     } finally {
       setLoading(false);
     }
@@ -54,108 +48,158 @@ export default function Login() {
 
   return (
     <div>
+      {/* Welcome Icon */}
+      <div className="flex justify-center mb-6">
+        <div className="w-16 h-16 rounded-[1.2rem] bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-xl shadow-emerald-500/25">
+          <FaPaw className="text-white text-2xl" />
+        </div>
+      </div>
+
       {/* Heading */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-1">Selamat datang! 👋</h2>
-        <p className="text-sm text-gray-400">Masuk ke panel admin PetCare Anda</p>
+      <div className="mb-8 text-center">
+        <h2 className="text-[1.7rem] font-extrabold text-gray-900 tracking-tight leading-tight">
+          Selamat Datang
+        </h2>
+        <p className="text-gray-500 text-sm mt-2 font-medium">
+          Masuk ke panel admin PetCare Anda
+        </p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-xl">
+        <div className="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-600 text-sm px-5 py-3.5 rounded-2xl font-semibold flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm">⚠️</span>
+          </div>
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-
-        {/* Email */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Username/Email */}
         <div>
-          <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email / Username</label>
-          <div className="relative">
-            <FaEnvelope className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm" />
+          <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2.5 block">
+            Username / Email
+          </label>
+          <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
+            focusField === "email"
+              ? "border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.08)]"
+              : "border-gray-100 hover:border-gray-200"
+          }`}>
+            <div className={`absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center transition-colors duration-300 ${
+              focusField === "email" ? "bg-emerald-50 text-emerald-500" : "bg-gray-50 text-gray-400"
+            }`}>
+              <FaEnvelope className="text-sm" />
+            </div>
             <input
-              type="text" // DummyJSON API menggunakan text (username), bukan strict email format
+              type="text"
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
-              placeholder="dokter@petcare.com"
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition placeholder-gray-300"
+              onFocus={() => setFocusField("email")}
+              onBlur={() => setFocusField("")}
+              placeholder="emilys"
+              className="w-full pl-14 pr-4 py-3.5 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
             />
           </div>
         </div>
 
         {/* Password */}
         <div>
-          <div className="flex justify-between mb-1.5">
-            <label className="text-xs font-semibold text-gray-600">Password</label>
-            <Link to="/forgot" className="text-xs text-emerald-500 hover:text-emerald-600 font-medium transition">
-              Lupa password?
+          <div className="flex justify-between items-center mb-2.5">
+            <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">Password</label>
+            <Link
+              to="/forgot"
+              className="text-[11px] text-emerald-600 hover:text-emerald-700 font-bold transition-colors"
+            >
+              Lupa Password?
             </Link>
           </div>
-          <div className="relative">
-            <FaLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300 text-sm" />
+          <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
+            focusField === "password"
+              ? "border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.08)]"
+              : "border-gray-100 hover:border-gray-200"
+          }`}>
+            <div className={`absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center transition-colors duration-300 ${
+              focusField === "password" ? "bg-emerald-50 text-emerald-500" : "bg-gray-50 text-gray-400"
+            }`}>
+              <FaLock className="text-sm" />
+            </div>
             <input
               type={showPass ? "text" : "password"}
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
+              onFocus={() => setFocusField("password")}
+              onBlur={() => setFocusField("")}
               placeholder="••••••••"
-              className="w-full pl-10 pr-11 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition placeholder-gray-300"
+              className="w-full pl-14 pr-12 py-3.5 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
             />
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition"
+              className="absolute right-4 text-gray-400 hover:text-emerald-500 transition-colors"
             >
-              {showPass ? <FaEyeSlash className="text-sm" /> : <FaEye className="text-sm" />}
+              {showPass ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
         </div>
 
         {/* Remember me */}
-        <div className="flex items-center gap-2">
-          <input type="checkbox" id="remember" className="w-4 h-4 rounded accent-emerald-500" />
-          <label htmlFor="remember" className="text-xs text-gray-500">Ingat saya selama 30 hari</label>
+        <div className="flex items-center justify-between pt-1">
+          <label className="flex items-center gap-3 cursor-pointer select-none group">
+            <div className="relative">
+              <input type="checkbox" id="remember" className="peer sr-only" />
+              <div className="w-5 h-5 rounded-md border-2 border-gray-200 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 transition-all group-hover:border-gray-300"></div>
+              <svg className="absolute w-3 h-3 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 14 10">
+                <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="text-sm font-medium text-gray-600">Ingat saya</span>
+          </label>
         </div>
 
         {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-semibold text-sm shadow-md shadow-emerald-200 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-[15px] shadow-[0_10px_30px_-8px_rgba(16,185,129,0.5)] hover:shadow-[0_14px_35px_-8px_rgba(16,185,129,0.6)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 mt-2"
         >
           {loading ? (
             <>
-              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-              </svg>
-              Masuk...
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <span>Memproses...</span>
             </>
-          ) : "Masuk ke Dashboard"}
+          ) : (
+            <>
+              Masuk ke Dashboard
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </>
+          )}
         </button>
-
       </form>
 
       {/* Divider */}
-      <div className="flex items-center gap-3 my-6">
-        <div className="flex-1 h-px bg-gray-100" />
-        <span className="text-xs text-gray-300">atau</span>
-        <div className="flex-1 h-px bg-gray-100" />
+      <div className="flex items-center gap-4 my-7">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Atau</span>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
       </div>
 
       {/* Demo login */}
       <button
-        onClick={() => { set("email","emilys"); set("password","emilyspass"); }}
-        className="w-full py-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-sm text-gray-600 font-medium transition flex items-center justify-center gap-2"
+        type="button"
+        onClick={() => { set("email", "emilys"); set("password", "emilyspass"); }}
+        className="w-full py-3.5 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 hover:border-emerald-300 text-sm text-emerald-700 font-bold transition-all flex items-center justify-center gap-3 group"
       >
-        <span>🐾</span> Gunakan Akun Demo
+        <span className="text-lg group-hover:animate-bounce">🐾</span> Gunakan Akun Demo
       </button>
 
       {/* Register link */}
-      <p className="text-center text-xs text-gray-400 mt-6">
+      <p className="text-center text-sm font-medium text-gray-500 mt-8">
         Belum punya akun?{" "}
-        <Link to="/register" className="text-emerald-500 font-semibold hover:text-emerald-600 transition">
-          Daftar sekarang
+        <Link to="/register" className="text-emerald-600 font-extrabold hover:text-emerald-700 transition-colors underline underline-offset-2 decoration-emerald-300 hover:decoration-emerald-500">
+          Daftar Sekarang
         </Link>
       </p>
     </div>
