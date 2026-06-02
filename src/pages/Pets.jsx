@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaSearch,
@@ -15,11 +15,53 @@ export default function Pets() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState("grid");
 
-  const filtered = petsData.filter((pet) =>
-    pet.name.toLowerCase().includes(search.toLowerCase()) ||
-    pet.owner.toLowerCase().includes(search.toLowerCase()) ||
-    pet.type.toLowerCase().includes(search.toLowerCase())
-  );
+  // React Hooks Implementation according to p12.md
+  const [pets, setPets] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filterType, setFilterType] = useState("All"); // "All" | "Dog" | "Cat" | "Rabbit" | "Bird" | "Hamster"
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Refs implementation
+  const searchPetRef = useRef(null);
+
+  // useEffect: Mengambil daftar hewan dari database secara asinkron
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setPets([...petsData]);
+      setIsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [refreshCounter]);
+
+  // useEffect: Focus kolom pencarian pet saat halaman dibuka
+  useEffect(() => {
+    if (!isLoading && searchPetRef.current) {
+      searchPetRef.current.focus();
+    }
+  }, [isLoading]);
+
+  // Filter pet berdasarkan search dan jenis hewan (useMemo)
+  const filtered = useMemo(() => {
+    return pets.filter((pet) => {
+      const keyword = search.toLowerCase();
+      const matchesSearch = pet.name.toLowerCase().includes(keyword) ||
+        pet.owner.toLowerCase().includes(keyword) ||
+        pet.type.toLowerCase().includes(keyword);
+      const matchesType = filterType === "All" || pet.type.toLowerCase() === filterType.toLowerCase();
+      return matchesSearch && matchesType;
+    });
+  }, [pets, search, filterType]);
+
+  const handleDeletePet = (id, name) => {
+    if (window.confirm(`Apakah Anda yakin ingin menghapus data pet ${name}?`)) {
+      const index = petsData.findIndex(p => p.id === id);
+      if (index !== -1) {
+        petsData.splice(index, 1);
+      }
+      setRefreshCounter(prev => prev + 1);
+    }
+  };
 
   const getPetEmoji = (type) => {
     switch (type) {
@@ -123,6 +165,7 @@ export default function Pets() {
           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs" />
 
           <input
+            ref={searchPetRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             type="text"
@@ -131,6 +174,20 @@ export default function Pets() {
           />
 
         </div>
+
+        {/* Jenis Hewan Filter */}
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-3 py-2 rounded-xl border border-gray-200 bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
+        >
+          <option value="All">Semua Jenis</option>
+          <option value="Dog">Dog 🐶</option>
+          <option value="Cat">Cat 🐱</option>
+          <option value="Rabbit">Rabbit 🐰</option>
+          <option value="Bird">Bird 🦜</option>
+          <option value="Hamster">Hamster 🐹</option>
+        </select>
 
         <div className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 ml-auto">
 
@@ -251,8 +308,11 @@ export default function Pets() {
                   <FaEdit className="text-xs" />
                 </button>
 
-                <button
-                  onClick={(e) => e.stopPropagation()}
+                 <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeletePet(pet.id, pet.name);
+                  }}
                   className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
                 >
                   <FaTrash className="text-xs" />
@@ -366,8 +426,11 @@ export default function Pets() {
                         <FaEdit className="text-xs" />
                       </button>
 
-                      <button
-                        onClick={(e) => e.stopPropagation()}
+                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeletePet(pet.id, pet.name);
+                        }}
                         className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
                       >
                         <FaTrash className="text-xs" />

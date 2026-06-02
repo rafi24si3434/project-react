@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   FaBullhorn,
   FaPaperPlane,
@@ -99,10 +99,42 @@ const templates = [
 ];
 
 export default function Campaigns() {
-  const [campaigns, setCampaigns] = useState(initialCampaigns);
+  const [campaigns, setCampaigns] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  // Refs implementation
+  const nameInputRef = useRef(null);
+  const formRef = useRef(null);
+
+  // useEffect: Mengambil daftar promo aktif saat halaman dibuka
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setCampaigns(initialCampaigns);
+      setIsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // useEffect: Memperbarui data promo ketika terjadi perubahan (simulasi log/track)
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      console.log("Campaign list updated successfully. Total count:", campaigns.length);
+    }
+  }, [campaigns]);
+
+  // useEffect: Focus input judul promo ketika modal pembuatan promo dibuka
+  useEffect(() => {
+    if (isModalOpen && nameInputRef.current) {
+      const timer = setTimeout(() => {
+        nameInputRef.current.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen]);
 
   // Form states for new campaign
   const [newCampName, setNewCampName] = useState("");
@@ -546,6 +578,7 @@ export default function Campaigns() {
               Nama Campaign / Promo <span className="text-red-400">*</span>
             </label>
             <input
+              ref={nameInputRef}
               type="text"
               value={newCampName}
               onChange={(e) => setNewCampName(e.target.value)}

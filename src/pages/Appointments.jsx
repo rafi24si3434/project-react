@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Calendar,
   Clock,
@@ -72,7 +72,9 @@ const initialData = [
 ];
 
 export default function Appointments() {
-  const [appointments, setAppointments] = useState(initialData);
+  const [appointments, setAppointments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshCounter, setRefreshCounter] = useState(0);
   const [search, setSearch] = useState("");
   
   // Modal & Form States
@@ -87,6 +89,30 @@ export default function Appointments() {
     type: "Checkup",
     emoji: "🐾"
   });
+
+  // Refs implementation according to p12.md
+  const petInputRef = useRef(null);
+  const dateInputRef = useRef(null);
+
+  // useEffect: Mengambil daftar appointment secara asinkron saat dibuka
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setAppointments(initialData);
+      setIsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [refreshCounter]);
+
+  // useEffect: Focus form appointment input nama pet saat modal dibuka
+  useEffect(() => {
+    if (isModalOpen && petInputRef.current) {
+      const timer = setTimeout(() => {
+        petInputRef.current.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen]);
 
   const filtered = appointments.filter(
     (a) =>
@@ -115,12 +141,13 @@ export default function Appointments() {
     }
     
     const newAppointment = {
-      id: appointments.length + 1,
+      id: initialData.length + 1,
       ...formData,
       status: "Pending",
     };
     
-    setAppointments([newAppointment, ...appointments]);
+    initialData.unshift(newAppointment);
+    setRefreshCounter(prev => prev + 1);
     setIsModalOpen(false);
     setShowToast(true);
     setFormData({
@@ -321,6 +348,7 @@ export default function Appointments() {
                 <PawPrint className="w-3.5 h-3.5" /> Nama Pasien
               </label>
               <input
+                ref={petInputRef}
                 type="text"
                 value={formData.pet}
                 onChange={(e) => setFormData({...formData, pet: e.target.value})}
@@ -363,6 +391,7 @@ export default function Appointments() {
                 <Calendar className="w-3.5 h-3.5" /> Tanggal
               </label>
               <input
+                ref={dateInputRef}
                 type="date"
                 value={formData.date}
                 onChange={(e) => setFormData({...formData, date: e.target.value})}

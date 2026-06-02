@@ -89,6 +89,19 @@ export default function Dashboard() {
   // Active AI Insight Index
   const [activeInsightIndex, setActiveInsightIndex] = useState(0);
 
+  // Report Period Filter
+  const [periodFilter, setPeriodFilter] = useState("hari-ini");
+  
+  // Dashboard Statistics State
+  const [stats, setStats] = useState(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+
+  // Define triggerToast
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+  };
+
   // Real-time clock update
   useEffect(() => {
     const timer = setInterval(() => {
@@ -96,6 +109,61 @@ export default function Dashboard() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Simulated stats loading based on report period filter (useEffect)
+  useEffect(() => {
+    setIsLoadingStats(true);
+    const timer = setTimeout(() => {
+      if (periodFilter === "hari-ini") {
+        setStats({
+          kunjungan: "24",
+          kunjunganSub: "+3 anabul",
+          kunjunganDesc: "dibanding kemarin",
+          antrian: "8",
+          antrianSub: "4 anabul",
+          antrianDesc: "sedang diperiksa",
+          totalPasien: "312",
+          totalPasienSub: "+12 bulan ini",
+          totalPasienDesc: "anabul terdaftar",
+          pendapatan: "Rp 4.2Jt",
+          pendapatanSub: "85%",
+          pendapatanDesc: "dari target harian"
+        });
+      } else {
+        setStats({
+          kunjungan: "158",
+          kunjunganSub: "+22% m-o-m",
+          kunjunganDesc: "dibanding minggu lalu",
+          antrian: "42",
+          antrianSub: "12 rata-rata/hari",
+          antrianDesc: "minggu ini",
+          totalPasien: "324",
+          totalPasienSub: "+24 bulan ini",
+          totalPasienDesc: "anabul terdaftar",
+          pendapatan: "Rp 28.5Jt",
+          pendapatanSub: "98%",
+          pendapatanDesc: "dari target mingguan"
+        });
+      }
+      setIsLoadingStats(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [periodFilter]);
+
+  const statsList = useMemo(() => {
+    if (!stats) return [
+      { label: "Kunjungan Hari Ini", val: "...", sub: "...", desc: "...", color: "emerald", icon: Calendar },
+      { label: "Antrian Pasien", val: "...", sub: "...", desc: "...", color: "blue", icon: Activity },
+      { label: "Total Pasien Aktif", val: "...", sub: "...", desc: "...", color: "violet", icon: Users },
+      { label: "Pendapatan Harian", val: "...", sub: "...", desc: "...", color: "amber", icon: TrendingUp },
+    ];
+    return [
+      { label: periodFilter === "hari-ini" ? "Kunjungan Hari Ini" : "Kunjungan Minggu Ini", val: stats.kunjungan, sub: stats.kunjunganSub, desc: stats.kunjunganDesc, color: "emerald", icon: Calendar },
+      { label: "Antrian Pasien", val: stats.antrian, sub: stats.antrianSub, desc: stats.antrianDesc, color: "blue", icon: Activity },
+      { label: "Total Pasien Aktif", val: stats.totalPasien, sub: stats.totalPasienSub, desc: stats.totalPasienDesc, color: "violet", icon: Users },
+      { label: periodFilter === "hari-ini" ? "Pendapatan Harian" : "Pendapatan Mingguan", val: stats.pendapatan, sub: stats.pendapatanSub, desc: stats.pendapatanDesc, color: "amber", icon: TrendingUp },
+    ];
+  }, [stats, periodFilter]);
 
   const filteredVisits = useMemo(() => {
     return initialVisits.filter(v => 
@@ -253,12 +321,7 @@ export default function Dashboard() {
 
       {/* ─── STAT CARDS PANEL ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        {[
-          { label: "Kunjungan Hari Ini", val: "24", sub: "+3 anabul", desc: "dibanding kemarin", color: "emerald", icon: Calendar },
-          { label: "Antrian Pasien", val: "8", sub: "4 anabul", desc: "sedang diperiksa", color: "blue", icon: Activity },
-          { label: "Total Pasien Aktif", val: "312", sub: "+12 bulan ini", desc: "anabul terdaftar", color: "violet", icon: Users },
-          { label: "Pendapatan Harian", val: "Rp 4.2Jt", sub: "85%", desc: "dari target harian", color: "amber", icon: TrendingUp },
-        ].map((stat, i) => {
+        {statsList.map((stat, i) => {
           const Icon = stat.icon;
           const colorMap = {
             emerald: { bg: "bg-emerald-50 text-emerald-600", dot: "bg-emerald-100 text-emerald-700" },
@@ -376,7 +439,7 @@ export default function Dashboard() {
                 onChange={(e) => setSearchQuery(e.target.value)} 
                 placeholder="Cari pasien / dokter..."
               />
-              <Tabs defaultValue="hari-ini" className="w-[170px]">
+              <Tabs value={periodFilter} onValueChange={setPeriodFilter} className="w-[170px]">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="hari-ini">Hari Ini</TabsTrigger>
                   <TabsTrigger value="minggu-ini">Minggu Ini</TabsTrigger>

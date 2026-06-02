@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/table";
 
 import { crmCustomers, formatCurrency } from "@/data/CustomerCrmData";
+import Modal from "../components/Modal";
+import ToastNotification from "../components/ToastNotification";
 
 function getLevelBadge(level) {
   switch (level) {
@@ -50,31 +52,128 @@ export default function CustomerCrm() {
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState("list"); // "list" | "card"
 
+  // React Hooks Implementation according to p12.md
+  const [customers, setCustomers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  // Modal & Form States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    city: "",
+    level: "Silver",
+    isActive: true
+  });
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  // Refs for Autofocus
+  const searchRef = useRef(null);
+  const formInputRef = useRef(null);
+
+  // useEffect: Load daftar customer saat halaman dibuka & refresh data
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setCustomers([...crmCustomers]);
+      setIsLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [refreshCounter]);
+
+  // useEffect: Autofocus kolom pencarian customer
+  useEffect(() => {
+    if (!isLoading && searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, [isLoading]);
+
+  // useEffect: Focus form input customer saat modal dibuka
+  useEffect(() => {
+    if (isModalOpen && formInputRef.current) {
+      const timer = setTimeout(() => {
+        formInputRef.current.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen]);
+
   const goToDetail = (customerId) => {
     navigate(`/customers/${customerId}`);
   };
 
   const filteredCustomers = useMemo(() => {
     const keyword = search.toLowerCase();
-    return crmCustomers.filter((customer) =>
+    return customers.filter((customer) =>
       [customer.name, customer.id, customer.phone, customer.email, customer.city].some(
         (value) => value.toLowerCase().includes(keyword)
       )
     );
-  }, [search]);
+  }, [customers, search]);
 
   const stats = useMemo(() => {
-    const totalTransaction = crmCustomers.reduce(
-      (sum, customer) => sum + customer.transactionTotalNumber,
+    const totalTransaction = customers.reduce(
+      (sum, customer) => sum + (customer.transactionTotalNumber || 0),
       0
     );
     return {
-      totalCustomer: crmCustomers.length,
-      activeMembers: crmCustomers.filter((c) => c.membership.isActive).length,
-      totalComplaints: crmCustomers.reduce((sum, c) => sum + c.interactions.complaints, 0),
+      totalCustomer: customers.length,
+      activeMembers: customers.filter((c) => c.membership?.isActive).length,
+      totalComplaints: customers.reduce((sum, c) => sum + (c.interactions?.complaints || 0), 0),
       totalTransaction,
     };
-  }, []);
+  }, [customers]);
+
+  const handleAddCustomer = () => {
+    if (!formData.name || !formData.phone || !formData.email || !formData.city) {
+      alert("Harap lengkapi semua kolom wajib!");
+      return;
+    }
+    const newCustomer = {
+      id: `CUST-${String(crmCustomers.length + 1).padStart(3, "0")}`,
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      city: formData.city,
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100",
+      membership: {
+        level: formData.level,
+        isActive: formData.isActive,
+        joinDate: new Date().toLocaleDateString("id-ID", { year: "numeric", month: "short" })
+      },
+      transactions: {
+        totalSpent: "Rp 0"
+      },
+      transactionTotalNumber: 0,
+      visitCount: 0,
+      activity: {
+        inApp: "Pendaftaran baru",
+        lastLogin: "Baru saja"
+      },
+      lastLoginLabel: "Baru saja",
+      interactions: {
+        complaints: 0
+      },
+      feedbackSummary: "Belum ada feedback",
+      rating: 0
+    };
+    crmCustomers.push(newCustomer);
+    setRefreshCounter(prev => prev + 1);
+    setIsModalOpen(false);
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      city: "",
+      level: "Silver",
+      isActive: true
+    });
+    setToastMessage("Customer baru berhasil ditambahkan!");
+    setShowToast(true);
+  };
 
   return (
     <div className="min-h-screen p-1.5">
@@ -121,10 +220,20 @@ export default function CustomerCrm() {
             </button>
           </div>
 
+          {/* Add Customer Button */}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 shadow-sm transition shrink-0"
+          >
+            <Users className="h-4 w-4" />
+            Tambah Customer
+          </button>
+
           {/* Search */}
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
+              ref={searchRef}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               type="text"
@@ -401,6 +510,92 @@ export default function CustomerCrm() {
           )}
         </div>
       )}
+
+      {/* ─── ADD CUSTOMER MODAL ─── */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleAddCustomer}
+        title="Tambah Customer Baru"
+        confirmText="Simpan Customer"
+      >
+        <div className="space-y-4 text-left">
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Nama Customer <span className="text-rose-500">*</span></label>
+            <input
+              ref={formInputRef}
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="cth. John Doe"
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Nomor Telepon <span className="text-rose-500">*</span></label>
+            <input
+              type="text"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="cth. 0812-3456-7890"
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Email <span className="text-rose-500">*</span></label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="cth. john@example.com"
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Kota Asal <span className="text-rose-500">*</span></label>
+            <input
+              type="text"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              placeholder="cth. Jakarta"
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Level Membership</label>
+              <select
+                value={formData.level}
+                onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold"
+              >
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+                <option value="Platinum">Platinum</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Status Keanggotaan</label>
+              <select
+                value={formData.isActive ? "aktif" : "nonaktif"}
+                onChange={(e) => setFormData({ ...formData, isActive: e.target.value === "aktif" })}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold"
+              >
+                <option value="aktif">Aktif</option>
+                <option value="nonaktif">Non-aktif</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Toast feedback */}
+      <ToastNotification
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
+        message={toastMessage}
+        type="success"
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaSearch,
@@ -20,8 +20,36 @@ export default function PetOwners() {
   const [view, setView] = useState("grid");
   const [selected, setSelected] = useState(null);
 
+  const [ownerData, setOwnerData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setOwnerData(owners);
+      setIsLoading(false);
+      console.log("[useEffect] Data owner berhasil dimuat:", owners.length, "pemilik");
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (ownerData.length > 0) {
+      const totalPets = ownerData.reduce((a, o) => a + o.pets.length, 0);
+      console.log("[useEffect] Sinkronisasi data owner & pet — Total owner:", ownerData.length, "| Total pet:", totalPets);
+    }
+  }, [ownerData]);
+
+  useEffect(() => {
+    if (!isLoading && searchRef.current) {
+      searchRef.current.focus();
+      console.log("[useRef] Auto-focus pada kolom pencarian owner");
+    }
+  }, [isLoading]);
+
   /* FILTER */
-  const filtered = owners.filter(
+  const filtered = ownerData.filter(
     (o) =>
       o.name.toLowerCase().includes(search.toLowerCase()) ||
       o.email.toLowerCase().includes(search.toLowerCase())
@@ -43,8 +71,8 @@ export default function PetOwners() {
           </div>
 
           <p className="text-sm text-gray-400 pl-8">
-            {owners.length} pemilik terdaftar ·{" "}
-            {owners.reduce((a, o) => a + o.pets.length, 0)} hewan total
+            {ownerData.length} pemilik terdaftar ·{" "}
+            {ownerData.reduce((a, o) => a + o.pets.length, 0)} hewan total
           </p>
         </div>
 
@@ -58,76 +86,86 @@ export default function PetOwners() {
 
       </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-sm text-gray-400">Memuat data pemilik...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* STATS */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
 
-        <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3">
 
-          <span className="text-2xl">👥</span>
+              <span className="text-2xl">👥</span>
 
-          <div>
-            <p className="text-xl font-bold text-gray-800">
-              {owners.length}
-            </p>
+              <div>
+                <p className="text-xl font-bold text-gray-800">
+                  {ownerData.length}
+                </p>
 
-            <p className="text-xs text-gray-400">
-              Total Pemilik
-            </p>
+                <p className="text-xs text-gray-400">
+                  Total Pemilik
+                </p>
+              </div>
+
+            </div>
+
+            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 flex items-center gap-3">
+
+              <span className="text-2xl">🐾</span>
+
+              <div>
+                <p className="text-xl font-bold text-emerald-700">
+                  {ownerData.reduce((a, o) => a + o.pets.length, 0)}
+                </p>
+
+                <p className="text-xs text-gray-400">
+                  Total Hewan
+                </p>
+              </div>
+
+            </div>
+
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 flex items-center gap-3">
+
+              <span className="text-2xl">📊</span>
+
+              <div>
+                <p className="text-xl font-bold text-blue-700">
+                  {ownerData.length > 0 ? Math.round(
+                    ownerData.reduce((a, o) => a + o.totalVisits, 0) /
+                      ownerData.length
+                  ) : 0}
+                </p>
+
+                <p className="text-xs text-gray-400">
+                  Rata-rata Kunjungan
+                </p>
+              </div>
+
+            </div>
+
           </div>
 
-        </div>
+          {/* TOOLBAR */}
+          <div className="flex gap-3 mb-5">
 
-        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="relative flex-1 max-w-sm">
 
-          <span className="text-2xl">🐾</span>
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs" />
 
-          <div>
-            <p className="text-xl font-bold text-emerald-700">
-              {owners.reduce((a, o) => a + o.pets.length, 0)}
-            </p>
-
-            <p className="text-xs text-gray-400">
-              Total Hewan
-            </p>
-          </div>
-
-        </div>
-
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 flex items-center gap-3">
-
-          <span className="text-2xl">📊</span>
-
-          <div>
-            <p className="text-xl font-bold text-blue-700">
-              {Math.round(
-                owners.reduce((a, o) => a + o.totalVisits, 0) /
-                  owners.length
-              )}
-            </p>
-
-            <p className="text-xs text-gray-400">
-              Rata-rata Kunjungan
-            </p>
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* TOOLBAR */}
-      <div className="flex gap-3 mb-5">
-
-        <div className="relative flex-1 max-w-sm">
-
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs" />
-
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            type="text"
-            placeholder="Cari nama atau email..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
-          />
+              <input
+                ref={searchRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                type="text"
+                placeholder="Cari nama atau email..."
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
+              />
 
         </div>
 
@@ -514,6 +552,8 @@ export default function PetOwners() {
 
         </div>
 
+      )}
+        </>
       )}
 
     </div>

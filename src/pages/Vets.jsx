@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   FaSearch,
   FaPlus,
@@ -74,7 +74,7 @@ const initialVets = [
 ];
 
 export default function Vets() {
-  const [vets, setVets] = useState(initialVets);
+  const [vets, setVets] = useState([]);
   const [search, setSearch] = useState("");
   const [view, setView] = useState("grid");
 
@@ -92,6 +92,49 @@ export default function Vets() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("Aktif");
   const [gender, setGender] = useState("Laki-laki");
+
+  const [isLoading, setIsLoading] = useState(true);
+  const nameInputRef = useRef(null);
+  const searchRef = useRef(null);
+
+  // useEffect: Simulate async data loading
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setVets(initialVets);
+      setIsLoading(false);
+      console.log("[useEffect] Data dokter & staf berhasil dimuat:", initialVets.length, "dokter");
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // useEffect: Log data updates
+  useEffect(() => {
+    if (!isLoading) {
+      const aktif = vets.filter((v) => v.status === "Aktif").length;
+      const cuti = vets.filter((v) => v.status === "Cuti").length;
+      console.log("[useEffect] Data dokter diperbarui — Total:", vets.length, "| Aktif:", aktif, "| Cuti:", cuti);
+    }
+  }, [vets, isLoading]);
+
+  // useEffect: Auto-focus search input after loading
+  useEffect(() => {
+    if (!isLoading && searchRef.current) {
+      searchRef.current.focus();
+      console.log("[useRef] Auto-focus pada kolom pencarian dokter");
+    }
+  }, [isLoading]);
+
+  // useEffect: Focus modal name input when modal opens
+  useEffect(() => {
+    if (isModalOpen && nameInputRef.current) {
+      const timer = setTimeout(() => {
+        nameInputRef.current.focus();
+        console.log("[useRef] Auto-focus pada input nama dokter");
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen]);
 
   const filtered = useMemo(() => {
     return vets.filter(
@@ -195,49 +238,59 @@ export default function Vets() {
         </button>
       </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
-          <span className="text-2xl">👥</span>
-          <div>
-            <p className="text-xl font-bold text-gray-800">{vets.length}</p>
-            <p className="text-xs text-gray-400">Total Dokter/Staf</p>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-sm text-gray-400">Memuat data dokter & staf...</p>
           </div>
         </div>
+      ) : (
+        <>
+          {/* STATS */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
+              <span className="text-2xl">👥</span>
+              <div>
+                <p className="text-xl font-bold text-gray-800">{vets.length}</p>
+                <p className="text-xs text-gray-400">Total Dokter/Staf</p>
+              </div>
+            </div>
 
-        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
-          <span className="text-2xl">🩺</span>
-          <div>
-            <p className="text-xl font-bold text-emerald-700">
-              {vets.filter((v) => v.status === "Aktif").length}
-            </p>
-            <p className="text-xs text-gray-400">Dokter Aktif Bertugas</p>
+            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
+              <span className="text-2xl">🩺</span>
+              <div>
+                <p className="text-xl font-bold text-emerald-700">
+                  {vets.filter((v) => v.status === "Aktif").length}
+                </p>
+                <p className="text-xs text-gray-400">Dokter Aktif Bertugas</p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
+              <span className="text-2xl">✂️</span>
+              <div>
+                <p className="text-xl font-bold text-blue-700">
+                  {vets.filter((v) => v.specialization.includes("Bedah")).length}
+                </p>
+                <p className="text-xs text-gray-400">Dokter Spesialis Bedah</p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-sm">
-          <span className="text-2xl">✂️</span>
-          <div>
-            <p className="text-xl font-bold text-blue-700">
-              {vets.filter((v) => v.specialization.includes("Bedah")).length}
-            </p>
-            <p className="text-xs text-gray-400">Dokter Spesialis Bedah</p>
-          </div>
-        </div>
-      </div>
-
-      {/* TOOLBAR */}
-      <div className="flex gap-3 mb-5">
-        <div className="relative flex-1 max-w-sm">
-          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            type="text"
-            placeholder="Cari dokter atau spesialisasi..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
-          />
-        </div>
+          {/* TOOLBAR */}
+          <div className="flex gap-3 mb-5">
+            <div className="relative flex-1 max-w-sm">
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs" />
+              <input
+                ref={searchRef}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                type="text"
+                placeholder="Cari dokter atau spesialisasi..."
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
+              />
+            </div>
 
         <div className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 ml-auto">
           <button
@@ -443,6 +496,8 @@ export default function Vets() {
           </table>
         </div>
       )}
+        </>
+      )}
 
       {/* POPUP MODAL: TAMBAH DOKTER BARU */}
       <Modal
@@ -459,6 +514,7 @@ export default function Vets() {
               Nama Lengkap Dokter <span className="text-red-400">*</span>
             </label>
             <input
+              ref={nameInputRef}
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}

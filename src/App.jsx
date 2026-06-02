@@ -1,7 +1,6 @@
 import "./assets/tailwind.css";
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-
 import Loading from "./components/Loading";
 
 const MainLayout = lazy(() => import("./layouts/MainLayout"));
