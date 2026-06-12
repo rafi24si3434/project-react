@@ -122,35 +122,6 @@ export default function Register() {
     }
   };
 
-  const InputField = ({ icon: Icon, label, field, type = "text", placeholder, children }) => (
-    <div>
-      <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 block">{label}</label>
-      <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
-        focusField === field
-          ? "border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.08)]"
-          : "border-gray-100 hover:border-gray-200"
-      }`}>
-        <div className={`absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center transition-colors duration-300 ${
-          focusField === field ? "bg-emerald-50 text-emerald-500" : "bg-gray-50 text-gray-400"
-        }`}>
-          <Icon className="text-xs" />
-        </div>
-        <input
-          type={type}
-          value={form[field]}
-          required
-          onChange={(e) => set(field, e.target.value)}
-          onFocus={() => setFocusField(field)}
-          onBlur={() => setFocusField("")}
-          placeholder={placeholder}
-          className="w-full pl-12 pr-4 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
-          style={{ paddingLeft: "3rem" }}
-        />
-        {children}
-      </div>
-    </div>
-  );
-
   return (
     <div>
       {/* Heading */}
@@ -180,13 +151,13 @@ export default function Register() {
 
       <form onSubmit={handleSubmit} className="space-y-4 text-left">
         {/* Name */}
-        <InputField icon={FaUser} label="Nama Lengkap" field="fullName" placeholder="Dr. Sari Putri" />
+        <InputField icon={FaUser} label="Nama Lengkap" field="fullName" placeholder="Dr. Sari Putri" form={form} set={set} focusField={focusField} setFocusField={setFocusField} />
 
         {/* Email */}
-        <InputField icon={FaEnvelope} label="Email" field="email" type="email" placeholder="dokter@petcare.com" />
+        <InputField icon={FaEnvelope} label="Email" field="email" type="email" placeholder="dokter@petcare.com" form={form} set={set} focusField={focusField} setFocusField={setFocusField} />
 
         {/* Phone Number */}
-        <InputField icon={FaPhone} label="Nomor Telepon" field="phoneNumber" type="tel" placeholder="0812-xxxx-xxxx" />
+        <InputField icon={FaPhone} label="Nomor Telepon" field="phoneNumber" type="tel" placeholder="0812-xxxx-xxxx" form={form} set={set} focusField={focusField} setFocusField={setFocusField} />
 
         {/* Role Selection */}
         <div>
@@ -342,3 +313,32 @@ export default function Register() {
     </div>
   );
 }
+
+const InputField = ({ icon: Icon, label, field, type = "text", placeholder, form, set, focusField, setFocusField, children }) => (
+  <div>
+    <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 block">{label}</label>
+    <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
+      focusField === field
+        ? "border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.08)]"
+        : "border-gray-100 hover:border-gray-200"
+    }`}>
+      <div className={`absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center transition-colors duration-300 ${
+        focusField === field ? "bg-emerald-50 text-emerald-500" : "bg-gray-50 text-gray-400"
+      }`}>
+        <Icon className="text-xs" />
+      </div>
+      <input
+        type={type}
+        value={form[field]}
+        required
+        onChange={(e) => set(field, e.target.value)}
+        onFocus={() => setFocusField(field)}
+        onBlur={() => setFocusField("")}
+        placeholder={placeholder}
+        className="w-full pl-12 pr-4 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
+        style={{ paddingLeft: "3rem" }}
+      />
+      {children}
+    </div>
+  </div>
+);
