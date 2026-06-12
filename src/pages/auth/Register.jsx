@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaLock, FaEnvelope, FaUser, FaClinicMedical, FaUserPlus } from "react-icons/fa";
-
-const roles = [
-  { value: "dokter", label: "Dokter Hewan", emoji: "🩺", desc: "Praktisi utama" },
-  { value: "asisten", label: "Asisten", emoji: "💊", desc: "Tim pendukung" },
-  { value: "admin", label: "Admin Klinik", emoji: "💼", desc: "Manajemen" },
-  { value: "kasir", label: "Kasir", emoji: "💳", desc: "Pembayaran" },
-];
+import { supabase } from "../../lib/supabase";
+import { FaEye, FaEyeSlash, FaLock, FaEnvelope, FaUser, FaPhone, FaUserPlus } from "react-icons/fa";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -15,9 +9,17 @@ export default function Register() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [focusField, setFocusField] = useState("");
+  
   const [form, setForm] = useState({
-    name: "", clinicName: "", role: "", email: "", password: "", confirm: "", agree: false,
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
+    confirm: "",
+    role: "customer",
+    agree: false,
   });
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -26,7 +28,7 @@ export default function Register() {
     const l = form.password.length;
     if (l === 0) return { level: 0, label: "", color: "" };
     if (l < 4) return { level: 1, label: "Lemah", color: "bg-red-400" };
-    if (l < 7) return { level: 2, label: "Cukup", color: "bg-amber-400" };
+    if (l < 8) return { level: 2, label: "Cukup", color: "bg-amber-400" };
     if (l < 10) return { level: 3, label: "Kuat", color: "bg-emerald-400" };
     return { level: 4, label: "Sangat Kuat", color: "bg-emerald-500" };
   };
@@ -36,26 +38,92 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.name || !form.email || !form.password || !form.role) {
+    setSuccess("");
+
+    // 1. Validasi
+    if (!form.fullName || !form.email || !form.phoneNumber || !form.password || !form.confirm) {
       setError("Semua field wajib diisi.");
       return;
     }
-    if (form.password !== form.confirm) {
-      setError("Password dan konfirmasi tidak cocok.");
+    
+    // Email regex validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      setError("Format email tidak valid.");
       return;
     }
+
+    if (form.password.length < 8) {
+      setError("Password minimal 8 karakter.");
+      return;
+    }
+
+    if (form.password !== form.confirm) {
+      setError("Password dan konfirmasi password harus sama.");
+      return;
+    }
+
     if (!form.agree) {
       setError("Anda harus menyetujui syarat & ketentuan.");
       return;
     }
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setLoading(false);
-    navigate("/login");
+
+    try {
+      // 2. Buat akun pada Supabase Authentication
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+      });
+
+      if (authError) throw authError;
+
+      const authUser = authData?.user;
+      if (!authUser) {
+        throw new Error("Pendaftaran gagal. Silakan coba lagi.");
+      }
+
+      // 3. Simpan data profil ke tabel users
+      const { error: profileError } = await supabase.from("users").insert({
+        auth_user_id: authUser.id,
+        full_name: form.fullName,
+        email: form.email,
+        phone_number: form.phoneNumber,
+        role: form.role
+      });
+
+      if (profileError) {
+        throw profileError;
+      }
+
+      setSuccess("Akun berhasil dibuat. Silakan login menggunakan akun Anda.");
+      
+      // Reset form
+      setForm({
+        fullName: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        confirm: "",
+        role: "customer",
+        agree: false,
+      });
+
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+
+    } catch (err) {
+      setError(err.message || "Pendaftaran gagal. Silakan coba lagi.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const InputField = ({ icon: Icon, label, field, type = "text", placeholder, half = false, children }) => (
-    <div className={half ? "" : ""}>
+  const InputField = ({ icon: Icon, label, field, type = "text", placeholder, children }) => (
+    <div>
       <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 block">{label}</label>
       <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
         focusField === field
@@ -70,11 +138,12 @@ export default function Register() {
         <input
           type={type}
           value={form[field]}
+          required
           onChange={(e) => set(field, e.target.value)}
           onFocus={() => setFocusField(field)}
           onBlur={() => setFocusField("")}
           placeholder={placeholder}
-          className="w-full pl-13 pr-4 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
+          className="w-full pl-12 pr-4 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
           style={{ paddingLeft: "3rem" }}
         />
         {children}
@@ -92,57 +161,55 @@ export default function Register() {
       </div>
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Buat Akun Baru</h2>
-        <p className="text-sm text-gray-500 mt-1.5 font-medium">Daftarkan klinik hewan Anda ke PetCare</p>
+        <p className="text-sm text-gray-500 mt-1.5 font-medium">Daftar sebagai customer di PetCare CRM</p>
       </div>
 
-      {error && (
-        <div className="mb-5 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-600 text-sm px-5 py-3 rounded-2xl font-semibold flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 text-xs">⚠️</div>
-          {error}
+      {success && (
+        <div className="mb-5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-250 text-emerald-600 text-sm px-5 py-3 rounded-2xl font-semibold flex items-center gap-3">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 text-xs">✅</div>
+          <span className="text-left">{success}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Name + Clinic */}
-        <div className="grid grid-cols-2 gap-3">
-          <InputField icon={FaUser} label="Nama Lengkap" field="name" placeholder="Dr. Sari" />
-          <InputField icon={FaClinicMedical} label="Nama Klinik" field="clinicName" placeholder="PetCare Jkt" />
+      {error && (
+        <div className="mb-5 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-650 text-sm px-5 py-3 rounded-2xl font-semibold flex items-center gap-3">
+          <div className="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 text-xs">⚠️</div>
+          <span className="text-left">{error}</span>
         </div>
+      )}
 
-        {/* Role picker */}
-        <div>
-          <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2.5 block">Jabatan / Peran</label>
-          <div className="grid grid-cols-4 gap-2">
-            {roles.map((r) => (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => set("role", r.value)}
-                className={`relative flex flex-col items-center gap-1 py-3 rounded-2xl border-2 transition-all duration-300 ${
-                  form.role === r.value
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm shadow-emerald-100 scale-[1.02]"
-                    : "border-gray-100 bg-white text-gray-500 hover:border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                <span className="text-xl">{r.emoji}</span>
-                <span className="text-[10px] font-bold leading-tight text-center">{r.label}</span>
-                {form.role === r.value && (
-                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                    <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 14 10">
-                      <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-4 text-left">
+        {/* Name */}
+        <InputField icon={FaUser} label="Nama Lengkap" field="fullName" placeholder="Dr. Sari Putri" />
 
         {/* Email */}
         <InputField icon={FaEnvelope} label="Email" field="email" type="email" placeholder="dokter@petcare.com" />
 
+        {/* Phone Number */}
+        <InputField icon={FaPhone} label="Nomor Telepon" field="phoneNumber" type="tel" placeholder="0812-xxxx-xxxx" />
+
+        {/* Role Selection */}
+        <div>
+          <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 block">Hak Akses / Role</label>
+          <div className="relative flex items-center rounded-2xl border-2 border-gray-100 focus-within:border-emerald-500 transition-all duration-300 overflow-hidden bg-white">
+            <div className="absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center bg-gray-50 text-gray-400">
+              <span className="text-xs">🔑</span>
+            </div>
+            <select
+              value={form.role}
+              onChange={(e) => set("role", e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-semibold cursor-pointer"
+              style={{ paddingLeft: "3rem" }}
+            >
+              <option value="customer">Customer</option>
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+
         {/* Password + Confirm */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2 block">Password</label>
             <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
@@ -158,6 +225,7 @@ export default function Register() {
               <input
                 type={showPass ? "text" : "password"}
                 value={form.password}
+                required
                 onChange={(e) => set("password", e.target.value)}
                 onFocus={() => setFocusField("password")}
                 onBlur={() => setFocusField("")}
@@ -165,7 +233,7 @@ export default function Register() {
                 className="w-full pr-9 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
                 style={{ paddingLeft: "3rem" }}
               />
-              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 text-gray-400 hover:text-emerald-500 transition-colors">
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 text-gray-400 hover:text-emerald-500 transition-colors cursor-pointer">
                 {showPass ? <FaEyeSlash className="text-xs" /> : <FaEye className="text-xs" />}
               </button>
             </div>
@@ -188,6 +256,7 @@ export default function Register() {
               <input
                 type={showConfirm ? "text" : "password"}
                 value={form.confirm}
+                required
                 onChange={(e) => set("confirm", e.target.value)}
                 onFocus={() => setFocusField("confirm")}
                 onBlur={() => setFocusField("")}
@@ -195,7 +264,7 @@ export default function Register() {
                 className="w-full pr-9 py-3 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
                 style={{ paddingLeft: "3rem" }}
               />
-              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 text-gray-400 hover:text-emerald-500 transition-colors">
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 text-gray-400 hover:text-emerald-500 transition-colors cursor-pointer">
                 {showConfirm ? <FaEyeSlash className="text-xs" /> : <FaEye className="text-xs" />}
               </button>
             </div>
@@ -248,7 +317,7 @@ export default function Register() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-[15px] shadow-[0_10px_30px_-8px_rgba(16,185,129,0.5)] hover:shadow-[0_14px_35px_-8px_rgba(16,185,129,0.6)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-1"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-[15px] shadow-[0_10px_30px_-8px_rgba(16,185,129,0.5)] hover:shadow-[0_14px_35px_-8px_rgba(16,185,129,0.6)] transition-all duration-300 disabled:opacity-60 cursor-pointer flex items-center justify-center gap-3 mt-1"
         >
           {loading ? (
             <>

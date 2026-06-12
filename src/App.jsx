@@ -2,13 +2,16 @@ import "./assets/tailwind.css";
 import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import Loading from "./components/Loading";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-const MainLayout = lazy(() => import("./layouts/MainLayout"));
-const AuthLayout = lazy(() => import("./layouts/AuthLayout"));
+import MainLayout from "./layouts/MainLayout";
+import AuthLayout from "./layouts/AuthLayout";
 
-const Login = lazy(() => import("./pages/auth/Login"));
-const Register = lazy(() => import("./pages/auth/Register"));
-const Forgot = lazy(() => import("./pages/auth/Forgot"));
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import Forgot from "./pages/auth/Forgot";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const ErrorPage = lazy(() => import("./pages/ErrorPage"));
@@ -35,60 +38,77 @@ const Inventory = lazy(() => import("./pages/Inventory"));
 const InventoryDetail = lazy(() => import("./pages/InventoryDetail"));
 const Settings = lazy(() => import("./pages/Settings"));
 
+// New pages
+const UserManagement = lazy(() => import("./pages/UserManagement"));
+const Profile = lazy(() => import("./pages/Profile"));
+
 function App() {
   return (
-    <Suspense fallback={<Loading />}>
-      <Routes>
+    <AuthProvider>
+      <Suspense fallback={<Loading />}>
+        <Routes>
 
-        {/* ── Auth ── */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot" element={<Forgot />} />
-        </Route>
+          {/* ── Public Landing Page ── */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* ── Main ── */}
-        <Route element={<MainLayout />}>
+          {/* ── Auth ── */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot" element={<Forgot />} />
+          </Route>
 
-          {/* Dashboard */}
-          <Route path="/" element={<Dashboard />} />
+          {/* ── Main (Authenticated) ── */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<MainLayout />}>
 
-          {/* Pets */}
-          <Route path="/pets" element={<Pets />} />
-          <Route path="/pets/add" element={<AddPet />} />
-          <Route path="/pets/:id" element={<PetsDetail />} />
+              {/* Dashboard & Profile */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profile" element={<Profile />} />
 
-          {/* Appointments */}
-          <Route path="/appointments" element={<Appointments />} />
+              {/* Pets & Appointments (All roles) */}
+              <Route path="/pets" element={<Pets />} />
+              <Route path="/pets/add" element={<AddPet />} />
+              <Route path="/pets/:id" element={<PetsDetail />} />
+              <Route path="/appointments" element={<Appointments />} />
+              <Route path="/pet-owners" element={<PetOwners />} />
+              <Route path="/pet-owners/:id" element={<PetOwnersDetail />} />
+              
+              {/* Medical & Vaccinations (All roles) */}
+              <Route path="/medical-records" element={<MedicalRecords />} />
+              <Route path="/medical-records/:id" element={<MedicalRecordsDetail />} />
+              <Route path="/vaccinations" element={<Vaccinations />} />
+              <Route path="/vaccinations/:id" element={<VaccinationsDetail />} />
 
-          {/* Pet Owners & CRM */}
-          <Route path="/pet-owners" element={<PetOwners />} />
-          <Route path="/pet-owners/:id" element={<PetOwnersDetail />} />
-          <Route path="/customers" element={<CustomerCrm />} />
-          <Route path="/customers/:id" element={<CustomerCrmDetail />} />
-          <Route path="/campaigns" element={<Campaigns />} />
-          <Route path="/feedback" element={<Feedback />} />
-          <Route path="/vets" element={<Vets />} />
+              {/* Admin & Staff Only */}
+              <Route element={<ProtectedRoute allowedRoles={["admin", "staff"]} />}>
+                <Route path="/customers" element={<CustomerCrm />} />
+                <Route path="/customers/:id" element={<CustomerCrmDetail />} />
+                <Route path="/campaigns" element={<Campaigns />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/vets" element={<Vets />} />
+                <Route path="/inventory" element={<Inventory />} />
+                <Route path="/inventory/:id" element={<InventoryDetail />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
 
-          {/* Klinik & Inventori */}
-          <Route path="/medical-records" element={<MedicalRecords />} />
-          <Route path="/medical-records/:id" element={<MedicalRecordsDetail />} />
-          <Route path="/vaccinations" element={<Vaccinations />} />
-          <Route path="/vaccinations/:id" element={<VaccinationsDetail />} />
-          <Route path="/inventory" element={<Inventory />} />
-          <Route path="/inventory/:id" element={<InventoryDetail />} />
-          <Route path="/settings" element={<Settings />} />
+              {/* Admin Only */}
+              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="/users" element={<UserManagement />} />
+              </Route>
 
-          {/* Error Pages */}
-          <Route path="/400" element={<ErrorPage code="400" />} />
-          <Route path="/401" element={<ErrorPage code="401" />} />
-          <Route path="/403" element={<ErrorPage code="403" />} />
-          <Route path="*" element={<ErrorPage code="404" />} />
+              {/* Error Pages */}
+              <Route path="/400" element={<ErrorPage code="400" />} />
+              <Route path="/401" element={<ErrorPage code="401" />} />
+              <Route path="/403" element={<ErrorPage code="403" />} />
+              <Route path="*" element={<ErrorPage code="404" />} />
 
-        </Route>
+            </Route>
+          </Route>
 
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </AuthProvider>
   );
 }
 

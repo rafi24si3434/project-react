@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { 
   LayoutDashboard, 
   PawPrint, 
@@ -12,45 +13,84 @@ import {
   Contact,
   Megaphone,
   Star,
-  Stethoscope
+  Stethoscope,
+  User
 } from "lucide-react";
-
-const menuItems = [
-  {
-    group: "Utama",
-    items: [
-      { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-    ],
-  },
-  {
-    group: "CRM & Pemasaran",
-    items: [
-      { to: "/customers", label: "Customer CRM", icon: Contact },
-      { to: "/campaigns", label: "Campaign Promo", icon: Megaphone },
-      { to: "/feedback", label: "Feedback & Komplain", icon: Star },
-    ],
-  },
-  {
-    group: "Manajemen",
-    items: [
-      { to: "/pets", label: "Pets", icon: PawPrint },
-      { to: "/appointments", label: "Appointments", icon: CalendarCheck },
-      { to: "/pet-owners", label: "Pet Owners", icon: Users },
-      { to: "/vets", label: "Dokter & Staf", icon: Stethoscope },
-    ],
-  },
-  {
-    group: "Klinik",
-    items: [
-      { to: "/medical-records", label: "Rekam Medis", icon: ClipboardList },
-      { to: "/vaccinations", label: "Vaksinasi", icon: Syringe },
-      { to: "/inventory", label: "Inventori", icon: Package },
-    ],
-  },
-];
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const { profile, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      navigate("/login");
+    }
+  };
+
+  const role = profile?.role || "customer";
+
+  // Build filtered menu items dynamically based on user role
+  const getMenuItems = () => {
+    const items = [];
+
+    // 1. Group Utama
+    items.push({
+      group: "Utama",
+      items: [
+        { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
+      ],
+    });
+
+    // 2. Group CRM & Pemasaran (Admin & Staff only)
+    if (role === "admin" || role === "staff") {
+      items.push({
+        group: "CRM & Pemasaran",
+        items: [
+          { to: "/customers", label: "Customer CRM", icon: Contact },
+          { to: "/campaigns", label: "Campaign Promo", icon: Megaphone },
+          { to: "/feedback", label: "Feedback & Komplain", icon: Star },
+        ],
+      });
+    }
+
+    // 3. Group Manajemen
+    const managementItems = [
+      { to: "/pets", label: "Pets", icon: PawPrint },
+      { to: "/appointments", label: "Appointments", icon: CalendarCheck },
+      { to: "/pet-owners", label: "Pet Owners", icon: Users },
+    ];
+    if (role === "admin" || role === "staff") {
+      managementItems.push({ to: "/vets", label: "Dokter & Staf", icon: Stethoscope });
+    }
+    if (role === "admin") {
+      managementItems.push({ to: "/users", label: "Manajemen User", icon: Users });
+    }
+    items.push({
+      group: "Manajemen",
+      items: managementItems,
+    });
+
+    // 4. Group Klinik
+    const klinikItems = [
+      { to: "/medical-records", label: "Rekam Medis", icon: ClipboardList },
+      { to: "/vaccinations", label: "Vaksinasi", icon: Syringe },
+    ];
+    if (role === "admin" || role === "staff") {
+      klinikItems.push({ to: "/inventory", label: "Inventori", icon: Package });
+    }
+    items.push({
+      group: "Klinik",
+      items: klinikItems,
+    });
+
+    return items;
+  };
+
+  const menuItems = getMenuItems();
 
   return (
     <div className="h-screen bg-white border-r border-gray-100 shadow-[4px_0_24px_rgba(0,0,0,0.02)] p-4 flex flex-col justify-between relative overflow-hidden">
@@ -67,9 +107,9 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="space-y-6 overflow-y-auto max-h-[calc(100vh-220px)] pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+        <nav className="space-y-6 overflow-y-auto max-h-[calc(100vh-250px)] pr-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {menuItems.map((group, groupIdx) => (
-            <div key={groupIdx} className="space-y-1.5">
+            <div key={groupIdx} className="space-y-1.5 text-left">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 mb-3">
                 {group.group}
               </p>
@@ -86,7 +126,7 @@ export default function Sidebar() {
                          ${
                            isActive
                              ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20"
-                             : "text-gray-600 hover:bg-emerald-50/80 hover:text-emerald-600"
+                             : "text-gray-650 hover:bg-emerald-50/80 hover:text-emerald-600"
                          }`
                       }
                     >
@@ -113,32 +153,61 @@ export default function Sidebar() {
       </div>
 
       {/* Sidebar Footer */}
-      <div className="pt-4 border-t border-gray-100 space-y-2 relative z-10">
+      <div className="pt-4 border-t border-gray-100 space-y-2 relative z-10 text-left">
+        {/* Profile Link (All Roles) */}
         <NavLink
-          to="/settings"
+          to="/profile"
           className={({ isActive }) =>
             `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group
              ${
                isActive
                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20"
-                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                 : "text-gray-650 hover:bg-gray-50 hover:text-gray-900"
              }`
           }
         >
           {({ isActive }) => (
             <>
-              <Settings
-                className={`w-5 h-5 transition-transform duration-500 group-hover:rotate-90 ${
+              <User
+                className={`w-5 h-5 transition-transform duration-300 ${
                   isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"
                 }`}
               />
-              <span>Pengaturan</span>
+              <span>Profil Saya</span>
             </>
           )}
         </NavLink>
+
+        {/* Settings Link (Admin & Staff Only) */}
+        {(role === "admin" || role === "staff") && (
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 group
+               ${
+                 isActive
+                   ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20"
+                   : "text-gray-650 hover:bg-gray-50 hover:text-gray-900"
+               }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Settings
+                  className={`w-5 h-5 transition-transform duration-500 group-hover:rotate-90 ${
+                    isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"
+                  }`}
+                />
+                <span>Pengaturan</span>
+              </>
+            )}
+          </NavLink>
+        )}
+
+        {/* Logout button */}
         <button
-          onClick={() => navigate("/login")}
-          className="flex w-full items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 text-gray-600 hover:bg-red-50 hover:text-red-600 cursor-pointer group border border-transparent"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 text-gray-650 hover:bg-red-50 hover:text-red-650 cursor-pointer group border border-transparent"
         >
           <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1 text-gray-400 group-hover:text-red-500" />
           <span>Keluar</span>

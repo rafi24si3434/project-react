@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaPaw } from "react-icons/fa";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
-    email: "emilys",
-    password: "emilyspass",
+    email: "",
+    password: "",
   });
 
   const [showPass, setShowPass] = useState(false);
@@ -20,27 +21,20 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    try {
-      const response = await axios.post(
-        "https://dummyjson.com/user/login",
-        {
-          username: form.email,
-          password: form.password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    if (!form.email || !form.password) {
+      setError("Email dan Password wajib diisi");
+      return;
+    }
 
-      localStorage.setItem("user", JSON.stringify(response.data));
-      navigate("/");
+    setLoading(true);
+
+    try {
+      await login(form.email, form.password);
+      navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Username atau password salah");
+      setError(err.message || "Email atau password salah");
     } finally {
       setLoading(false);
     }
@@ -61,25 +55,25 @@ export default function Login() {
           Selamat Datang
         </h2>
         <p className="text-gray-500 text-sm mt-2 font-medium">
-          Masuk ke panel admin PetCare Anda
+          Masuk ke platform CRM PetCare Anda
         </p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-600 text-sm px-5 py-3.5 rounded-2xl font-semibold flex items-center gap-3">
+        <div className="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-650 text-sm px-5 py-3.5 rounded-2xl font-semibold flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
             <span className="text-sm">⚠️</span>
           </div>
-          {error}
+          <span className="text-left">{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5 text-left">
         {/* Username/Email */}
         <div>
           <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2.5 block">
-            Username / Email
+            Email Pengguna
           </label>
           <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
             focusField === "email"
@@ -92,12 +86,13 @@ export default function Login() {
               <FaEnvelope className="text-sm" />
             </div>
             <input
-              type="text"
+              type="email"
+              required
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
               onFocus={() => setFocusField("email")}
               onBlur={() => setFocusField("")}
-              placeholder="emilys"
+              placeholder="contoh@email.com"
               className="w-full pl-14 pr-4 py-3.5 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
             />
           </div>
@@ -126,6 +121,7 @@ export default function Login() {
             </div>
             <input
               type={showPass ? "text" : "password"}
+              required
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
               onFocus={() => setFocusField("password")}
@@ -136,7 +132,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
-              className="absolute right-4 text-gray-400 hover:text-emerald-500 transition-colors"
+              className="absolute right-4 text-gray-400 hover:text-emerald-500 transition-colors cursor-pointer"
             >
               {showPass ? <FaEyeSlash /> : <FaEye />}
             </button>
@@ -161,7 +157,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-[15px] shadow-[0_10px_30px_-8px_rgba(16,185,129,0.5)] hover:shadow-[0_14px_35px_-8px_rgba(16,185,129,0.6)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 mt-2"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-[15px] shadow-[0_10px_30px_-8px_rgba(16,185,129,0.5)] hover:shadow-[0_14px_35px_-8px_rgba(16,185,129,0.6)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3 mt-2 cursor-pointer"
         >
           {loading ? (
             <>
@@ -189,10 +185,10 @@ export default function Login() {
       {/* Demo login */}
       <button
         type="button"
-        onClick={() => { set("email", "emilys"); set("password", "emilyspass"); }}
-        className="w-full py-3.5 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 hover:border-emerald-300 text-sm text-emerald-700 font-bold transition-all flex items-center justify-center gap-3 group"
+        onClick={() => { set("email", "admin@petcare.com"); set("password", "adminpass123"); }}
+        className="w-full py-3.5 rounded-2xl border-2 border-dashed border-emerald-250 bg-emerald-50/30 hover:bg-emerald-50 hover:border-emerald-350 text-sm text-emerald-700 font-bold transition-all flex items-center justify-center gap-3 group cursor-pointer"
       >
-        <span className="text-lg group-hover:animate-bounce">🐾</span> Gunakan Akun Demo
+        <span className="text-lg group-hover:animate-bounce">🐾</span> Gunakan Akun Demo Admin
       </button>
 
       {/* Register link */}

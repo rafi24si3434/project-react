@@ -1,4 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import petsData from "../data/Pets";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend
 } from "recharts";
@@ -78,6 +81,46 @@ const clinicalInsights = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { profile, isCustomer } = useAuth();
+
+  const myPets = useMemo(() => {
+    if (!profile) return [];
+    return petsData.filter(pet => 
+      pet.owner && 
+      (pet.owner.toLowerCase().includes(profile.full_name.toLowerCase()) || 
+       profile.full_name.toLowerCase().includes(pet.owner.toLowerCase()))
+    );
+  }, [profile]);
+
+  const myAppointments = useMemo(() => {
+    if (!profile) return [];
+    const filtered = initialVisits.filter(visit => 
+      visit.owner && 
+      (visit.owner.toLowerCase().includes(profile.full_name.toLowerCase()) || 
+       profile.full_name.toLowerCase().includes(visit.owner.toLowerCase()))
+    );
+    if (filtered.length > 0) return filtered;
+    
+    // Fallback/Simulated appointments for a premium feel
+    if (myPets.length > 0) {
+      return [
+        {
+          id: 101,
+          emoji: myPets[0].type === "Cat" ? "🐱" : myPets[0].type === "Dog" ? "🐶" : "🐰",
+          name: myPets[0].name,
+          breed: myPets[0].breed,
+          owner: profile.full_name,
+          complaint: "Vaksinasi rutin & Cek kesehatan bulu",
+          status: "Antri",
+          doctor: "drh. Nisa Putri",
+          time: "Besok, 10:00"
+        }
+      ];
+    }
+    return [];
+  }, [profile, myPets]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   
@@ -242,6 +285,347 @@ export default function Dashboard() {
   };
 
   const activeInsight = clinicalInsights[activeInsightIndex];
+
+  if (isCustomer) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen space-y-6 text-left animate-fade-in">
+        {/* Welcome Banner */}
+        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 p-8 text-white shadow-xl shadow-emerald-500/10">
+          {/* Decorative shapes */}
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+          <div className="absolute right-1/4 -bottom-10 w-32 h-32 bg-white/10 rounded-full blur-xl" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-emerald-50">
+                🐾 Portal Customer PetCare
+              </span>
+              <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                Halo, {profile?.full_name || "Pemilik Hewan"}!
+              </h1>
+              <p className="text-emerald-100 text-sm md:text-base font-medium max-w-xl">
+                Pantau rekam medis, jadwal vaksin, dan kelola janji temu untuk anabul kesayangan Anda dengan mudah dalam satu tempat.
+              </p>
+            </div>
+            
+            <div className="shrink-0 flex items-center gap-3 bg-white/15 backdrop-blur-md px-5 py-4 rounded-3xl border border-white/10">
+              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
+                📅
+              </div>
+              <div className="text-xs">
+                <p className="font-extrabold text-white">Hari Ini</p>
+                <p className="font-semibold text-emerald-100 mt-0.5">
+                  {currentTime.toLocaleDateString("id-ID", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white border border-gray-150 rounded-3xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+              🐾
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Anabul Saya</p>
+              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{myPets.length} Ekor</h3>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-150 rounded-3xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+              📅
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Janji Temu</p>
+              <h3 className="text-2xl font-black text-gray-855 mt-0.5">{myAppointments.length} Jadwal</h3>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-150 rounded-3xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+              💉
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Imunisasi Aktif</p>
+              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{myPets.length > 0 ? 1 : 0} Booster</h3>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-150 rounded-3xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
+            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold">
+              📋
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rekam Medis</p>
+              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{myPets.length > 0 ? 3 : 0} Catatan</h3>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="space-y-3">
+          <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
+            🚀 Akses Cepat Layanan
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button 
+              onClick={() => navigate("/appointments")} 
+              className="bg-white hover:bg-emerald-50/20 border border-gray-150 hover:border-emerald-250 p-4 rounded-2xl shadow-sm text-left flex items-start gap-4 transition group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-850">Buat Janji Temu</h4>
+                <p className="text-[10px] text-gray-450 mt-1 font-semibold">Konsultasi dokter & vaksinasi</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => navigate("/pets/add")} 
+              className="bg-white hover:bg-blue-50/20 border border-gray-150 hover:border-blue-250 p-4 rounded-2xl shadow-sm text-left flex items-start gap-4 transition group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <PlusCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-850">Daftarkan Anabul</h4>
+                <p className="text-[10px] text-gray-450 mt-1 font-semibold">Tambah riwayat hewan baru</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => navigate("/medical-records")} 
+              className="bg-white hover:bg-purple-50/20 border border-gray-150 hover:border-purple-250 p-4 rounded-2xl shadow-sm text-left flex items-start gap-4 transition group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <BriefcaseMedical className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-850">Rekam Medis</h4>
+                <p className="text-[10px] text-gray-450 mt-1 font-semibold">Lihat riwayat penyakit & obat</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => navigate("/feedback")} 
+              className="bg-white hover:bg-amber-50/20 border border-gray-150 hover:border-amber-250 p-4 rounded-2xl shadow-sm text-left flex items-start gap-4 transition group cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-850">Beri Feedback</h4>
+                <p className="text-[10px] text-gray-450 mt-1 font-semibold">Beri ulasan / komplain klinik</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left: Pets & Appointments (Col-span 2) */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* My Pets Section */}
+            <div className="bg-white border border-gray-150 rounded-[2rem] p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <h3 className="font-extrabold text-gray-800 text-sm flex items-center gap-2">
+                  🐾 Hewan Peliharaan Saya
+                </h3>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                  {myPets.length} Terdaftar
+                </span>
+              </div>
+
+              {myPets.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {myPets.map((pet) => {
+                    const getEmoji = (t) => {
+                      const lower = t?.toLowerCase();
+                      if (lower === "cat") return "🐱";
+                      if (lower === "dog") return "🐶";
+                      if (lower === "rabbit") return "🐰";
+                      if (lower === "bird") return "🦜";
+                      if (lower === "hamster") return "🐹";
+                      return "🐾";
+                    };
+                    return (
+                      <div 
+                        key={pet.id}
+                        onClick={() => navigate(`/pets/${pet.id}`)}
+                        className="p-4 rounded-2xl border border-gray-150 hover:border-emerald-300 bg-gray-50/30 hover:bg-white transition duration-300 flex items-center justify-between group cursor-pointer hover:shadow-md hover:shadow-emerald-500/5"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-xl bg-white border border-gray-150 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform shadow-sm">
+                            {getEmoji(pet.type)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h4 className="font-bold text-gray-800 text-sm">{pet.name}</h4>
+                              <span className={`text-[10px] font-bold ${pet.gender === 'Male' ? 'text-blue-500' : 'text-pink-500'}`}>
+                                {pet.gender === 'Male' ? '♂️' : '♀️'}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-gray-400 font-bold mt-0.5">{pet.breed}</p>
+                            <p className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50/50 px-1.5 py-0.5 rounded inline-block mt-1">{pet.age} Tahun</p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition" />
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl space-y-3">
+                  <span className="text-3xl block">🐕🐈</span>
+                  <h4 className="font-bold text-gray-700 text-sm">Belum Ada Hewan Peliharaan</h4>
+                  <p className="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">
+                    Yuk, daftarkan anabul kesayangan Anda sekarang untuk menikmati akses rekam medis penuh dan jadwal konsultasi!
+                  </p>
+                  <button 
+                    onClick={() => navigate("/pets/add")} 
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer"
+                  >
+                    Daftarkan Sekarang <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Upcoming Appointments Section */}
+            <div className="bg-white border border-gray-150 rounded-[2rem] p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <h3 className="font-extrabold text-gray-800 text-sm flex items-center gap-2">
+                  📅 Jadwal Janji Temu Mendatang
+                </h3>
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                  {myAppointments.length} Jadwal
+                </span>
+              </div>
+
+              {myAppointments.length > 0 ? (
+                <div className="space-y-3">
+                  {myAppointments.map((app) => (
+                    <div 
+                      key={app.id}
+                      className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xl shadow-sm shrink-0">
+                          {app.emoji}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-800 text-sm">{app.name}</h4>
+                          <p className="text-[10px] text-gray-400 font-bold">{app.breed}</p>
+                          <p className="text-[10px] text-gray-600 font-medium mt-1">Keluhan: <span className="font-semibold text-gray-800">{app.complaint}</span></p>
+                        </div>
+                      </div>
+
+                      <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100 text-xs gap-1">
+                        <div className="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-full">
+                          <Clock className="w-3 h-3" />
+                          {app.time}
+                        </div>
+                        <div className="text-[9px] font-bold text-gray-400 mt-0.5">Dokter: <span className="text-gray-750 font-bold">{app.doctor}</span></div>
+                        <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded mt-1.5 ${
+                          app.status === 'Selesai' ? 'bg-emerald-100 text-emerald-700' :
+                          app.status === 'Proses' ? 'bg-blue-100 text-blue-700' :
+                          'bg-amber-100 text-amber-700 animate-pulse'
+                        }`}>
+                          {app.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl space-y-3">
+                  <span className="text-3xl block">📅</span>
+                  <h4 className="font-bold text-gray-700 text-sm">Tidak Ada Janji Temu Aktif</h4>
+                  <p className="text-xs text-gray-400 max-w-sm mx-auto leading-relaxed">
+                    Belum ada jadwal janji temu untuk hewan peliharaan Anda.
+                  </p>
+                  <button 
+                    onClick={() => navigate("/appointments")} 
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+                  >
+                    Buat Janji Temu Baru <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Right: Insights & Promotion (Col-span 1) */}
+          <div className="space-y-6">
+            
+            {/* Health Insights */}
+            <div className="bg-white border border-gray-150 rounded-[2rem] p-6 shadow-sm space-y-4 text-left">
+              <h3 className="font-extrabold text-gray-800 text-sm flex items-center gap-2 border-b border-gray-100 pb-3">
+                💡 Tips Kesehatan Hewan
+              </h3>
+              <div className="space-y-4">
+                <div className="p-3.5 bg-emerald-50/30 border border-emerald-100 rounded-2xl">
+                  <div className="flex items-center gap-2 mb-1.5 text-emerald-700 text-xs font-bold">
+                    <span>🐱</span> Kucing Persia & Bulu Kusut
+                  </div>
+                  <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
+                    Pastikan anabul Anda disisir setidaknya sekali sehari untuk mencegah bulu kusut (hairball). Cukupi kebutuhan air minumnya agar ginjal tetap sehat.
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-blue-50/30 border border-blue-100 rounded-2xl">
+                  <div className="flex items-center gap-2 mb-1.5 text-blue-750 text-xs font-bold">
+                    <span>🐶</span> Nutrisi Golden Retriever
+                  </div>
+                  <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
+                    Perhatikan asupan kalsium pada masa pertumbuhan mereka. Hindari memberikan cokelat, anggur, atau bawang merah karena beracun bagi anjing.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Campaign promo */}
+            <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border border-slate-850 rounded-[2rem] p-6 text-white shadow-lg space-y-4 relative overflow-hidden text-left">
+              {/* background light */}
+              <div className="absolute right-[-10%] top-[-10%] w-[50%] h-[50%] bg-purple-500/20 rounded-full blur-2xl" />
+              
+              <div className="relative z-10 space-y-3">
+                <span className="inline-flex px-2.5 py-0.5 rounded bg-purple-500/20 border border-purple-500/30 text-[9px] font-black uppercase text-purple-300">
+                  Promo Spesial Bulan Ini
+                </span>
+                <h4 className="text-base font-extrabold leading-tight text-white">
+                  Paket Sterilisasi Lengkap & Cek Kesehatan
+                </h4>
+                <p className="text-[10px] text-slate-400 leading-relaxed font-semibold">
+                  Diskon 20% untuk paket sterilisasi kucing/anjing termasuk rawat inap 1 malam & obat pasca operasi. Berlaku s.d. 30 Juni 2026.
+                </p>
+                <div className="pt-2">
+                  <button 
+                    onClick={() => navigate("/appointments")} 
+                    className="w-full text-center py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 rounded-xl text-xs font-extrabold transition shadow-md shadow-purple-500/10 cursor-pointer"
+                  >
+                    Klaim Promo Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen space-y-6">

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { FaBell, FaSearch, FaChevronDown } from "react-icons/fa";
 
 const notifications = [
@@ -9,10 +11,35 @@ const notifications = [
 ];
 
 export default function Header() {
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  
   const [showNotif, setShowNotif] = useState(false);
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const unreadCount = notifications.filter((n) => n.unread).length;
+
+  const getInitials = (name) => {
+    if (!name) return "US";
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
+  const getRoleLabel = (role) => {
+    if (role === "admin") return "Administrator";
+    if (role === "staff") return "Staf Klinik";
+    if (role === "customer") return "Customer";
+    return role || "Pengguna";
+  };
+
+  const userName = profile?.full_name || user?.email || "User";
+  const userRole = getRoleLabel(profile?.role);
+  const userInitials = getInitials(userName);
 
   return (
     <div className="bg-white/70 backdrop-blur-xl border-b border-gray-100 px-8 py-4 flex items-center justify-between z-40 sticky top-0 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
@@ -70,7 +97,7 @@ export default function Header() {
                     <div className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-lg flex-shrink-0">
                       {n.emoji}
                     </div>
-                    <div>
+                    <div className="text-left">
                       <p className={`text-sm ${n.unread ? "font-semibold text-gray-800" : "font-medium text-gray-600"}`}>
                         {n.text}
                       </p>
@@ -82,7 +109,7 @@ export default function Header() {
                   </div>
                 ))}
               </div>
-              <div className="px-5 py-3 text-center border-t border-gray-50 hover:bg-gray-50/50 cursor-pointer transition-colors">
+              <div className="px-5 py-3 text-center border-t border-gray-50 hover:bg-gray-50/55 cursor-pointer transition-colors">
                 <p className="text-xs font-semibold text-emerald-600">Lihat Semua Notifikasi</p>
               </div>
             </div>
@@ -90,16 +117,19 @@ export default function Header() {
         </div>
 
         {/* User Profile */}
-        <div className="flex items-center gap-3 pl-6 border-l border-gray-200 cursor-pointer group">
+        <div 
+          onClick={() => navigate("/profile")}
+          className="flex items-center gap-3 pl-6 border-l border-gray-200 cursor-pointer group"
+        >
           <div className="relative">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow duration-300">
-              SP
+              {userInitials}
             </div>
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
           </div>
-          <div className="hidden md:block">
-            <h3 className="font-bold text-gray-800 text-sm group-hover:text-emerald-600 transition-colors">dr. Sari Putri</h3>
-            <p className="text-xs text-gray-500 font-medium">Dokter Hewan Utama</p>
+          <div className="hidden md:block text-left">
+            <h3 className="font-bold text-gray-800 text-sm group-hover:text-emerald-600 transition-colors">{userName}</h3>
+            <p className="text-xs text-gray-500 font-medium">{userRole}</p>
           </div>
           <FaChevronDown className="text-gray-400 text-xs ml-1 group-hover:text-emerald-500 transition-colors" />
         </div>
