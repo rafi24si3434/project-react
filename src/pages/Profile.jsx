@@ -37,6 +37,17 @@ export default function Profile() {
 
       if (updateError) throw updateError;
 
+      // Log activity
+      try {
+        await supabase.from("activity_logs").insert({
+          user_id: profile.auth_user_id,
+          activity: "Customer Mengubah Profil",
+          description: `Customer ${fullName} memperbarui informasi profilnya.`
+        });
+      } catch (logErr) {
+        console.error("Failed to log activity:", logErr);
+      }
+
       await refreshProfile();
       setSuccess("Profil Anda berhasil diperbarui!");
       

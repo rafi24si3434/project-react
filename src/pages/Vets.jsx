@@ -292,172 +292,44 @@ export default function Vets() {
               />
             </div>
 
-        <div className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 ml-auto">
-          <button
-            onClick={() => setView("grid")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              view === "grid" ? "bg-gray-100 text-gray-700" : "text-gray-400"
-            }`}
-          >
-            Grid
-          </button>
-          <button
-            onClick={() => setView("list")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              view === "list" ? "bg-gray-100 text-gray-700" : "text-gray-400"
-            }`}
-          >
-            List
-          </button>
-        </div>
-      </div>
-
-      {/* GRID VIEW */}
-      {view === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {filtered.map((vet) => (
-            <div
-              key={vet.id}
-              className="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-lg hover:border-emerald-200 transition"
-            >
-              {/* Header Card */}
-              <div className="flex justify-between items-start mb-4">
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm shadow-inner ${vet.avatarBg}`}
-                >
-                  {getInitials(vet.name)}
-                </div>
-                <span
-                  onClick={() => toggleVetStatus(vet.id, vet.status, vet.name)}
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-full border cursor-pointer select-none transition ${
-                    vet.status === "Aktif"
-                      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                      : "bg-amber-50 text-amber-600 border-amber-100"
-                  }`}
-                >
-                  {vet.status}
-                </span>
-              </div>
-
-              {/* Doctor Profile */}
-              <h3 className="font-bold text-gray-800 text-sm mb-0.5">
-                {vet.name}
-              </h3>
-              <p className="text-xs text-emerald-600 font-semibold mb-3">
-                {vet.specialization}
-              </p>
-
-              {/* Practice details */}
-              <div className="space-y-2 mb-4 border-t border-gray-50 pt-2.5 text-xs text-gray-500">
-                <div className="flex items-center gap-2">
-                  <FaCalendarAlt className="text-gray-400 shrink-0" />
-                  <span className="truncate">{vet.schedule}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaPhone className="text-gray-400 shrink-0" />
-                  <span>{vet.phone}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FaEnvelope className="text-gray-400 shrink-0" />
-                  <span className="truncate">{vet.email}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="border-t border-gray-50 pt-3 flex justify-end gap-1.5">
-                <button
-                  onClick={() =>
-                    toggleVetStatus(vet.id, vet.status, vet.name)
-                  }
-                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition ${
-                    vet.status === "Aktif"
-                      ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                      : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                  }`}
-                >
-                  {vet.status === "Aktif" ? "Cuti" : "Aktifkan"}
-                </button>
-                <button
-                  onClick={() => handleDeleteVet(vet.id, vet.name)}
-                  className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
-                >
-                  <FaTrash className="text-xs" />
-                </button>
-              </div>
+            <div className="flex gap-1 bg-white border border-gray-200 rounded-xl p-1 ml-auto">
+              <button
+                onClick={() => setView("grid")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  view === "grid" ? "bg-gray-100 text-gray-700" : "text-gray-400"
+                }`}
+              >
+                Grid
+              </button>
+              <button
+                onClick={() => setView("list")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  view === "list" ? "bg-gray-100 text-gray-700" : "text-gray-400"
+                }`}
+              >
+                List
+              </button>
             </div>
-          ))}
-        </div>
-      ) : (
-        /* LIST VIEW */
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
-          <table className="w-full text-sm text-left">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                {[
-                  "Dokter / Staf",
-                  "Spesialisasi",
-                  "Jadwal Praktik",
-                  "Kontak",
-                  "Status",
-                  "Aksi",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-4 py-3"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+          </div>
+
+          {/* GRID VIEW */}
+          {view === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               {filtered.map((vet) => (
-                <tr
+                <div
                   key={vet.id}
-                  className="border-b border-gray-50 hover:bg-gray-50 transition"
+                  className="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-lg hover:border-emerald-200 transition"
                 >
-                  {/* Photo & Name */}
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${vet.avatarBg}`}
-                      >
-                        {getInitials(vet.name)}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-800">{vet.name}</p>
-                        <p className="text-[10px] text-gray-400">{vet.id}</p>
-                      </div>
+                  {/* Header Card */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm shadow-inner ${vet.avatarBg}`}
+                    >
+                      {getInitials(vet.name)}
                     </div>
-                  </td>
-
-                  {/* Specialization */}
-                  <td className="px-4 py-3 font-semibold text-gray-700">
-                    {vet.specialization}
-                  </td>
-
-                  {/* Schedule */}
-                  <td className="px-4 py-3 text-gray-600 text-xs">
-                    {vet.schedule}
-                  </td>
-
-                  {/* Contact */}
-                  <td className="px-4 py-3 text-xs space-y-0.5">
-                    <p className="flex items-center gap-1.5 text-gray-700">
-                      <FaPhone className="text-gray-400" />
-                      {vet.phone}
-                    </p>
-                    <p className="flex items-center gap-1.5 text-gray-400">
-                      <FaEnvelope />
-                      {vet.email}
-                    </p>
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-4 py-3">
                     <span
                       onClick={() => toggleVetStatus(vet.id, vet.status, vet.name)}
-                      className={`text-[9px] font-bold px-2.5 py-1 rounded-full border cursor-pointer select-none transition ${
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full border cursor-pointer select-none transition ${
                         vet.status === "Aktif"
                           ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                           : "bg-amber-50 text-amber-600 border-amber-100"
@@ -465,37 +337,165 @@ export default function Vets() {
                     >
                       {vet.status}
                     </span>
-                  </td>
+                  </div>
 
-                  {/* Actions */}
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1.5 items-center">
-                      <button
-                        onClick={() =>
-                          toggleVetStatus(vet.id, vet.status, vet.name)
-                        }
-                        className={`px-3 py-1.5 text-xs font-bold rounded-xl transition ${
-                          vet.status === "Aktif"
-                            ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                            : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                        }`}
-                      >
-                        {vet.status === "Aktif" ? "Cuti" : "Aktifkan"}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteVet(vet.id, vet.name)}
-                        className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
-                      >
-                        <FaTrash className="text-xs" />
-                      </button>
+                  {/* Doctor Profile */}
+                  <h3 className="font-bold text-gray-800 text-sm mb-0.5">
+                    {vet.name}
+                  </h3>
+                  <p className="text-xs text-emerald-600 font-semibold mb-3">
+                    {vet.specialization}
+                  </p>
+
+                  {/* Practice details */}
+                  <div className="space-y-2 mb-4 border-t border-gray-50 pt-2.5 text-xs text-gray-500">
+                    <div className="flex items-center gap-2">
+                      <FaCalendarAlt className="text-gray-400 shrink-0" />
+                      <span className="truncate">{vet.schedule}</span>
                     </div>
-                  </td>
-                </tr>
+                    <div className="flex items-center gap-2">
+                      <FaPhone className="text-gray-400 shrink-0" />
+                      <span>{vet.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaEnvelope className="text-gray-400 shrink-0" />
+                      <span className="truncate">{vet.email}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="border-t border-gray-50 pt-3 flex justify-end gap-1.5">
+                    <button
+                      onClick={() =>
+                        toggleVetStatus(vet.id, vet.status, vet.name)
+                      }
+                      className={`px-3 py-1.5 text-xs font-bold rounded-xl transition ${
+                        vet.status === "Aktif"
+                          ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                          : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                      }`}
+                    >
+                      {vet.status === "Aktif" ? "Cuti" : "Aktifkan"}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteVet(vet.id, vet.name)}
+                      className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
+                    >
+                      <FaTrash className="text-xs" />
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </div>
+          ) : (
+            /* LIST VIEW */
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50">
+                    {[
+                      "Dokter / Staf",
+                      "Spesialisasi",
+                      "Jadwal Praktik",
+                      "Kontak",
+                      "Status",
+                      "Aksi",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-4 py-3"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((vet) => (
+                    <tr
+                      key={vet.id}
+                      className="border-b border-gray-50 hover:bg-gray-50 transition"
+                    >
+                      {/* Photo & Name */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${vet.avatarBg}`}
+                          >
+                            {getInitials(vet.name)}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-800">{vet.name}</p>
+                            <p className="text-[10px] text-gray-400">{vet.id}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Specialization */}
+                      <td className="px-4 py-3 font-semibold text-gray-700">
+                        {vet.specialization}
+                      </td>
+
+                      {/* Schedule */}
+                      <td className="px-4 py-3 text-gray-600 text-xs">
+                        {vet.schedule}
+                      </td>
+
+                      {/* Contact */}
+                      <td className="px-4 py-3 text-xs space-y-0.5">
+                        <p className="flex items-center gap-1.5 text-gray-700">
+                          <FaPhone className="text-gray-400" />
+                          {vet.phone}
+                        </p>
+                        <p className="flex items-center gap-1.5 text-gray-400">
+                          <FaEnvelope />
+                          {vet.email}
+                        </p>
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-4 py-3">
+                        <span
+                          onClick={() => toggleVetStatus(vet.id, vet.status, vet.name)}
+                          className={`text-[9px] font-bold px-2.5 py-1 rounded-full border cursor-pointer select-none transition ${
+                            vet.status === "Aktif"
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                              : "bg-amber-50 text-amber-600 border-amber-100"
+                          }`}
+                        >
+                          {vet.status}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1.5 items-center">
+                          <button
+                            onClick={() =>
+                              toggleVetStatus(vet.id, vet.status, vet.name)
+                            }
+                            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition ${
+                              vet.status === "Aktif"
+                                ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                                : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                            }`}
+                          >
+                            {vet.status === "Aktif" ? "Cuti" : "Aktifkan"}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteVet(vet.id, vet.name)}
+                            className="w-8 h-8 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 transition"
+                          >
+                            <FaTrash className="text-xs" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
 

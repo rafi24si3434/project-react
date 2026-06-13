@@ -25,33 +25,98 @@ export function AuthProvider({ children }) {
   };
 
   const fetchProfile = async (userId, currentUser) => {
+    console.log("[AuthContext] fetchProfile start:", { userId, email: currentUser?.email });
     try {
-      const { data, error } = await supabase
+      // 1. Try querying by auth_user_id
+      let { data, error } = await supabase
         .from("users")
         .select("*")
         .eq("auth_user_id", userId)
         .maybeSingle();
 
+      console.log("[AuthContext] fetchProfile by auth_user_id result:", { data, error });
+
+      // 2. Fallback: Query by email if auth_user_id didn't yield a record
+      if (!data && currentUser?.email) {
+        console.log("[AuthContext] Profile not found by auth_user_id. Trying email fallback...");
+        const { data: emailData, error: emailError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("email", currentUser.email)
+          .maybeSingle();
+
+        console.log("[AuthContext] fetchProfile by email result:", { data: emailData, error: emailError });
+
+        if (emailData) {
+          data = emailData;
+          // Attempt to update and link the auth_user_id
+          console.log("[AuthContext] Found profile by email. Linking auth_user_id in DB...");
+          const { error: updateError } = await supabase
+            .from("users")
+            .update({ auth_user_id: userId })
+            .eq("id", data.id);
+
+          if (updateError) {
+            console.warn("[AuthContext] Failed to link auth_user_id in DB (likely RLS restriction):", updateError.message);
+          } else {
+            console.log("[AuthContext] Successfully linked auth_user_id in DB.");
+            data.auth_user_id = userId;
+          }
+        }
+      }
+
       if (error) {
-        console.error("Error fetching user profile:", error);
-        setProfile(getFallbackProfile(currentUser));
+        console.error("[AuthContext] Error fetching user profile:", error);
+        const fallback = getFallbackProfile(currentUser);
+        console.log("[AuthContext] fetchProfile error fallback:", fallback);
+        setProfile(fallback);
       } else if (!data) {
-        console.warn("No profile record found in public.users. Using email-based fallback.");
-        setProfile(getFallbackProfile(currentUser));
+        console.warn("[AuthContext] No profile record found in public.users. Auto-creating profile...");
+        const fallback = getFallbackProfile(currentUser);
+        try {
+          const { data: newProfile, error: insertError } = await supabase
+            .from("users")
+            .upsert({
+              auth_user_id: userId,
+              full_name: fallback.full_name,
+              email: fallback.email,
+              phone_number: fallback.phone_number,
+              role: fallback.role
+            }, { onConflict: "email" })
+            .select()
+            .maybeSingle();
+
+          if (insertError) {
+            console.error("[AuthContext] Failed to auto-create profile in database:", insertError.message);
+            setProfile(fallback);
+          } else {
+            console.log("[AuthContext] Auto-created profile successfully:", newProfile);
+            setProfile(newProfile || fallback);
+          }
+        } catch (dbErr) {
+          console.error("[AuthContext] Database exception during profile auto-create:", dbErr);
+          setProfile(fallback);
+        }
       } else {
+        console.log("[AuthContext] fetchProfile success:", data);
         setProfile(data);
       }
     } catch (err) {
-      console.error("Fetch profile failed:", err);
-      setProfile(getFallbackProfile(currentUser));
+      console.error("[AuthContext] Fetch profile failed with exception:", err);
+      const fallback = getFallbackProfile(currentUser);
+      console.log("[AuthContext] fetchProfile exception fallback:", fallback);
+      setProfile(fallback);
     }
   };
 
   useEffect(() => {
     // 1. Get initial session
     const getInitialSession = async () => {
+      setLoading(true);
+      console.log("[AuthContext] Checking initial session...");
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("[AuthContext] Initial session retrieved:", session ? "Session exists" : "No session");
         if (session?.user) {
           setUser(session.user);
           await fetchProfile(session.user.id, session.user);
@@ -60,7 +125,7 @@ export function AuthProvider({ children }) {
           setProfile(null);
         }
       } catch (err) {
-        console.error("Get session failed:", err);
+        console.error("[AuthContext] Get session failed:", err);
       } finally {
         setLoading(false);
       }
@@ -70,7 +135,8 @@ export function AuthProvider({ children }) {
 
     // 2. Listen to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change event:", event);
+      console.log("[AuthContext] Auth state change event:", event, "User ID:", session?.user?.id);
+      setLoading(true);
       if (session?.user) {
         setUser(session.user);
         await fetchProfile(session.user.id, session.user);
@@ -87,25 +153,45 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      throw error;
+    console.log("[AuthContext] login requested for:", email);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        console.error("[AuthContext] signInWithPassword failed:", error.message);
+        throw error;
+      }
+      console.log("[AuthContext] signInWithPassword succeeded. User:", data?.user?.id);
+      if (data?.user) {
+        setUser(data.user);
+        await fetchProfile(data.user.id, data.user);
+      }
+      return data;
+    } catch (err) {
+      setLoading(false);
+      throw err;
+    } finally {
+      setLoading(false);
     }
-    return data;
   };
 
   const logout = async () => {
+    console.log("[AuthContext] logout requested");
     const { error } = await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
-    if (error) throw error;
+    if (error) {
+      console.error("[AuthContext] signOut failed:", error);
+      throw error;
+    }
   };
 
   const refreshProfile = async () => {
     if (user) {
+      console.log("[AuthContext] refreshProfile requested for:", user.id);
       await fetchProfile(user.id, user);
     }
   };

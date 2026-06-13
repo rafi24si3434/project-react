@@ -115,14 +115,14 @@ export default function UserManagement() {
         const authUser = authData?.user;
         if (!authUser) throw new Error("Gagal membuat user di Supabase Auth");
 
-        // 2. Insert user profile into public.users table using main client
-        const { error: profileError } = await supabase.from("users").insert({
+        // 2. Insert user profile into public.users table using main client (use upsert to link pre-existing profiles)
+        const { error: profileError } = await supabase.from("users").upsert({
           auth_user_id: authUser.id,
           full_name: form.fullName,
           email: form.email,
           phone_number: form.phoneNumber,
           role: form.role
-        });
+        }, { onConflict: "email" });
 
         if (profileError) {
           // Cleanup auth user? Supabase auth doesn't easily allow rollback on client, 

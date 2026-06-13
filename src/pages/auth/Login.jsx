@@ -34,7 +34,12 @@ export default function Login() {
       await login(form.email, form.password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Email atau password salah");
+      console.error("Login error details:", err);
+      if (err.message && (err.message.includes("Email not confirmed") || err.message.includes("confirm"))) {
+        setError("Email belum dikonfirmasi! Silakan konfirmasi email Anda, atau jika menggunakan testing lokal, nonaktifkan opsi 'Confirm email' di Supabase Dashboard (Authentication -> Providers -> Email).");
+      } else {
+        setError(err.message || "Email atau password salah");
+      }
     } finally {
       setLoading(false);
     }

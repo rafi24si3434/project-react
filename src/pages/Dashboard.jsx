@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import petsData from "../data/Pets";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend
@@ -10,7 +11,7 @@ import {
   Sparkles, Clock, AlertCircle, Heart, ArrowRight,
   PlusCircle, Stethoscope, BriefcaseMedical, ChevronRight,
   Flame, BellDot, HeartPulse, ShieldAlert, DollarSign, Send,
-  ArrowUpRight, AlertTriangle, CheckCircle, HelpCircle
+  ArrowUpRight, AlertTriangle, CheckCircle, HelpCircle, PawPrint
 } from "lucide-react";
 
 import StatCard from "../components/StatCard";
@@ -84,42 +85,160 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { profile, isCustomer } = useAuth();
 
-  const myPets = useMemo(() => {
-    if (!profile) return [];
-    return petsData.filter(pet => 
-      pet.owner && 
-      (pet.owner.toLowerCase().includes(profile.full_name.toLowerCase()) || 
-       profile.full_name.toLowerCase().includes(pet.owner.toLowerCase()))
-    );
-  }, [profile]);
+  const [custStats, setCustStats] = useState({
+    petsCount: 0,
+    appCount: 0,
+    recordCount: 0,
+    totalSpent: 0,
+    petsList: [],
+    appointmentsList: [],
+    ordersList: []
+  });
 
-  const myAppointments = useMemo(() => {
-    if (!profile) return [];
-    const filtered = initialVisits.filter(visit => 
-      visit.owner && 
-      (visit.owner.toLowerCase().includes(profile.full_name.toLowerCase()) || 
-       profile.full_name.toLowerCase().includes(visit.owner.toLowerCase()))
-    );
-    if (filtered.length > 0) return filtered;
-    
-    // Fallback/Simulated appointments for a premium feel
-    if (myPets.length > 0) {
-      return [
-        {
-          id: 101,
-          emoji: myPets[0].type === "Cat" ? "🐱" : myPets[0].type === "Dog" ? "🐶" : "🐰",
-          name: myPets[0].name,
-          breed: myPets[0].breed,
-          owner: profile.full_name,
-          complaint: "Vaksinasi rutin & Cek kesehatan bulu",
-          status: "Antri",
-          doctor: "drh. Nisa Putri",
-          time: "Besok, 10:00"
-        }
-      ];
+  const [admStats, setAdmStats] = useState({
+    totalCustomer: 0,
+    customerBaru: 0,
+    totalHewan: 0,
+    appointmentAktif: 0,
+    totalPenjualan: 0
+  });
+
+  const [loadingDb, setLoadingDb] = useState(true);
+
+  const fetchCustomerStats = async (userId) => {
+    try {
+      const { count: petsCount } = await supabase
+        .from("pets")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", userId);
+
+      const { count: appCount } = await supabase
+        .from("appointments")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", userId)
+        .in("status", ["Pending", "Confirmed"]);
+
+      const { count: recordCount } = await supabase
+        .from("medical_records")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", userId);
+
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("total_amount")
+        .eq("customer_id", userId)
+        .in("status", ["Paid", "Completed", "Processing"]);
+
+      const totalSpent = orderData ? orderData.reduce((sum, o) => sum + Number(o.total_amount || 0), 0) : 0;
+
+      const { data: petsList } = await supabase
+        .from("pets")
+        .select("*")
+        .eq("owner_id", userId)
+        .order("created_at", { ascending: false });
+
+      const { data: appointmentsList } = await supabase
+        .from("appointments")
+        .select("*, pets(name, type, breed)")
+        .eq("owner_id", userId)
+        .order("date", { ascending: true })
+        .order("time", { ascending: true });
+
+      const { data: ordersList } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("customer_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      return {
+        petsCount: petsCount || 0,
+        appCount: appCount || 0,
+        recordCount: recordCount || 0,
+        totalSpent,
+        petsList: petsList || [],
+        appointmentsList: appointmentsList || [],
+        ordersList: ordersList || []
+      };
+    } catch (err) {
+      console.error("Error fetching customer stats:", err);
+      return {
+        petsCount: 0,
+        appCount: 0,
+        recordCount: 0,
+        totalSpent: 0,
+        petsList: [],
+        appointmentsList: [],
+        ordersList: []
+      };
     }
-    return [];
-  }, [profile, myPets]);
+  };
+
+  const fetchAdminStats = async () => {
+    try {
+      const { count: totalCustomer } = await supabase
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "customer");
+        
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const { count: customerBaru } = await supabase
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "customer")
+        .gte("created_at", sevenDaysAgo.toISOString());
+
+      const { count: totalHewan } = await supabase
+        .from("pets")
+        .select("*", { count: "exact", head: true });
+
+      const { count: appointmentAktif } = await supabase
+        .from("appointments")
+        .select("*", { count: "exact", head: true })
+        .in("status", ["Pending", "Confirmed"]);
+
+      const { data: salesData } = await supabase
+        .from("orders")
+        .select("total_amount")
+        .in("status", ["Paid", "Completed", "Processing"]);
+
+      const totalPenjualan = salesData ? salesData.reduce((sum, o) => sum + Number(o.total_amount || 0), 0) : 0;
+
+      return {
+        totalCustomer: totalCustomer || 0,
+        customerBaru: customerBaru || 0,
+        totalHewan: totalHewan || 0,
+        appointmentAktif: appointmentAktif || 0,
+        totalPenjualan
+      };
+    } catch (err) {
+      console.error("Error fetching admin stats:", err);
+      return {
+        totalCustomer: 0,
+        customerBaru: 0,
+        totalHewan: 0,
+        appointmentAktif: 0,
+        totalPenjualan: 0
+      };
+    }
+  };
+
+  useEffect(() => {
+    if (!profile) return;
+    const loadData = async () => {
+      setLoadingDb(true);
+      if (profile.role === "customer") {
+        const data = await fetchCustomerStats(profile.auth_user_id);
+        setCustStats(data);
+      } else {
+        const data = await fetchAdminStats();
+        setAdmStats(data);
+      }
+      setLoadingDb(false);
+    };
+    loadData();
+  }, [profile]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -135,10 +254,6 @@ export default function Dashboard() {
   // Report Period Filter
   const [periodFilter, setPeriodFilter] = useState("hari-ini");
   
-  // Dashboard Statistics State
-  const [stats, setStats] = useState(null);
-  const [isLoadingStats, setIsLoadingStats] = useState(true);
-
   // Define triggerToast
   const triggerToast = (msg) => {
     setToastMessage(msg);
@@ -153,60 +268,14 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  // Simulated stats loading based on report period filter (useEffect)
-  useEffect(() => {
-    setIsLoadingStats(true);
-    const timer = setTimeout(() => {
-      if (periodFilter === "hari-ini") {
-        setStats({
-          kunjungan: "24",
-          kunjunganSub: "+3 anabul",
-          kunjunganDesc: "dibanding kemarin",
-          antrian: "8",
-          antrianSub: "4 anabul",
-          antrianDesc: "sedang diperiksa",
-          totalPasien: "312",
-          totalPasienSub: "+12 bulan ini",
-          totalPasienDesc: "anabul terdaftar",
-          pendapatan: "Rp 4.2Jt",
-          pendapatanSub: "85%",
-          pendapatanDesc: "dari target harian"
-        });
-      } else {
-        setStats({
-          kunjungan: "158",
-          kunjunganSub: "+22% m-o-m",
-          kunjunganDesc: "dibanding minggu lalu",
-          antrian: "42",
-          antrianSub: "12 rata-rata/hari",
-          antrianDesc: "minggu ini",
-          totalPasien: "324",
-          totalPasienSub: "+24 bulan ini",
-          totalPasienDesc: "anabul terdaftar",
-          pendapatan: "Rp 28.5Jt",
-          pendapatanSub: "98%",
-          pendapatanDesc: "dari target mingguan"
-        });
-      }
-      setIsLoadingStats(false);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [periodFilter]);
-
   const statsList = useMemo(() => {
-    if (!stats) return [
-      { label: "Kunjungan Hari Ini", val: "...", sub: "...", desc: "...", color: "emerald", icon: Calendar },
-      { label: "Antrian Pasien", val: "...", sub: "...", desc: "...", color: "blue", icon: Activity },
-      { label: "Total Pasien Aktif", val: "...", sub: "...", desc: "...", color: "violet", icon: Users },
-      { label: "Pendapatan Harian", val: "...", sub: "...", desc: "...", color: "amber", icon: TrendingUp },
-    ];
     return [
-      { label: periodFilter === "hari-ini" ? "Kunjungan Hari Ini" : "Kunjungan Minggu Ini", val: stats.kunjungan, sub: stats.kunjunganSub, desc: stats.kunjunganDesc, color: "emerald", icon: Calendar },
-      { label: "Antrian Pasien", val: stats.antrian, sub: stats.antrianSub, desc: stats.antrianDesc, color: "blue", icon: Activity },
-      { label: "Total Pasien Aktif", val: stats.totalPasien, sub: stats.totalPasienSub, desc: stats.totalPasienDesc, color: "violet", icon: Users },
-      { label: periodFilter === "hari-ini" ? "Pendapatan Harian" : "Pendapatan Mingguan", val: stats.pendapatan, sub: stats.pendapatanSub, desc: stats.pendapatanDesc, color: "amber", icon: TrendingUp },
+      { label: "Total Customer", val: admStats.totalCustomer, sub: `+${admStats.customerBaru}`, desc: "Customer baru (7 hari)", color: "emerald", icon: Users },
+      { label: "Total Hewan", val: admStats.totalHewan, sub: "Aktif", desc: "Anabul terdaftar", color: "blue", icon: PawPrint },
+      { label: "Appointment Aktif", val: admStats.appointmentAktif, sub: "Pending/Confirmed", desc: "Janji temu aktif", color: "violet", icon: Calendar },
+      { label: "Total Penjualan Produk", val: `Rp ${admStats.totalPenjualan.toLocaleString("id-ID")}`, sub: "Lunas/Proses", desc: "Pendapatan produk", color: "amber", icon: TrendingUp },
     ];
-  }, [stats, periodFilter]);
+  }, [admStats]);
 
   const filteredVisits = useMemo(() => {
     return initialVisits.filter(v => 
@@ -335,7 +404,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Anabul Saya</p>
-              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{myPets.length} Ekor</h3>
+              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{custStats.petsCount} Ekor</h3>
             </div>
           </div>
 
@@ -345,17 +414,17 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Janji Temu</p>
-              <h3 className="text-2xl font-black text-gray-855 mt-0.5">{myAppointments.length} Jadwal</h3>
+              <h3 className="text-2xl font-black text-gray-855 mt-0.5">{custStats.appCount} Jadwal</h3>
             </div>
           </div>
 
           <div className="bg-white border border-gray-150 rounded-3xl p-5 flex items-center gap-4 shadow-sm hover:shadow-md transition">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
-              💉
+              💰
             </div>
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Imunisasi Aktif</p>
-              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{myPets.length > 0 ? 1 : 0} Booster</h3>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Belanja</p>
+              <h3 className="text-2xl font-black text-gray-850 mt-0.5">Rp {custStats.totalSpent.toLocaleString("id-ID")}</h3>
             </div>
           </div>
 
@@ -365,7 +434,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rekam Medis</p>
-              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{myPets.length > 0 ? 3 : 0} Catatan</h3>
+              <h3 className="text-2xl font-black text-gray-850 mt-0.5">{custStats.recordCount} Catatan</h3>
             </div>
           </div>
         </div>
@@ -442,19 +511,19 @@ export default function Dashboard() {
                   🐾 Hewan Peliharaan Saya
                 </h3>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                  {myPets.length} Terdaftar
+                  {custStats.petsCount} Terdaftar
                 </span>
               </div>
 
-              {myPets.length > 0 ? (
+              {custStats.petsList.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {myPets.map((pet) => {
+                  {custStats.petsList.map((pet) => {
                     const getEmoji = (t) => {
                       const lower = t?.toLowerCase();
-                      if (lower === "cat") return "🐱";
-                      if (lower === "dog") return "🐶";
-                      if (lower === "rabbit") return "🐰";
-                      if (lower === "bird") return "🦜";
+                      if (lower === "cat" || lower === "kucing") return "🐱";
+                      if (lower === "dog" || lower === "anjing") return "🐶";
+                      if (lower === "rabbit" || lower === "kelinci") return "🐰";
+                      if (lower === "bird" || lower === "burung") return "🦜";
                       if (lower === "hamster") return "🐹";
                       return "🐾";
                     };
@@ -471,12 +540,12 @@ export default function Dashboard() {
                           <div>
                             <div className="flex items-center gap-1.5">
                               <h4 className="font-bold text-gray-800 text-sm">{pet.name}</h4>
-                              <span className={`text-[10px] font-bold ${pet.gender === 'Male' ? 'text-blue-500' : 'text-pink-500'}`}>
-                                {pet.gender === 'Male' ? '♂️' : '♀️'}
+                              <span className={`text-[10px] font-bold ${pet.gender === 'Male' || pet.gender === 'Jantan' ? 'text-blue-500' : 'text-pink-500'}`}>
+                                {pet.gender === 'Male' || pet.gender === 'Jantan' ? '♂️' : '♀️'}
                               </span>
                             </div>
                             <p className="text-[10px] text-gray-400 font-bold mt-0.5">{pet.breed}</p>
-                            <p className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50/50 px-1.5 py-0.5 rounded inline-block mt-1">{pet.age} Tahun</p>
+                            <p className="text-[9px] text-emerald-600 font-extrabold bg-emerald-50/50 px-1.5 py-0.5 rounded inline-block mt-1">{pet.birth_date ? `${new Date().getFullYear() - new Date(pet.birth_date).getFullYear()} Tahun` : "Umur -"}</p>
                           </div>
                         </div>
                         <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition" />
@@ -508,44 +577,55 @@ export default function Dashboard() {
                   📅 Jadwal Janji Temu Mendatang
                 </h3>
                 <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
-                  {myAppointments.length} Jadwal
+                  {custStats.appCount} Jadwal
                 </span>
               </div>
 
-              {myAppointments.length > 0 ? (
+              {custStats.appointmentsList.length > 0 ? (
                 <div className="space-y-3">
-                  {myAppointments.map((app) => (
-                    <div 
-                      key={app.id}
-                      className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xl shadow-sm shrink-0">
-                          {app.emoji}
+                  {custStats.appointmentsList.map((app) => {
+                    const getEmoji = (t) => {
+                      const lower = t?.toLowerCase();
+                      if (lower === "cat" || lower === "kucing") return "🐱";
+                      if (lower === "dog" || lower === "anjing") return "🐶";
+                      if (lower === "rabbit" || lower === "kelinci") return "🐰";
+                      if (lower === "bird" || lower === "burung") return "🦜";
+                      if (lower === "hamster") return "🐹";
+                      return "🐾";
+                    };
+                    return (
+                      <div 
+                        key={app.id}
+                        className="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-xl shadow-sm shrink-0">
+                            {getEmoji(app.pets?.type)}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-800 text-sm">{app.pets?.name || "Hewan"}</h4>
+                            <p className="text-[10px] text-gray-400 font-bold">{app.pets?.breed || "Ras"}</p>
+                            <p className="text-[10px] text-gray-600 font-medium mt-1">Keluhan: <span className="font-semibold text-gray-800">{app.notes || "-"}</span></p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-bold text-gray-800 text-sm">{app.name}</h4>
-                          <p className="text-[10px] text-gray-400 font-bold">{app.breed}</p>
-                          <p className="text-[10px] text-gray-600 font-medium mt-1">Keluhan: <span className="font-semibold text-gray-800">{app.complaint}</span></p>
-                        </div>
-                      </div>
 
-                      <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100 text-xs gap-1">
-                        <div className="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-full">
-                          <Clock className="w-3 h-3" />
-                          {app.time}
+                        <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100 text-xs gap-1">
+                          <div className="flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-full">
+                            <Clock className="w-3 h-3" />
+                            {app.date} · {app.time}
+                          </div>
+                          <div className="text-[9px] font-bold text-gray-400 mt-0.5">Dokter: <span className="text-gray-750 font-bold">{app.doctor}</span></div>
+                          <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded mt-1.5 ${
+                            app.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                            app.status === 'Confirmed' ? 'bg-blue-100 text-blue-700' :
+                            'bg-amber-100 text-amber-700 animate-pulse'
+                          }`}>
+                            {app.status === 'Completed' ? 'Selesai' : app.status === 'Confirmed' ? 'Terkonfirmasi' : 'Menunggu'}
+                          </span>
                         </div>
-                        <div className="text-[9px] font-bold text-gray-400 mt-0.5">Dokter: <span className="text-gray-750 font-bold">{app.doctor}</span></div>
-                        <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded mt-1.5 ${
-                          app.status === 'Selesai' ? 'bg-emerald-100 text-emerald-700' :
-                          app.status === 'Proses' ? 'bg-blue-100 text-blue-700' :
-                          'bg-amber-100 text-amber-700 animate-pulse'
-                        }`}>
-                          {app.status}
-                        </span>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="p-8 text-center border-2 border-dashed border-gray-200 rounded-2xl space-y-3">

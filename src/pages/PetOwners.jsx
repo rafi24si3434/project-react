@@ -9,9 +9,9 @@ import {
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
+import { supabase } from "../lib/supabase";
 
 /* IMPORT DATA */
-import owners from "../data/PetOwners";
 
 export default function PetOwners() {
   const navigate = useNavigate();
@@ -25,13 +25,93 @@ export default function PetOwners() {
   const searchRef = useRef(null);
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setOwnerData(owners);
-      setIsLoading(false);
-      console.log("[useEffect] Data owner berhasil dimuat:", owners.length, "pemilik");
-    }, 600);
-    return () => clearTimeout(timer);
+    const fetchOwnerData = async () => {
+      setIsLoading(true);
+      try {
+        const { data: usersData, error: usersError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("role", "customer")
+          .order("created_at", { ascending: false });
+
+        if (usersError) throw usersError;
+
+        const { data: petsData } = await supabase
+          .from("pets")
+          .select("id, owner_id, name");
+
+        const { data: appData } = await supabase
+          .from("appointments")
+          .select("id, owner_id");
+
+        const petsMap = {};
+        if (petsData) {
+          petsData.forEach((p) => {
+            if (!petsMap[p.owner_id]) petsMap[p.owner_id] = [];
+            petsMap[p.owner_id].push(p.name);
+          });
+        }
+
+        const appMap = {};
+        if (appData) {
+          appData.forEach((a) => {
+            appMap[a.owner_id] = (appMap[a.owner_id] || 0) + 1;
+          });
+        }
+
+        const colors = [
+          "bg-emerald-100 text-emerald-700",
+          "bg-blue-100 text-blue-700",
+          "bg-pink-100 text-pink-700",
+          "bg-yellow-100 text-yellow-700",
+          "bg-purple-100 text-purple-700",
+          "bg-indigo-100 text-indigo-700",
+          "bg-red-100 text-red-700",
+          "bg-teal-100 text-teal-700",
+          "bg-orange-100 text-orange-700",
+          "bg-cyan-100 text-cyan-700",
+        ];
+
+        const getInitials = (name) => {
+          if (!name) return "US";
+          return name
+            .split(" ")
+            .filter(Boolean)
+            .map((word) => word[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+        };
+
+        const mapped = (usersData || []).map((u, index) => {
+          const sinceDate = u.created_at
+            ? new Date(u.created_at).toLocaleDateString("id-ID", { month: "short", year: "numeric" })
+            : "Baru";
+          
+          return {
+            id: u.id,
+            auth_user_id: u.auth_user_id,
+            name: u.full_name,
+            phone: u.phone_number || "-",
+            email: u.email,
+            address: u.address || "Pekanbaru",
+            pets: petsMap[u.auth_user_id] || [],
+            totalVisits: appMap[u.auth_user_id] || 0,
+            since: sinceDate,
+            avatar: getInitials(u.full_name),
+            avatarBg: colors[index % colors.length],
+          };
+        });
+
+        setOwnerData(mapped);
+      } catch (err) {
+        console.error("Error loading owners from database:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOwnerData();
   }, []);
 
   useEffect(() => {

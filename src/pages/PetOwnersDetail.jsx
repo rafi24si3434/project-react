@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
@@ -36,8 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import owners from "../data/PetOwners";
-import petsData from "../data/Pets";
+import { supabase } from "../lib/supabase";
 
 const petTypeFallback = ["Dog", "Cat", "Rabbit", "Bird", "Hamster"];
 const services = [
@@ -231,18 +230,247 @@ export default function PetOwnersDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const owner = owners.find((item) => item.id === Number(id));
-  const ownerDetail = useMemo(() => (owner ? buildOwnerDetail(owner) : null), [owner]);
+  const [ownerDetail, setOwnerDetail] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [refreshCounter, setRefreshCounter] = useState(0);
+
+  useEffect(() => {
+    const fetchOwnerDetails = async () => {
+      setIsLoading(true);
+      try {
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("*")
+          .or(`id.eq.${id},auth_user_id.eq.${id}`)
+          .maybeSingle();
+
+        if (userError) throw userError;
+        if (!userData) {
+          setOwnerDetail(null);
+          return;
+        }
+
+        const { data: petsData } = await supabase
+          .from("pets")
+          .select("*")
+          .eq("owner_id", userData.auth_user_id);
+
+        const { data: appointmentsData } = await supabase
+          .from("appointments")
+          .select("*")
+          .eq("owner_id", userData.auth_user_id)
+          .order("date", { ascending: false });
+
+        const { data: ordersData } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("customer_id", userData.auth_user_id)
+          .order("created_at", { ascending: false });
+
+        const { data: medicalRecordsData } = await supabase
+          .from("medical_records")
+          .select("*")
+          .eq("owner_id", userData.auth_user_id)
+          .order("date", { ascending: false });
+
+        const colors = [
+          "bg-emerald-100 text-emerald-700",
+          "bg-blue-100 text-blue-700",
+          "bg-pink-100 text-pink-700",
+          "bg-yellow-100 text-yellow-700",
+          "bg-purple-100 text-purple-700",
+          "bg-indigo-100 text-indigo-700",
+          "bg-red-100 text-red-700",
+          "bg-teal-100 text-teal-700",
+          "bg-orange-100 text-orange-700",
+          "bg-cyan-100 text-cyan-700",
+        ];
+
+        const getInitials = (name) => {
+          if (!name) return "US";
+          return name
+            .split(" ")
+            .filter(Boolean)
+            .map((word) => word[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+        };
+
+        const totalSpend = ordersData
+          ? ordersData
+              .filter(o => ["Paid", "Completed", "Processing"].includes(o.status))
+              .reduce((sum, o) => sum + Number(o.total_amount || 0), 0)
+          : 0;
+
+        const registeredPets = (petsData || []).map((pet) => {
+          const petVisits = appointmentsData ? appointmentsData.filter((a) => a.pet_id === pet.id) : [];
+          
+          let lastVisit = "Belum pernah";
+          let nextVisit = "Belum dijadwalkan";
+          let lastService = "-";
+          let doctor = "-";
+
+          const pastVisits = petVisits.filter(a => new Date(a.date) <= new Date());
+          if (pastVisits.length > 0) {
+            lastVisit = new Date(pastVisits[0].date).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            });
+            lastService = pastVisits[0].type;
+            doctor = pastVisits[0].doctor || "-";
+          }
+
+          const futureVisits = petVisits.filter(a => new Date(a.date) > new Date() && ["Pending", "Confirmed"].includes(a.status));
+          if (futureVisits.length > 0) {
+            nextVisit = new Date(futureVisits[0].date).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            });
+          }
+
+          let age = "-";
+          if (pet.birth_date) {
+            const birthYear = new Date(pet.birth_date).getFullYear();
+            const currentYear = new Date().getFullYear();
+            age = currentYear - birthYear;
+          }
+
+          return {
+            id: pet.id,
+            name: pet.name,
+            type: pet.type,
+            breed: pet.breed || "Mixed Breed",
+            age: age,
+            gender: pet.gender || "-",
+            visits: petVisits.length,
+            lastVisit,
+            nextVisit,
+            lastService,
+            doctor,
+            healthStatus: pet.health_notes || "Sehat",
+            totalSpend: petVisits.length * 150000,
+            emoji: getPetEmoji(pet.type),
+          };
+        });
+
+        const sinceDate = userData.created_at
+          ? new Date(userData.created_at).toLocaleDateString("id-ID", { month: "short", year: "numeric" })
+          : "Baru";
+
+        const timeline = (appointmentsData || []).map((app) => {
+          const matchedPet = (petsData || []).find((p) => p.id === app.pet_id);
+          return {
+            id: `APT-${app.id.substring(0, 5).toUpperCase()}`,
+            petName: matchedPet?.name || "Hewan",
+            type: matchedPet?.type || "🐾",
+            date: new Date(app.date).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric"
+            }),
+            service: app.type,
+            doctor: app.doctor || "-",
+            status: app.status === "Completed" ? "Selesai" : app.status === "Confirmed" ? "Terkonfirmasi" : app.status === "Cancelled" ? "Dibatalkan" : "Menunggu",
+            total: formatCurrency(150000),
+          };
+        });
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"];
+        const monthlyTrend = months.map((m, idx) => {
+          const count = (appointmentsData || []).filter(a => {
+            const date = new Date(a.date);
+            return date.getMonth() === (new Date().getMonth() - 5 + idx + 12) % 12;
+          }).length;
+          return {
+            month: m,
+            visits: Math.max(0, count)
+          };
+        });
+
+        const petVisitData = registeredPets.map((pet) => ({
+          name: pet.name,
+          visits: pet.visits,
+        }));
+
+        const satisfactionScore = 85 + (registeredPets.length * 3) + Math.min(5, appointmentsData?.length || 0);
+
+        setOwnerDetail({
+          id: userData.id,
+          auth_user_id: userData.auth_user_id,
+          name: userData.full_name,
+          phone: userData.phone_number || "-",
+          email: userData.email,
+          address: userData.address || "Pekanbaru",
+          city: "Pekanbaru",
+          since: sinceDate,
+          avatar: getInitials(userData.full_name),
+          avatarBg: colors[Math.abs(userData.full_name.charCodeAt(0) || 0) % colors.length],
+          memberTier: (appointmentsData?.length || 0) >= 10 ? "Platinum" : (appointmentsData?.length || 0) >= 5 ? "Gold" : "Silver",
+          totalSpend,
+          satisfactionScore,
+          registeredPets,
+          monthlyTrend,
+          petVisitData,
+          timeline,
+          ownerStatus: (appointmentsData?.length || 0) >= 5 ? "Owner Prioritas" : "Owner Aktif",
+          nextFollowUp: registeredPets[0]?.nextVisit || "Belum dijadwalkan",
+          latestVisit: registeredPets[0]?.lastVisit || sinceDate,
+          totalVisits: appointmentsData?.length || 0,
+        });
+
+      } catch (err) {
+        console.error("Error fetching pet owner details:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOwnerDetails();
+  }, [id, refreshCounter]);
+
+  const handleDeleteOwner = async () => {
+    if (!ownerDetail) return;
+    if (window.confirm(`Apakah Anda yakin ingin menghapus owner ${ownerDetail.name}?`)) {
+      setIsLoading(true);
+      try {
+        const { error } = await supabase
+          .from("users")
+          .delete()
+          .eq("id", ownerDetail.id);
+
+        if (error) throw error;
+        navigate("/pet-owners");
+      } catch (err) {
+        console.error("Error deleting owner:", err);
+        alert(err.message || "Gagal menghapus data owner");
+        setIsLoading(false);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 min-h-screen">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-sm text-gray-400">Memuat detail pemilik...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!ownerDetail) {
     return (
-      <div className="p-10 text-center">
+      <div className="p-10 text-center min-h-[50vh] flex flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-gray-700">Owner Tidak Ditemukan</h1>
         <button
           onClick={() => navigate("/pet-owners")}
-          className="mt-5 rounded-xl bg-emerald-500 px-5 py-2 text-white"
+          className="mt-5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 transition shadow"
         >
-          Kembali
+          Kembali ke Daftar Pemilik
         </button>
       </div>
     );
@@ -272,7 +500,10 @@ export default function PetOwnersDetail() {
             <Pencil className="h-4 w-4" />
             Edit
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600">
+          <button 
+            onClick={handleDeleteOwner}
+            className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-600"
+          >
             <Trash2 className="h-4 w-4" />
             Hapus
           </button>

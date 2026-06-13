@@ -29,6 +29,7 @@ import {
 import { crmCustomers, formatCurrency } from "@/data/CustomerCrmData";
 import Modal from "../components/Modal";
 import ToastNotification from "../components/ToastNotification";
+import { supabase } from "../lib/supabase";
 
 function getLevelBadge(level) {
   switch (level) {
@@ -69,19 +70,69 @@ export default function CustomerCrm() {
   });
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Refs for Autofocus
   const searchRef = useRef(null);
   const formInputRef = useRef(null);
 
-  // useEffect: Load daftar customer saat halaman dibuka & refresh data
+  // useEffect: Load daftar customer dari Supabase
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setCustomers([...crmCustomers]);
-      setIsLoading(false);
-    }, 450);
-    return () => clearTimeout(timer);
+    const fetchCrmData = async () => {
+      setIsLoading(true);
+      try {
+        const { data: usersData, error: usersErr } = await supabase
+          .from("users")
+          .select("*")
+          .eq("role", "customer")
+          .order("created_at", { ascending: false });
+
+        if (usersErr) throw usersErr;
+
+        const { data: petsData } = await supabase.from("pets").select("owner_id");
+        const { data: appData } = await supabase.from("appointments").select("owner_id");
+        const { data: ordersData } = await supabase.from("orders").select("customer_id, total_amount, status");
+
+        const mapped = (usersData || []).map((user) => {
+          const userPets = (petsData || []).filter((p) => p.owner_id === user.auth_user_id);
+          const userApps = (appData || []).filter((a) => a.owner_id === user.auth_user_id);
+          const userOrders = (ordersData || []).filter((o) => o.customer_id === user.auth_user_id && o.status !== "Cancelled");
+          const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+
+          return {
+            id: user.id,
+            auth_user_id: user.auth_user_id,
+            name: user.full_name,
+            phone: user.phone_number || "—",
+            email: user.email,
+            city: "Pekanbaru",
+            avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100",
+            membership: {
+              level: totalSpent > 500000 ? "Platinum" : totalSpent > 200000 ? "Gold" : "Silver",
+              isActive: true,
+              joinDate: new Date(user.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "short" })
+            },
+            transactions: {
+              totalSpent: `Rp ${totalSpent.toLocaleString("id-ID")}`
+            },
+            transactionTotalNumber: totalSpent,
+            visitCount: userApps.length,
+            lastLoginLabel: "Baru saja",
+            activity: {
+              inApp: `Memiliki ${userPets.length} anabul & ${userApps.length} janji temu`
+            }
+          };
+        });
+
+        setCustomers(mapped);
+      } catch (err) {
+        console.error("Error loading CRM customers:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCrmData();
   }, [refreshCounter]);
 
   // useEffect: Autofocus kolom pencarian customer
@@ -127,52 +178,66 @@ export default function CustomerCrm() {
     };
   }, [customers]);
 
-  const handleAddCustomer = () => {
+  const handleAddCustomer = async () => {
     if (!formData.name || !formData.phone || !formData.email || !formData.city) {
       alert("Harap lengkapi semua kolom wajib!");
       return;
     }
-    const newCustomer = {
-      id: `CUST-${String(crmCustomers.length + 1).padStart(3, "0")}`,
-      name: formData.name,
-      phone: formData.phone,
-      email: formData.email,
-      city: formData.city,
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100",
-      membership: {
-        level: formData.level,
-        isActive: formData.isActive,
-        joinDate: new Date().toLocaleDateString("id-ID", { year: "numeric", month: "short" })
-      },
-      transactions: {
-        totalSpent: "Rp 0"
-      },
-      transactionTotalNumber: 0,
-      visitCount: 0,
-      activity: {
-        inApp: "Pendaftaran baru",
-        lastLogin: "Baru saja"
-      },
-      lastLoginLabel: "Baru saja",
-      interactions: {
-        complaints: 0
-      },
-      feedbackSummary: "Belum ada feedback",
-      rating: 0
-    };
-    crmCustomers.push(newCustomer);
-    setRefreshCounter(prev => prev + 1);
-    setIsModalOpen(false);
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      city: "",
-      level: "Silver",
-      isActive: true
-    });
-    setToastMessage("Customer baru berhasil ditambahkan!");
-    setShowToast(true);
+    setIsSaving(true);
+    try {
+      // 1. Buat akun pada Supabase Authentication
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: "PetCare123!", // default password
+      });
+
+      if (authError) throw authError;
+
+      const authUser = authData?.user;
+      if (!authUser) {
+        throw new Error("Gagal mendaftarkan user ke Supabase Auth.");
+      }
+
+      // 2. Simpan data profil ke tabel users (use upsert to link pre-existing profiles)
+      const { error: profileError } = await supabase.from("users").upsert({
+        auth_user_id: authUser.id,
+        full_name: formData.name,
+        email: formData.email,
+        phone_number: formData.phone,
+        role: "customer"
+      }, { onConflict: "email" });
+
+      if (profileError) throw profileError;
+
+      // 3. Catat activity log
+      try {
+        await supabase.from("activity_logs").insert({
+          user_id: authUser.id,
+          activity: "Customer Baru Terdaftar",
+          description: `Customer baru dengan nama ${formData.name} (${formData.email}) didaftarkan oleh Admin.`
+        });
+      } catch (logErr) {
+        console.error("Failed to log activity:", logErr);
+      }
+
+      setRefreshCounter(prev => prev + 1);
+      setIsModalOpen(false);
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        city: "",
+        level: "Silver",
+        isActive: true
+      });
+      setToastMessage("Customer baru berhasil ditambahkan!");
+      setShowToast(true);
+    } catch (err) {
+      console.error("Error adding customer:", err);
+      alert(err.message || "Gagal menambahkan customer.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -514,10 +579,10 @@ export default function CustomerCrm() {
       {/* ─── ADD CUSTOMER MODAL ─── */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => !isSaving && setIsModalOpen(false)}
         onConfirm={handleAddCustomer}
         title="Tambah Customer Baru"
-        confirmText="Simpan Customer"
+        confirmText={isSaving ? "Menyimpan..." : "Simpan Customer"}
       >
         <div className="space-y-4 text-left">
           <div>

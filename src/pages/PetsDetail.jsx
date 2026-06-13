@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Activity,
@@ -20,7 +20,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
 import {
   Table,
   TableBody,
@@ -29,8 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import petsData from "../data/Pets";
+import { supabase } from "../lib/supabase";
 
 const cityOptions = [
   "Jakarta Selatan",
@@ -122,82 +120,54 @@ function getPetEmoji(type) {
 }
 
 function buildPetProfile(pet) {
-  const index = Math.max(0, pet.id - 1);
-  const city = cityOptions[index % cityOptions.length];
-  const address = `${addressOptions[index % addressOptions.length]}, ${city}`;
-  const birthMonths = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-  const birthDay = ((index * 3) % 27) + 1;
-  const birthYear = 2026 - pet.age;
-  const birthDate = `${birthDay} ${birthMonths[index % birthMonths.length]} ${birthYear}`;
-  const petCode = `PET-${String(pet.id).padStart(3, "0")}`;
-  const ownerPhone = `08${String(1700 + index).padStart(4, "0")}-${String(4300 + index * 5).padStart(4, "0")}-${String(6200 + index * 7).padStart(4, "0")}`;
-  const ownerEmail = `${slugify(pet.owner)}@petowner.id`;
-  const statusOptions = ["Healthy", "Observation", "Recovery", "Routine Care"];
-  const healthStatus = statusOptions[index % statusOptions.length];
-  const vaccinationStatus = index % 3 === 0 ? "Lengkap" : index % 3 === 1 ? "Booster Due" : "Perlu Jadwal Lanjutan";
-  const sterilizationStatus = index % 2 === 0 ? "Sudah steril" : "Belum steril";
-  const nextCheckup = `${((index * 2) % 20) + 5} Juni 2026`;
-  const weightBase = {
-    Dog: 11,
-    Cat: 4,
-    Rabbit: 2,
-    Bird: 1,
-    Hamster: 0.2,
-  };
-  const weight = ((weightBase[pet.type] || 3) + pet.age * 0.8 + (index % 3) * 0.4).toFixed(1);
+  const age = pet.birth_date ? new Date().getFullYear() - new Date(pet.birth_date).getFullYear() : 0;
+  const petCode = `PET-${String(pet.id).slice(0, 6).toUpperCase()}`;
+  const ownerPhone = pet.owner?.phone_number || "—";
+  const ownerEmail = pet.owner?.email || "—";
+  const healthStatus = "Healthy";
+  const vaccinationStatus = "Lengkap";
+  const sterilizationStatus = "Sudah steril";
+  const nextCheckup = "12 Juni 2026";
+  const weight = pet.weight ? `${pet.weight} kg` : "—";
   const services = serviceCatalog[pet.type] || ["General checkup", "Kontrol rutin", "Perawatan lanjutan"];
   const amounts = amountCatalog[pet.type] || amountCatalog.default;
   const visits = [0, 1, 2].map((visitIndex) => ({
     id: `${petCode}-VIS-${visitIndex + 1}`,
     date: `${28 - visitIndex * 8} Mei 2026`,
     service: services[visitIndex % services.length],
-    doctor: doctorNames[(index + visitIndex) % doctorNames.length],
+    doctor: doctorNames[visitIndex % doctorNames.length],
     status: visitIndex === 0 ? "Selesai" : visitIndex === 1 ? "Kontrol" : "Jadwal ulang",
     total: formatCurrency(amounts[visitIndex % amounts.length]),
     amount: amounts[visitIndex % amounts.length],
   }));
   const totalSpend = visits.reduce((sum, visit) => sum + visit.amount, 0);
   const careScoreData = [
-    { name: "Vaksin", total: vaccinationStatus === "Lengkap" ? 96 : 72 },
-    { name: "Nutrisi", total: 82 + (index % 3) * 4 },
-    { name: "Aktivitas", total: 76 + (index % 4) * 5 },
-    { name: "Grooming", total: pet.type === "Bird" || pet.type === "Hamster" ? 68 : 88 },
+    { name: "Vaksin", total: 96 },
+    { name: "Nutrisi", total: 85 },
+    { name: "Aktivitas", total: 80 },
+    { name: "Grooming", total: 88 },
   ];
 
   return {
     ...pet,
+    age,
     petCode,
     petEmoji: getPetEmoji(pet.type),
-    city,
-    address,
-    birthDate,
+    city: pet.owner?.city || "—",
+    address: pet.owner?.address || "—",
+    birthDate: pet.birth_date || "—",
+    owner: pet.owner?.full_name || "—",
     ownerPhone,
     ownerEmail,
     healthStatus,
     vaccinationStatus,
     sterilizationStatus,
     nextCheckup,
-    weight: `${weight} kg`,
-    microchipId: `MC-${String(1000 + pet.id).padStart(5, "0")}`,
-    dietPlan: dietPlans[index % dietPlans.length],
-    allergyNote: allergyNotes[index % allergyNotes.length],
-    adminNote:
-      index % 2 === 0
-        ? "Pasien cukup kooperatif saat pemeriksaan. Lanjutkan reminder kontrol rutin."
-        : "Perlu pendekatan tenang saat pemeriksaan dan observasi respons setelah terapi.",
+    weight,
+    microchipId: pet.microchip || "—",
+    dietPlan: "Dry food premium dengan tambahan wet food malam hari.",
+    allergyNote: pet.health_notes || "Tidak ada alergi yang dilaporkan.",
+    adminNote: "Pasien cukup kooperatif saat pemeriksaan.",
     visitHistory: visits,
     totalSpend,
     careScoreData,
@@ -243,7 +213,31 @@ export default function PetsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const pet = petsData.find((item) => item.id === Number(id));
+  const [pet, setPet] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPet = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("pets")
+          .select("*, owner:users(*)")
+          .eq("id", id)
+          .single();
+
+        if (error) throw error;
+        setPet(data);
+      } catch (err) {
+        console.error("Error loading pet details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPet();
+  }, [id]);
+
   const petProfile = useMemo(() => (pet ? buildPetProfile(pet) : null), [pet]);
 
   const visitSpendData = useMemo(() => {
@@ -253,6 +247,14 @@ export default function PetsDetail() {
       total: visit.amount,
     }));
   }, [petProfile]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!petProfile) {
     return (

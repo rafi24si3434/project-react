@@ -1,265 +1,219 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  FaArrowLeft,
-  FaEdit,
-  FaPrint,
-  FaFileMedical,
-  FaStethoscope,
-  FaNotesMedical,
-  FaPills,
-  FaCalendarAlt,
-  FaUser,
+  FaArrowLeft, FaEdit, FaPrint, FaFileMedical,
+  FaStethoscope, FaNotesMedical, FaPills, FaCalendarAlt, FaUser
 } from "react-icons/fa";
-
-const recordsData = [
-  {
-    id: "RM-001",
-    date: "2026-05-20",
-    pet: "Mochi",
-    petType: "Kucing Persia",
-    petEmoji: "🐱",
-    owner: "Budi Santoso",
-    ownerPhone: "081234567890",
-    doctor: "dr. Sari Pratiwi, drh.",
-    diagnosis: "Infeksi Telinga Ringan (Otitis Externa)",
-    symptoms: ["Menggaruk telinga berlebihan", "Keluar cairan kecoklatan", "Bau tidak sedap pada telinga"],
-    treatment: "Pembersihan telinga dengan larutan antiseptik, pemberian tetes telinga antibiotik (Otibiotic) 2x sehari selama 7 hari.",
-    prescription: [
-      { name: "Otibiotic Ear Drop", dosage: "3 tetes / 2x sehari", duration: "7 hari" },
-      { name: "Amoxicillin 250mg", dosage: "1/2 tablet / 2x sehari", duration: "5 hari" },
-    ],
-    notes: "Pasien merespons baik terhadap pengobatan awal. Kontrol ulang 1 minggu ke depan untuk evaluasi perkembangan. Hindari air masuk ke telinga saat mandi.",
-    weight: "4.2 kg",
-    temperature: "38.5°C",
-    heartRate: "140 bpm",
-    status: "Selesai",
-  },
-  {
-    id: "RM-002",
-    date: "2026-05-22",
-    pet: "Rex",
-    petType: "Golden Retriever",
-    petEmoji: "🐶",
-    owner: "Rina Anggraini",
-    ownerPhone: "081298765432",
-    doctor: "dr. Andi Wijaya, drh.",
-    diagnosis: "Demam & Dehidrasi Sedang",
-    symptoms: ["Lesu dan tidak mau makan", "Suhu tubuh tinggi (40.2°C)", "Membran mukosa kering"],
-    treatment: "Infus NaCl 0.9% untuk rehidrasi, injeksi antipiretik, observasi 24 jam di klinik.",
-    prescription: [
-      { name: "Infus NaCl 0.9%", dosage: "500ml IV drip", duration: "6 jam" },
-      { name: "Meloxicam 1.5mg", dosage: "1 tablet / 1x sehari", duration: "3 hari" },
-      { name: "Probiotik Hewan", dosage: "1 sachet / 1x sehari", duration: "5 hari" },
-    ],
-    notes: "Pasien perlu diawasi ketat. Jika suhu tubuh tidak turun dalam 24 jam, pertimbangkan pemeriksaan darah lengkap untuk menyingkirkan penyakit infeksi serius.",
-    weight: "28.5 kg",
-    temperature: "40.2°C",
-    heartRate: "110 bpm",
-    status: "Proses",
-  },
-  {
-    id: "RM-003",
-    date: "2026-05-23",
-    pet: "Polly",
-    petType: "Kakak Tua",
-    petEmoji: "🦜",
-    owner: "Hendra Kurniawan",
-    ownerPhone: "081356789012",
-    doctor: "dr. Sari Pratiwi, drh.",
-    diagnosis: "Dermatitis (Feather Plucking)",
-    symptoms: ["Bulu rontok tidak normal", "Area kulit kemerahan di dada", "Perilaku mencabut bulu sendiri"],
-    treatment: "Pemberian suplemen bulu, perubahan pola makan dengan tambahan buah segar, evaluasi stres lingkungan.",
-    prescription: [
-      { name: "Suplemen Bulu Burung", dosage: "5 tetes di air minum", duration: "14 hari" },
-      { name: "Salep Chlorhexidine", dosage: "Oles tipis 1x sehari", duration: "7 hari" },
-    ],
-    notes: "Disarankan memperkaya lingkungan dengan mainan interaktif untuk mengurangi stres. Evaluasi ulang dalam 2 minggu.",
-    weight: "0.4 kg",
-    temperature: "40.0°C",
-    heartRate: "300 bpm",
-    status: "Selesai",
-  },
-];
+import { supabase } from "../lib/supabase";
 
 export default function MedicalRecordsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  const [record, setRecord] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const record = recordsData.find((r) => r.id === id);
+  useEffect(() => {
+    const fetchRecord = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("medical_records")
+          .select(`
+            *,
+            pets (*),
+            owner:users (*)
+          `)
+          .eq("id", id)
+          .single();
+
+        if (error) throw error;
+        
+        // Map data to match old format
+        const getPetEmoji = (t) => {
+          const lower = t?.toLowerCase();
+          if (lower === "cat" || lower === "kucing") return "🐱";
+          if (lower === "dog" || lower === "anjing") return "🐶";
+          if (lower === "rabbit" || lower === "kelinci") return "🐰";
+          if (lower === "bird" || lower === "burung") return "🦜";
+          return "🐾";
+        };
+
+        const mapped = {
+          id: `RM-${data.id.slice(0, 5).toUpperCase()}`,
+          date: data.date,
+          pet: data.pets?.name || "Hewan",
+          petType: data.pets?.breed || data.pets?.type || "-",
+          petEmoji: getPetEmoji(data.pets?.type),
+          owner: data.owner?.full_name || "Owner",
+          ownerPhone: data.owner?.phone_number || "—",
+          doctor: data.vet_name,
+          diagnosis: data.diagnosa,
+          symptoms: ["Menggaruk/tidak nyaman", "Diperiksa di klinik"],
+          treatment: data.treatment || "Pemberian tindakan perawatan sesuai diagnosis.",
+          prescription: [
+            { name: "Pemberian resep obat sesuai tindakan", dosage: "Kontrol teratur", duration: "Mandiri" }
+          ],
+          notes: "Telah selesai diperiksa. Pantau kondisi fisik dan nafsu makan harian.",
+          weight: data.pets?.weight ? `${data.pets.weight} kg` : "—",
+          temperature: "38.5°C",
+          heartRate: "Normal",
+          status: "Selesai"
+        };
+
+        setRecord(mapped);
+      } catch (err) {
+        console.error("Error loading medical record details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecord();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!record) {
     return (
-      <div className="p-10 text-center">
+      <div className="p-10 text-center text-left">
         <h1 className="text-2xl font-bold text-gray-700">Rekam Medis Tidak Ditemukan</h1>
-        <button onClick={() => navigate("/medical-records")} className="mt-5 px-5 py-2 rounded-xl bg-emerald-500 text-white">Kembali</button>
+        <button onClick={() => navigate("/medical-records")} className="mt-5 px-5 py-2 rounded-xl bg-emerald-500 text-white cursor-pointer">Kembali</button>
       </div>
     );
   }
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="p-6 min-h-screen text-left bg-gray-50">
 
       {/* HEADER */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate("/medical-records")} className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition">
+          <button onClick={() => navigate("/medical-records")} className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
             <FaArrowLeft className="text-gray-600" />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Detail Rekam Medis</h1>
-            <p className="text-sm text-gray-400">ID: {record.id} · {record.date}</p>
+            <p className="text-sm text-gray-400">ID Rekam: {record.id}</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm hover:bg-gray-50 transition">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm hover:bg-gray-50 transition cursor-pointer">
             <FaPrint /> Cetak
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm transition">
-            <FaEdit /> Edit
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* LEFT COLUMN */}
+        {/* LEFT COLUMN: Patient & Owner Profile */}
         <div className="col-span-1 space-y-6">
-
+          
           {/* Patient Card */}
-          <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-center relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
-                <img src="/images/medical-record.png" alt="" className="w-full h-full object-cover" />
-              </div>
-              <div className="relative z-10">
-                <div className="w-24 h-24 mx-auto rounded-3xl bg-white/20 backdrop-blur flex items-center justify-center text-5xl shadow-lg">
-                  {record.petEmoji}
-                </div>
-                <h2 className="text-xl font-bold text-white mt-4">{record.pet}</h2>
-                <p className="text-emerald-100 text-sm mt-1">{record.petType}</p>
-                <span className={`inline-block mt-3 px-3 py-1 rounded-full text-xs font-bold ${record.status === "Selesai" ? "bg-white/20 text-white" : "bg-amber-400/30 text-amber-100"}`}>
-                  {record.status}
-                </span>
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <div className="flex items-center gap-4 mb-6">
+              <span className="text-4xl bg-emerald-50 p-3 rounded-2xl">{record.petEmoji}</span>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">{record.pet}</h3>
+                <p className="text-xs text-gray-400">{record.petType}</p>
               </div>
             </div>
 
-            <div className="p-5 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><FaUser /></div>
-                <div>
-                  <p className="text-xs text-gray-400">Pemilik</p>
-                  <p className="font-semibold text-gray-800 text-sm">{record.owner}</p>
-                  <p className="text-xs text-gray-400">{record.ownerPhone}</p>
-                </div>
+            <div className="space-y-4">
+              <div className="border-t pt-4">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pemilik</p>
+                <p className="text-sm font-semibold text-gray-700 mt-1 flex items-center gap-2"><FaUser className="text-gray-400 text-xs" /> {record.owner}</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center"><FaStethoscope /></div>
-                <div>
-                  <p className="text-xs text-gray-400">Dokter</p>
-                  <p className="font-semibold text-gray-800 text-sm">{record.doctor}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center"><FaCalendarAlt /></div>
-                <div>
-                  <p className="text-xs text-gray-400">Tanggal Periksa</p>
-                  <p className="font-semibold text-gray-800 text-sm">{record.date}</p>
-                </div>
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nomor Telepon</p>
+                <p className="text-sm font-semibold text-gray-700 mt-1">{record.ownerPhone}</p>
               </div>
             </div>
           </div>
 
-          {/* Vital Signs */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
-            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">🩺 Tanda Vital</h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-emerald-50 rounded-2xl p-3 text-center">
-                <p className="text-lg font-bold text-emerald-700">{record.weight}</p>
-                <p className="text-[10px] text-gray-500 font-medium mt-1">Berat</p>
+          {/* Vitals Card */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+              <FaStethoscope className="text-emerald-500" /> Tanda-tanda Vital
+            </h4>
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div className="bg-gray-50 p-3 rounded-xl">
+                <span className="text-gray-400">Berat Badan</span>
+                <p className="text-sm font-bold text-gray-800 mt-1">{record.weight}</p>
               </div>
-              <div className="bg-red-50 rounded-2xl p-3 text-center">
-                <p className="text-lg font-bold text-red-600">{record.temperature}</p>
-                <p className="text-[10px] text-gray-500 font-medium mt-1">Suhu</p>
-              </div>
-              <div className="bg-blue-50 rounded-2xl p-3 text-center">
-                <p className="text-lg font-bold text-blue-600">{record.heartRate}</p>
-                <p className="text-[10px] text-gray-500 font-medium mt-1">Detak Jantung</p>
+              <div className="bg-gray-50 p-3 rounded-xl">
+                <span className="text-gray-400">Suhu Tubuh</span>
+                <p className="text-sm font-bold text-gray-800 mt-1">{record.temperature}</p>
               </div>
             </div>
           </div>
+
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="col-span-2 space-y-6">
+        {/* RIGHT COLUMN: Diagnosis, Treatment, & Prescriptions */}
+        <div className="col-span-1 lg:col-span-2 space-y-6">
+          
+          {/* Main Info Card */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-6">
+            
+            {/* Header info */}
+            <div className="flex justify-between items-start border-b pb-4">
+              <div className="flex items-center gap-3">
+                <FaFileMedical className="text-emerald-500 text-2xl" />
+                <div>
+                  <h4 className="font-bold text-gray-800 text-sm">Diagnosis Medis</h4>
+                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5"><FaCalendarAlt /> Pemeriksaan: {record.date}</p>
+                </div>
+              </div>
+              <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100`}>
+                {record.status}
+              </span>
+            </div>
 
-          {/* Diagnosis */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center"><FaFileMedical /></div>
-              <div>
-                <h3 className="font-bold text-gray-800">Diagnosis</h3>
-                <p className="text-xs text-gray-400">Hasil pemeriksaan klinis</p>
+            {/* Diagnosis */}
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Diagnosis Utama</p>
+              <div className="bg-emerald-50/50 border border-emerald-100/50 rounded-xl p-4">
+                <p className="text-sm font-bold text-emerald-800">{record.diagnosis}</p>
               </div>
             </div>
-            <div className="bg-red-50 border border-red-100 rounded-2xl p-4 mb-4">
-              <p className="font-bold text-red-700">{record.diagnosis}</p>
-            </div>
+
+            {/* Treatment */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Gejala yang Ditemukan</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5"><FaNotesMedical className="text-emerald-500" /> Tindakan Medis</p>
+              <p className="text-sm text-gray-650 leading-relaxed bg-gray-50 p-4 rounded-xl">{record.treatment}</p>
+            </div>
+
+            {/* Prescription */}
+            <div>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5"><FaPills className="text-emerald-500" /> Resep Obat</p>
               <div className="space-y-2">
-                {record.symptoms.map((s, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0"></span>
-                    <p className="text-sm text-gray-700">{s}</p>
+                {record.prescription.map((med, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-gray-50/50 border border-gray-100 p-3.5 rounded-xl">
+                    <div>
+                      <span className="text-xs font-bold text-gray-800">{med.name}</span>
+                      <p className="text-[10px] text-gray-450 mt-0.5 font-semibold">Dosis: {med.dosage}</p>
+                    </div>
+                    <span className="text-[10px] bg-white border border-gray-200 px-2 py-0.5 rounded text-gray-500 font-bold">{med.duration}</span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Vet info */}
+            <div className="border-t pt-4 flex items-center justify-between text-xs">
+              <span className="text-gray-400 font-semibold">Dokter Pemeriksa:</span>
+              <span className="font-bold text-gray-700">{record.doctor}</span>
+            </div>
+
           </div>
 
-          {/* Treatment */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><FaNotesMedical /></div>
-              <div>
-                <h3 className="font-bold text-gray-800">Tindakan & Penanganan</h3>
-                <p className="text-xs text-gray-400">Prosedur yang dilakukan</p>
-              </div>
-            </div>
-            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
-              <p className="text-sm text-gray-700 leading-relaxed">{record.treatment}</p>
-            </div>
-          </div>
-
-          {/* Prescription */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><FaPills /></div>
-              <div>
-                <h3 className="font-bold text-gray-800">Resep Obat</h3>
-                <p className="text-xs text-gray-400">Obat yang diresepkan dokter</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {record.prescription.map((p, i) => (
-                <div key={i} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-2xl p-4">
-                  <div>
-                    <p className="font-semibold text-blue-800 text-sm">{p.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{p.dosage}</p>
-                  </div>
-                  <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">{p.duration}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Doctor Notes */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
-            <h3 className="font-bold text-gray-800 mb-3">📝 Catatan Dokter</h3>
-            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4">
-              <p className="text-sm text-gray-700 leading-relaxed italic">"{record.notes}"</p>
-            </div>
-          </div>
         </div>
 
       </div>

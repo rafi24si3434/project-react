@@ -6,8 +6,8 @@ import {
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
-
-import petsData from "../data/Pets";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
 
 export default function Pets() {
   const navigate = useNavigate();
@@ -24,14 +24,76 @@ export default function Pets() {
   // Refs implementation
   const searchPetRef = useRef(null);
 
-  // useEffect: Mengambil daftar hewan dari database secara asinkron
+  const { user } = useAuth();
+
+  // useEffect: Mengambil daftar hewan dari Supabase
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setPets([...petsData]);
-      setIsLoading(false);
-    }, 450);
-    return () => clearTimeout(timer);
+    const fetchPets = async () => {
+      setIsLoading(true);
+      try {
+        let { data, error } = await supabase
+          .from("pets")
+          .select("*, owner:users(full_name)")
+          .order("created_at", { ascending: false });
+
+        // Fallback: If join query fails because of database relation mismatch, load separately
+        if (error && (error.message.includes("relationship") || error.message.includes("join") || error.message.includes("relation"))) {
+          console.warn("[Pets] Join query failed, using separate-query fallback...");
+          const { data: flatData, error: flatError } = await supabase
+            .from("pets")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+          if (flatError) throw flatError;
+
+          const { data: usersData } = await supabase
+            .from("users")
+            .select("auth_user_id, full_name");
+
+          const userMap = {};
+          if (usersData) {
+            usersData.forEach(u => {
+              userMap[u.auth_user_id] = u.full_name;
+            });
+          }
+
+          data = (flatData || []).map(pet => ({
+            ...pet,
+            owner: { full_name: userMap[pet.owner_id] || "Tidak Diketahui" }
+          }));
+          error = null;
+        }
+
+        if (error) throw error;
+        
+        const mapped = (data || []).map((pet) => {
+          let age = "-";
+          if (pet.birth_date) {
+            const birthYear = new Date(pet.birth_date).getFullYear();
+            const currentYear = new Date().getFullYear();
+            age = currentYear - birthYear;
+          }
+          return {
+            id: pet.id,
+            name: pet.name,
+            type: pet.type,
+            breed: pet.breed || "-",
+            gender: pet.gender === "Male" || pet.gender === "Jantan" ? "Jantan" : "Betina",
+            owner: pet.owner?.full_name || "Tidak Diketahui",
+            birth_date: pet.birth_date,
+            age: age
+          };
+        });
+
+        setPets(mapped);
+      } catch (err) {
+        console.error("Error loading pets:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPets();
   }, [refreshCounter]);
 
   // useEffect: Focus kolom pencarian pet saat halaman dibuka
@@ -53,25 +115,36 @@ export default function Pets() {
     });
   }, [pets, search, filterType]);
 
-  const handleDeletePet = (id, name) => {
+  const handleDeletePet = async (id, name) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus data pet ${name}?`)) {
-      const index = petsData.findIndex(p => p.id === id);
-      if (index !== -1) {
-        petsData.splice(index, 1);
+      try {
+        const { error } = await supabase
+          .from("pets")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+        setRefreshCounter(prev => prev + 1);
+      } catch (err) {
+        console.error("Error deleting pet:", err);
+        alert(err.message || "Gagal menghapus data pet");
       }
-      setRefreshCounter(prev => prev + 1);
     }
   };
 
   const getPetEmoji = (type) => {
     switch (type) {
       case "Dog":
+      case "Anjing":
         return "🐶";
       case "Cat":
+      case "Kucing":
         return "🐱";
       case "Rabbit":
+      case "Kelinci":
         return "🐰";
       case "Bird":
+      case "Burung":
         return "🦜";
       case "Hamster":
         return "🐹";
@@ -96,7 +169,7 @@ export default function Pets() {
           </div>
 
           <p className="text-sm text-gray-400 pl-8">
-            {petsData.length} pets terdaftar
+            {pets.length} pets terdaftar
           </p>
         </div>
 
@@ -118,7 +191,7 @@ export default function Pets() {
 
           <div>
             <p className="text-xl font-bold text-gray-800">
-              {petsData.length}
+              {pets.length}
             </p>
 
             <p className="text-xs text-gray-400">
@@ -132,7 +205,7 @@ export default function Pets() {
 
           <div>
             <p className="text-xl font-bold text-emerald-700">
-              {petsData.filter((p) => p.type === "Cat").length}
+              {pets.filter((p) => p.type === "Cat" || p.type === "Kucing").length}
             </p>
 
             <p className="text-xs text-gray-400">
@@ -146,7 +219,7 @@ export default function Pets() {
 
           <div>
             <p className="text-xl font-bold text-blue-700">
-              {petsData.filter((p) => p.type === "Dog").length}
+              {pets.filter((p) => p.type === "Dog" || p.type === "Anjing").length}
             </p>
 
             <p className="text-xs text-gray-400">

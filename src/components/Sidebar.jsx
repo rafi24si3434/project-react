@@ -14,7 +14,9 @@ import {
   Megaphone,
   Star,
   Stethoscope,
-  User
+  User,
+  ShoppingBag,
+  Receipt
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -61,9 +63,9 @@ export default function Sidebar() {
     const managementItems = [
       { to: "/pets", label: "Pets", icon: PawPrint },
       { to: "/appointments", label: "Appointments", icon: CalendarCheck },
-      { to: "/pet-owners", label: "Pet Owners", icon: Users },
     ];
     if (role === "admin" || role === "staff") {
+      managementItems.push({ to: "/pet-owners", label: "Pet Owners", icon: Users });
       managementItems.push({ to: "/vets", label: "Dokter & Staf", icon: Stethoscope });
     }
     if (role === "admin") {
@@ -86,6 +88,17 @@ export default function Sidebar() {
       group: "Klinik",
       items: klinikItems,
     });
+
+    // 5. Group Toko (Customer Only)
+    if (role === "customer") {
+      items.push({
+        group: "Toko & Belanja",
+        items: [
+          { to: "/shop", label: "Toko Online", icon: ShoppingBag },
+          { to: "/orders", label: "Pesanan Saya", icon: Receipt },
+        ],
+      });
+    }
 
     return items;
   };

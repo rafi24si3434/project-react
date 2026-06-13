@@ -84,17 +84,28 @@ export default function Register() {
         throw new Error("Pendaftaran gagal. Silakan coba lagi.");
       }
 
-      // 3. Simpan data profil ke tabel users
-      const { error: profileError } = await supabase.from("users").insert({
+      // 3. Simpan data profil ke tabel users (use upsert to link pre-existing profiles)
+      const { error: profileError } = await supabase.from("users").upsert({
         auth_user_id: authUser.id,
         full_name: form.fullName,
         email: form.email,
         phone_number: form.phoneNumber,
         role: form.role
-      });
+      }, { onConflict: "email" });
 
       if (profileError) {
         throw profileError;
+      }
+
+      // 4. Catat activity log
+      try {
+        await supabase.from("activity_logs").insert({
+          user_id: authUser.id,
+          activity: "Customer Baru Terdaftar",
+          description: `Customer baru dengan nama ${form.fullName} (${form.email}) telah terdaftar.`
+        });
+      } catch (logErr) {
+        console.error("Failed to log activity:", logErr);
       }
 
       setSuccess("Akun berhasil dibuat. Silakan login menggunakan akun Anda.");

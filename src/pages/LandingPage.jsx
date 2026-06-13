@@ -1,16 +1,382 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 import { 
   PawPrint, ArrowRight, ShieldCheck, CalendarCheck, 
   Megaphone, Star, ClipboardList, Users, 
   TrendingUp, Sparkles, Clock, CheckCircle2, Heart, 
-  Activity, Info 
+  Activity, Info, ShoppingBag, Plus, Minus, Check, AlertCircle, Calendar, User, Mail, Phone
 } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // --- New Booking & Quick Shop States ---
+  const [activeTab, setActiveTab] = useState("booking"); // "booking" | "shop"
+  const [products, setProducts] = useState([]);
+  const [myPets, setMyPets] = useState([]);
+  
+  // Owner info for guest
+  const [ownerName, setOwnerName] = useState("");
+  const [ownerEmail, setOwnerEmail] = useState("");
+  const [ownerPhone, setOwnerPhone] = useState("");
+  
+  // Pet info
+  const [selectedPetId, setSelectedPetId] = useState("new"); // "new" or uuid
+  const [petName, setPetName] = useState("");
+  const [petType, setPetType] = useState("Kucing");
+  const [petBreed, setPetBreed] = useState("");
+  const [petGender, setPetGender] = useState("Jantan");
+  
+  // Appointment info
+  const [bookingType, setBookingType] = useState("Grooming");
+  const [bookingDoctor, setBookingDoctor] = useState("drh. Nisa Putri");
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("09:00");
+  const [bookingNotes, setBookingNotes] = useState("");
+  
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingSuccessMsg, setBookingSuccessMsg] = useState("");
+  const [bookingErrorMsg, setBookingErrorMsg] = useState("");
+
+  // Quick Shop Cart state
+  const [selectedProduct, setSelectedProduct] = useState(null); // product object for checkout modal
+  const [purchaseQty, setPurchaseQty] = useState(1);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutSuccessMsg, setCheckoutSuccessMsg] = useState("");
+  const [checkoutErrorMsg, setCheckoutErrorMsg] = useState("");
+
+  // Fetch products and user's pets
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase.from("products").select("*");
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const fetchMyPets = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from("pets")
+            .select("*")
+            .eq("owner_id", user.id);
+          if (error) throw error;
+          setMyPets(data || []);
+          if (data && data.length > 0) {
+            setSelectedPetId(data[0].id);
+          } else {
+            setSelectedPetId("new");
+          }
+        } catch (err) {
+          console.error("Error fetching pets:", err);
+        }
+      } else {
+        setMyPets([]);
+        setSelectedPetId("new");
+      }
+    };
+    fetchMyPets();
+  }, [user]);
+
+  // Handler: Pendaftaran & Booking
+  const handleBooking = async (e) => {
+    e.preventDefault();
+    setBookingErrorMsg("");
+    setBookingSuccessMsg("");
+
+    if (!user) {
+      if (!ownerName || !ownerEmail || !ownerPhone) {
+        setBookingErrorMsg("Harap isi semua informasi pemilik!");
+        return;
+      }
+    }
+
+    if (selectedPetId === "new" && !petName) {
+      setBookingErrorMsg("Harap isi nama hewan peliharaan Anda!");
+      return;
+    }
+
+    if (!bookingDate || !bookingTime) {
+      setBookingErrorMsg("Harap tentukan tanggal dan jam janji temu!");
+      return;
+    }
+
+    setBookingLoading(true);
+
+    try {
+      let activeUserId = user?.id;
+      let isNewUserCreated = false;
+
+      // 1. Register user if not authenticated
+      if (!user) {
+        const dummyPassword = "PetCare123!";
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: ownerEmail,
+          password: dummyPassword,
+        });
+
+        if (authError) throw authError;
+
+        if (!authData?.user) {
+          throw new Error("Pendaftaran akun gagal. Silakan coba lagi.");
+        }
+
+        activeUserId = authData.user.id;
+        isNewUserCreated = true;
+
+        // Create public profile record (use upsert to link pre-existing profiles)
+        const { error: profileError } = await supabase.from("users").upsert({
+          auth_user_id: activeUserId,
+          full_name: ownerName,
+          email: ownerEmail,
+          phone_number: ownerPhone,
+          role: "customer"
+        }, { onConflict: "email" });
+
+        if (profileError) throw profileError;
+
+        // Log registration
+        await supabase.from("activity_logs").insert({
+          user_id: activeUserId,
+          activity: "Customer Baru Terdaftar",
+          description: `Customer baru dengan nama ${ownerName} (${ownerEmail}) mendaftar via formulir Landing Page.`
+        });
+      }
+
+      // 2. Add/Select Pet
+      let petUuid = selectedPetId;
+
+      if (selectedPetId === "new") {
+        const { data: petData, error: petError } = await supabase
+          .from("pets")
+          .insert({
+            owner_id: activeUserId,
+            name: petName,
+            type: petType,
+            breed: petBreed || "Campuran",
+            gender: petGender,
+          })
+          .select()
+          .single();
+
+        if (petError) throw petError;
+        petUuid = petData.id;
+
+        // Log pet registration
+        await supabase.from("activity_logs").insert({
+          user_id: activeUserId,
+          activity: "Customer Menambahkan Hewan",
+          description: `Mendaftarkan hewan peliharaan baru: ${petName} (${petType}).`
+        });
+      }
+
+      // 3. Insert Appointment
+      const { error: appError } = await supabase.from("appointments").insert({
+        owner_id: activeUserId,
+        pet_id: petUuid,
+        doctor: bookingDoctor,
+        date: bookingDate,
+        time: bookingTime,
+        type: bookingType,
+        notes: bookingNotes,
+        status: "Pending"
+      });
+
+      if (appError) throw appError;
+
+      // Log appointment
+      await supabase.from("activity_logs").insert({
+        user_id: activeUserId,
+        activity: "Customer Membuat Janji Temu",
+        description: `Membuat janji temu ${bookingType} pada ${bookingDate} pukul ${bookingTime}.`
+      });
+
+      // Show success
+      if (isNewUserCreated) {
+        setBookingSuccessMsg(`Pendaftaran & Booking Berhasil! Akun Anda telah dibuat dengan password default 'PetCare123!'. Silakan login di PetCare.`);
+      } else {
+        setBookingSuccessMsg(`Booking Berhasil! Jadwal janji temu Anda telah terdaftar.`);
+      }
+
+      // Reset
+      if (selectedPetId === "new") {
+        setPetName("");
+        setPetBreed("");
+      }
+      setBookingDate("");
+      setBookingNotes("");
+
+      if (user) {
+        // Refresh local pets list
+        const { data: updatedPets } = await supabase
+          .from("pets")
+          .select("*")
+          .eq("owner_id", user.id);
+        setMyPets(updatedPets || []);
+      }
+
+    } catch (err) {
+      console.error("Booking error details:", err);
+      setBookingErrorMsg(err.message || "Gagal memproses booking pendaftaran.");
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  // Handler: Quick Pharmacy Checkout
+  const handleQuickCheckout = async (e) => {
+    e.preventDefault();
+    setCheckoutErrorMsg("");
+    setCheckoutSuccessMsg("");
+
+    if (!selectedProduct) return;
+
+    if (!user) {
+      if (!ownerName || !ownerEmail || !ownerPhone) {
+        setCheckoutErrorMsg("Harap lengkapi semua informasi pembeli!");
+        return;
+      }
+    }
+
+    if (purchaseQty <= 0) {
+      setCheckoutErrorMsg("Kuantitas produk minimal 1!");
+      return;
+    }
+
+    if (purchaseQty > selectedProduct.stock) {
+      setCheckoutErrorMsg(`Stok produk tidak mencukupi! Hanya tersedia ${selectedProduct.stock} unit.`);
+      return;
+    }
+
+    setCheckoutLoading(true);
+
+    try {
+      let activeUserId = user?.id;
+      let isNewUserCreated = false;
+
+      // 1. Auto register guest if needed
+      if (!user) {
+        const dummyPassword = "PetCare123!";
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: ownerEmail,
+          password: dummyPassword,
+        });
+
+        if (authError) throw authError;
+
+        if (!authData?.user) {
+          throw new Error("Gagal mendaftarkan akun baru.");
+        }
+
+        activeUserId = authData.user.id;
+        isNewUserCreated = true;
+
+        // Create user profile (use upsert to link pre-existing profiles)
+        const { error: profileError } = await supabase.from("users").upsert({
+          auth_user_id: activeUserId,
+          full_name: ownerName,
+          email: ownerEmail,
+          phone_number: ownerPhone,
+          role: "customer"
+        }, { onConflict: "email" });
+
+        if (profileError) throw profileError;
+
+        // Log registration
+        await supabase.from("activity_logs").insert({
+          user_id: activeUserId,
+          activity: "Customer Baru Terdaftar",
+          description: `Customer baru dengan nama ${ownerName} mendaftar dari formulir Toko Obat Landing Page.`
+        });
+      }
+
+      // 2. Verify stock
+      const { data: latestProduct, error: prodErr } = await supabase
+        .from("products")
+        .select("stock")
+        .eq("id", selectedProduct.id)
+        .single();
+
+      if (prodErr) throw prodErr;
+      if (latestProduct.stock < purchaseQty) {
+        throw new Error(`Stok produk tidak mencukupi! Hanya tersedia ${latestProduct.stock} unit.`);
+      }
+
+      const totalAmount = selectedProduct.price * purchaseQty;
+
+      // 3. Insert into orders
+      const { data: orderData, error: orderErr } = await supabase
+        .from("orders")
+        .insert({
+          customer_id: activeUserId,
+          total_amount: totalAmount,
+          status: "Pending",
+        })
+        .select()
+        .single();
+
+      if (orderErr) throw orderErr;
+
+      // 4. Insert into order_items
+      const { error: itemErr } = await supabase.from("order_items").insert({
+        order_id: orderData.id,
+        product_id: selectedProduct.id,
+        quantity: purchaseQty,
+        price: selectedProduct.price,
+      });
+
+      if (itemErr) throw itemErr;
+
+      // 5. Update product stock
+      const { error: stockErr } = await supabase
+        .from("products")
+        .update({ stock: latestProduct.stock - purchaseQty })
+        .eq("id", selectedProduct.id);
+
+      if (stockErr) throw stockErr;
+
+      // 6. Log transaction activity
+      await supabase.from("activity_logs").insert({
+        user_id: activeUserId,
+        activity: "Customer Membeli Produk",
+        description: `Membeli ${selectedProduct.name} sebanyak ${purchaseQty} unit senilai Rp ${totalAmount.toLocaleString("id-ID")}.`
+      });
+
+      // Show success
+      if (isNewUserCreated) {
+        setCheckoutSuccessMsg(`Pembelian Berhasil! Akun Anda telah dibuat dengan password default 'PetCare123!'. Silakan gunakan email Anda untuk login di PetCare.`);
+      } else {
+        setCheckoutSuccessMsg(`Pembelian Berhasil! Pesanan Anda telah dibuat dan sedang diproses.`);
+      }
+
+      // Refresh products list
+      const { data: updatedProducts } = await supabase.from("products").select("*");
+      setProducts(updatedProducts || []);
+
+      // Reset qty and selected product after delay
+      setPurchaseQty(1);
+      setTimeout(() => {
+        setSelectedProduct(null);
+        setCheckoutSuccessMsg("");
+      }, 5000);
+
+    } catch (err) {
+      console.error("Checkout error details:", err);
+      setCheckoutErrorMsg(err.message || "Gagal memproses pembelian produk.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   // --- Treatment Simulator & CRM Discount States ---
   const [selectedPet, setSelectedPet] = useState("cat"); // "cat" | "dog" | "rabbit"
@@ -388,220 +754,510 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── INTERACTIVE CLINIC SIMULATOR & CRM DISCOUNT SECTION ─── */}
       <section id="simulator" className="py-20 bg-white border-t border-gray-150 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+          <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-              Simulator Perawatan & Diskon CRM
+              Layanan Mandiri Pelanggan
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Alur Perawatan & Simulasi Kupon CRM
+              Pendaftaran, Jadwal Temu & Beli Obat
             </h2>
             <p className="text-slate-500 text-sm md:text-base font-semibold">
-              Ketahui bagaimana staf medis merawat anabul Anda dan coba hitung penawaran diskon CRM secara langsung di bawah ini.
+              Gunakan formulir interaktif di bawah ini untuk mendaftarkan hewan peliharaan Anda, menjadwalkan pemeriksaan, atau membeli obat dan makanan anabul secara langsung.
             </p>
+
+            {/* Tab switcher */}
+            <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-gray-200 mt-6 shadow-sm">
+              <button
+                onClick={() => setActiveTab("booking")}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "booking"
+                    ? "bg-white text-emerald-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <CalendarCheck className="w-4 h-4" />
+                Pendaftaran & Booking Jadwal
+              </button>
+              <button
+                onClick={() => setActiveTab("shop")}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "shop"
+                    ? "bg-white text-emerald-600 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Toko Obat & Apotek Cepat
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            {/* Left Column: Selector & Steps (Col-span 7) */}
-            <div className="lg:col-span-7 space-y-6">
+          {/* TAB 1: BOOKING & REGISTRATION */}
+          {activeTab === "booking" && (
+            <div className="max-w-4xl mx-auto bg-white border border-gray-150 rounded-[2.5rem] p-6 md:p-10 shadow-xl relative overflow-hidden animate-in fade-in duration-300">
+              <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[80px]" />
               
-              {/* Pet Type & Treatment Selector Card */}
-              <div className="bg-slate-50 border border-gray-150 p-6 rounded-[2rem] space-y-6">
-                
-                {/* 1. Pet Selection */}
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block text-left">1. Pilih Jenis Anabul</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { id: "cat", label: "Kucing", emoji: "🐱" },
-                      { id: "dog", label: "Anjing", emoji: "🐶" },
-                      { id: "rabbit", label: "Kelinci", emoji: "🐰" }
-                    ].map((pet) => (
-                      <button
-                        key={pet.id}
-                        onClick={() => setSelectedPet(pet.id)}
-                        className={`py-3.5 rounded-2xl border-2 font-bold text-sm flex flex-col items-center justify-center gap-1.5 transition cursor-pointer select-none ${
-                          selectedPet === pet.id
-                            ? "bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                            : "bg-white border-gray-150 text-gray-750 hover:border-gray-300"
-                        }`}
-                      >
-                        <span className="text-2xl">{pet.emoji}</span>
-                        <span>{pet.label}</span>
-                      </button>
-                    ))}
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-5 mb-8">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-slate-800">Formulir Booking & Pendaftaran Hewan</h3>
+                    <p className="text-xs text-slate-400 font-medium">Isi detail lengkap di bawah untuk mengajukan antrean klinik</p>
                   </div>
                 </div>
 
-                {/* 2. Treatment Selection */}
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block text-left">2. Pilih Jenis Perawatan / Layanan Medis</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {[
-                      { id: "grooming", label: "Grooming", emoji: "🧴" },
-                      { id: "vaccine", label: "Vaksinasi", emoji: "💉" },
-                      { id: "surgery", label: "Sterilisasi", emoji: "✂️" },
-                      { id: "consultation", label: "Konsultasi", emoji: "🩺" }
-                    ].map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => {
-                          setSelectedTreatment(t.id);
-                          // Auto clear context-specific validation error
-                          if (appliedCoupon === "VAKSIN10" && t.id !== "vaccine") setAppliedCoupon("");
-                          if (appliedCoupon === "GROOMINGFREE" && t.id !== "grooming") setAppliedCoupon("");
-                        }}
-                        className={`py-3 px-2 rounded-xl border-2 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer ${
-                          selectedTreatment === t.id
-                            ? "bg-slate-900 border-slate-900 text-white"
-                            : "bg-white border-gray-150 text-gray-600 hover:border-gray-250"
-                        }`}
-                      >
-                        <span>{t.emoji}</span>
-                        <span>{t.label}</span>
-                      </button>
-                    ))}
+                {bookingSuccessMsg && (
+                  <div className="mb-6 bg-emerald-50 border border-emerald-250 text-emerald-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
+                    <span className="text-base">✅</span>
+                    <p className="text-left leading-relaxed">{bookingSuccessMsg}</p>
                   </div>
-                </div>
+                )}
 
-              </div>
+                {bookingErrorMsg && (
+                  <div className="mb-6 bg-red-50 border border-red-200 text-red-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
+                    <span className="text-base">⚠️</span>
+                    <p className="text-left leading-relaxed">{bookingErrorMsg}</p>
+                  </div>
+                )}
 
-              {/* Treatment steps overview */}
-              <div className="bg-white border border-gray-150 p-6 rounded-[2rem] space-y-5">
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-                  <Activity className="w-5 h-5 text-emerald-500" />
-                  <h4 className="font-extrabold text-sm text-gray-800">
-                    Prosedur Klinik Perawatan: <span className="text-emerald-600 font-black">{getTreatmentLabel(selectedTreatment)}</span>
-                  </h4>
-                </div>
-
-                {/* Vertical timeline steps */}
-                <div className="space-y-6 relative pl-4 text-left">
-                  {/* Timeline vertical bar */}
-                  <div className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-emerald-100" />
+                <form onSubmit={handleBooking} className="space-y-8 text-left">
                   
-                  {treatmentSteps.map((step, idx) => (
-                    <div key={idx} className="relative flex items-start gap-4">
-                      {/* Timeline dot */}
-                      <div className="absolute -left-[18px] top-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow shadow-emerald-500/50" />
-                      
-                      <div className="space-y-1">
-                        <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                          {step.step}
-                        </span>
-                        <h5 className="font-extrabold text-xs text-gray-800 mt-1">{step.title}</h5>
-                        <p className="text-[10px] text-gray-450 font-semibold leading-relaxed max-w-lg">{step.desc}</p>
+                  {/* SECTION A: OWNER INFO (GUEST ONLY) */}
+                  {!user && (
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <span>1.</span> Informasi Pemilik (Registrasi Otomatis)
+                      </h4>
+                      <div className="bg-emerald-50/45 border border-emerald-100 rounded-2xl p-4 mb-4 text-[11px] text-emerald-800 font-semibold leading-relaxed">
+                        💡 Anda belum masuk ke sistem. Mengisi form ini akan otomatis mendaftarkan akun PetCare Anda secara gratis menggunakan email & nomor telepon Anda dengan password default <strong>PetCare123!</strong>.
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-            {/* Right Column: Billing & Coupon Panel (Col-span 5) */}
-            <div className="lg:col-span-5 relative lg:sticky lg:top-24">
-              <div className="bg-white border border-gray-150 rounded-[2rem] p-6 shadow-lg space-y-6">
-                <div className="border-b border-gray-100 pb-3 flex justify-between items-center">
-                  <h3 className="font-extrabold text-sm text-gray-850">
-                    🧾 Estimasi Lembar Pembayaran
-                  </h3>
-                  <span className="text-[8px] font-black uppercase text-gray-400 bg-gray-100 px-2 py-0.5 rounded">CRM Billing</span>
-                </div>
-
-                {/* Bill detail */}
-                <div className="space-y-3.5 text-xs">
-                  <div className="flex justify-between items-center text-slate-500">
-                    <span className="font-medium">Jenis Hewan</span>
-                    <span className="font-bold uppercase text-slate-800">{selectedPet}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center text-slate-500">
-                    <span className="font-medium">Tindakan Medis</span>
-                    <span className="font-bold text-slate-800">{getTreatmentLabel(selectedTreatment)}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center text-slate-500 border-b border-gray-100 pb-3.5">
-                    <span className="font-medium">Biaya Standard Tindakan</span>
-                    <span className="font-bold text-slate-800">
-                      Rp {calculatedValues.basePrice.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-
-                  {calculatedValues.discount > 0 && (
-                    <div className="flex justify-between items-center text-emerald-600 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100/50">
-                      <span className="font-extrabold flex items-center gap-1">
-                        🎁 Kupon Diskon ({appliedCoupon})
-                      </span>
-                      <span className="font-black">
-                        - Rp {calculatedValues.discount.toLocaleString("id-ID")}
-                      </span>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Nama Lengkap</label>
+                          <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 overflow-hidden transition">
+                            <span className="absolute left-3 text-gray-400 text-xs"><User className="w-3.5 h-3.5" /></span>
+                            <input
+                              type="text"
+                              value={ownerName}
+                              onChange={(e) => setOwnerName(e.target.value)}
+                              placeholder="cth. John Doe"
+                              className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-bold text-slate-800"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Email Aktif</label>
+                          <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 overflow-hidden transition">
+                            <span className="absolute left-3 text-gray-400 text-xs"><Mail className="w-3.5 h-3.5" /></span>
+                            <input
+                              type="email"
+                              value={ownerEmail}
+                              onChange={(e) => setOwnerEmail(e.target.value)}
+                              placeholder="john@example.com"
+                              className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-bold text-slate-800"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">No. Telepon / WhatsApp</label>
+                          <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 overflow-hidden transition">
+                            <span className="absolute left-3 text-gray-400 text-xs"><Phone className="w-3.5 h-3.5" /></span>
+                            <input
+                              type="tel"
+                              value={ownerPhone}
+                              onChange={(e) => setOwnerPhone(e.target.value)}
+                              placeholder="0812-xxxx-xxxx"
+                              className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-bold text-slate-800"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex justify-between items-center border-t border-gray-150 pt-4 pb-2">
-                    <span className="font-black text-sm text-gray-850">Total Biaya Akhir</span>
-                    <span className="font-black text-xl text-emerald-600">
-                      Rp {calculatedValues.finalPrice.toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                </div>
+                  {/* SECTION B: PET INFO */}
+                  <div className="space-y-4 pt-4 border-t border-dashed border-gray-150">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                      <span>{user ? "1." : "2."}</span> Informasi Hewan Peliharaan
+                    </h4>
+                    
+                    {user && myPets.length > 0 && (
+                      <div className="mb-4">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Pilih Hewan Peliharaan Anda</label>
+                        <select
+                          value={selectedPetId}
+                          onChange={(e) => setSelectedPetId(e.target.value)}
+                          className="w-full md:w-80 px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                        >
+                          {myPets.map((pet) => (
+                            <option key={pet.id} value={pet.id}>🐾 {pet.name} ({pet.type})</option>
+                          ))}
+                          <option value="new">➕ Daftarkan Hewan Baru</option>
+                        </select>
+                      </div>
+                    )}
 
-                {/* Promo Code input form */}
-                <form onSubmit={applyPromoCode} className="space-y-3 pt-3 border-t border-gray-100 text-left">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Masukkan Kupon CRM</label>
-                    <span className="text-[9px] font-extrabold text-emerald-600 flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
-                      <Info className="w-3 h-3" /> Tips: PAWSOME20
-                    </span>
+                    {(selectedPetId === "new" || !user) && (
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-slate-50 border border-gray-200/70 rounded-2xl">
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Nama Hewan <span className="text-rose-500">*</span></label>
+                          <input
+                            type="text"
+                            value={petName}
+                            onChange={(e) => setPetName(e.target.value)}
+                            placeholder="cth. Mochi, Rex"
+                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Jenis Hewan</label>
+                          <select
+                            value={petType}
+                            onChange={(e) => setPetType(e.target.value)}
+                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                          >
+                            <option value="Kucing">🐱 Kucing</option>
+                            <option value="Anjing">🐶 Anjing</option>
+                            <option value="Kelinci">🐰 Kelinci</option>
+                            <option value="Lainnya">🐾 Lainnya</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Ras / Breed</label>
+                          <input
+                            type="text"
+                            value={petBreed}
+                            onChange={(e) => setPetBreed(e.target.value)}
+                            placeholder="Persia, Kampung, dll"
+                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Jenis Kelamin</label>
+                          <select
+                            value={petGender}
+                            onChange={(e) => setPetGender(e.target.value)}
+                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                          >
+                            <option value="Jantan">Jantan</option>
+                            <option value="Betina">Betina</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value)}
-                      placeholder="Contoh: PAWSOME20, FIRSTNEW"
-                      className="flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold uppercase tracking-wider"
-                    />
+                  {/* SECTION C: APPOINTMENT INFO */}
+                  <div className="space-y-4 pt-4 border-t border-dashed border-gray-150">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                      <span>{user ? "2." : "3."}</span> Informasi Jadwal Temu / Layanan
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Jenis Perawatan</label>
+                        <select
+                          value={bookingType}
+                          onChange={(e) => setBookingType(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                        >
+                          <option value="Grooming">🧴 Grooming</option>
+                          <option value="Vaksinasi">💉 Vaksinasi</option>
+                          <option value="Sakit / Konsultasi">🩺 Sakit / Konsultasi</option>
+                          <option value="Sterilisasi">✂️ Operasi / Sterilisasi</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Dokter Pilihan</label>
+                        <select
+                          value={bookingDoctor}
+                          onChange={(e) => setBookingDoctor(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                        >
+                          <option value="drh. Nisa Putri">drh. Nisa Putri</option>
+                          <option value="drh. Aditya Ramadhan">drh. Aditya Ramadhan</option>
+                          <option value="drh. Sari Putri">drh. Sari Putri</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Pilih Tanggal</label>
+                        <input
+                          type="date"
+                          value={bookingDate}
+                          onChange={(e) => setBookingDate(e.target.value)}
+                          className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Pilih Jam</label>
+                        <select
+                          value={bookingTime}
+                          onChange={(e) => setBookingTime(e.target.value)}
+                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
+                        >
+                          <option value="09:00">09:00 WIB</option>
+                          <option value="10:00">10:00 WIB</option>
+                          <option value="11:00">11:00 WIB</option>
+                          <option value="13:00">13:00 WIB</option>
+                          <option value="14:00">14:00 WIB</option>
+                          <option value="15:00">15:00 WIB</option>
+                          <option value="16:00">16:00 WIB</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Keluhan atau Catatan Tambahan</label>
+                      <textarea
+                        rows={3}
+                        value={bookingNotes}
+                        onChange={(e) => setBookingNotes(e.target.value)}
+                        placeholder="Tulis keluhan atau kebutuhan khusus anabul Anda di sini..."
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold text-xs leading-relaxed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* SUBMIT BUTTON */}
+                  <div className="pt-4 flex justify-end">
                     <button
                       type="submit"
-                      className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 rounded-xl transition cursor-pointer select-none"
+                      disabled={bookingLoading}
+                      className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-xs px-8 py-4 rounded-xl shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all disabled:opacity-60 cursor-pointer"
                     >
-                      Terapkan
+                      {bookingLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Memproses pendaftaran...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Kirim Pendaftaran & Booking</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
                   </div>
 
-                  {couponError && (
-                    <p className="text-[10px] text-red-500 font-semibold ml-1">{couponError}</p>
-                  )}
-                  {couponSuccess && (
-                    <p className="text-[10px] text-emerald-600 font-semibold ml-1">{couponSuccess}</p>
-                  )}
-
-                  {/* List of active coupon codes info */}
-                  <div className="bg-slate-50 p-3 rounded-2xl border border-gray-150 text-[9px] text-gray-450 leading-relaxed font-semibold space-y-1">
-                    <p className="font-bold text-gray-600 uppercase tracking-wider">Kupon Aktif CRM Bulan Ini:</p>
-                    <p>• <span className="text-emerald-600 font-black">PAWSOME20</span>: Diskon 20% untuk semua jenis perawatan.</p>
-                    <p>• <span className="text-emerald-600 font-black">FIRSTNEW</span>: Diskon 15% khusus pendaftaran pengguna baru.</p>
-                    <p>• <span className="text-emerald-600 font-black">VAKSIN10</span>: Hemat 10% khusus untuk Vaksinasi.</p>
-                    <p>• <span className="text-emerald-600 font-black">GROOMINGFREE</span>: Potongan langsung Rp 50.000 untuk Grooming.</p>
-                  </div>
                 </form>
-
-                {/* Call to action */}
-                <button
-                  onClick={handleCTA}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-sm shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group cursor-pointer animate-pulse-slow"
-                >
-                  <span>Klaim Diskon & Janji Temu</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </button>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* TAB 2: TOKO OBAT & APOTEK CEPAT */}
+          {activeTab === "shop" && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="bg-slate-50 border border-gray-200 rounded-3xl p-5 md:p-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-5 mb-6 text-left">
+                  <div>
+                    <h3 className="font-extrabold text-base text-gray-800">Apotek & Toko Obat PetCare</h3>
+                    <p className="text-xs text-gray-400 font-medium">Beli obat cacing, vitamin, makanan medis, atau vaksin untuk anabul langsung di sini.</p>
+                  </div>
+                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 border border-emerald-250 px-3 py-1 rounded-full">
+                    ⚡ Instant Checkout
+                  </span>
+                </div>
+
+                {products.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-300 text-left"
+                      >
+                        <div>
+                          <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                            product.category === 'Obat' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                            product.category === 'Makanan' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                            'bg-blue-50 text-blue-600 border border-blue-100'
+                          }`}>
+                            {product.category}
+                          </span>
+                          <h4 className="font-extrabold text-sm text-gray-850 mt-3.5 leading-tight">{product.name}</h4>
+                          <p className="text-[10px] text-gray-400 mt-1 font-semibold line-clamp-2 leading-relaxed min-h-[30px]">{product.description}</p>
+                          
+                          <div className="my-3 border-t border-dashed border-gray-100" />
+                          
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-semibold text-gray-400">Stok: <strong className="text-gray-750">{product.stock} {product.unit}</strong></span>
+                            <span className="font-black text-emerald-600 text-sm">Rp {product.price.toLocaleString("id-ID")}</span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setPurchaseQty(1);
+                            setCheckoutErrorMsg("");
+                            setCheckoutSuccessMsg("");
+                          }}
+                          disabled={product.stock <= 0}
+                          className={`w-full mt-4 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer ${
+                            product.stock <= 0
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
+                              : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                          }`}
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          {product.stock <= 0 ? "Stok Habis" : "Beli Sekarang"}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-20 text-center text-gray-400 bg-white border border-gray-200 rounded-2xl">
+                    <ShoppingBag className="mx-auto w-8 h-8 text-gray-300 mb-2" />
+                    <p className="text-xs font-semibold">Produk tidak tersedia dalam database.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* QUICK CHECKOUT PANEL */}
+              {selectedProduct && (
+                <div className="bg-white border border-emerald-300 rounded-[2rem] p-6 md:p-8 max-w-2xl mx-auto shadow-lg text-left relative overflow-hidden animate-in slide-in-from-bottom duration-300">
+                  <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[80px]" />
+                  
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                      <h4 className="font-extrabold text-sm text-slate-800 flex items-center gap-2">
+                        <span>🛍️</span> Konfirmasi Pembelian Cepat
+                      </h4>
+                      <button
+                        onClick={() => setSelectedProduct(null)}
+                        className="text-[10px] bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-gray-500 font-bold transition cursor-pointer"
+                      >
+                        Batal
+                      </button>
+                    </div>
+
+                    <div className="flex items-start gap-4 p-4 bg-slate-50 border border-gray-200/70 rounded-2xl text-xs">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl shadow-sm shrink-0">
+                        {selectedProduct.category === 'Obat' ? '💊' : selectedProduct.category === 'Makanan' ? '🥫' : '💉'}
+                      </div>
+                      <div>
+                        <h5 className="font-extrabold text-gray-800 text-xs">{selectedProduct.name}</h5>
+                        <p className="text-[10px] text-gray-450 mt-0.5">{selectedProduct.category} · Harga Satuan: <strong className="text-emerald-600 font-extrabold">Rp {selectedProduct.price.toLocaleString("id-ID")}</strong></p>
+                        <p className="text-[10px] text-gray-450 mt-0.5">Stok Tersedia: {selectedProduct.stock} {selectedProduct.unit}</p>
+                      </div>
+                    </div>
+
+                    {checkoutSuccessMsg && (
+                      <div className="bg-emerald-50 border border-emerald-250 text-emerald-750 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
+                        <span>✅</span>
+                        <p className="leading-relaxed">{checkoutSuccessMsg}</p>
+                      </div>
+                    )}
+
+                    {checkoutErrorMsg && (
+                      <div className="bg-red-50 border border-red-200 text-red-750 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
+                        <span>⚠️</span>
+                        <p className="leading-relaxed">{checkoutErrorMsg}</p>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleQuickCheckout} className="space-y-6">
+                      
+                      {/* Guest credentials */}
+                      {!user && (
+                        <div className="space-y-3 p-4 border border-dashed border-gray-200 rounded-2xl bg-slate-50/50">
+                          <span className="text-[10px] font-black uppercase text-gray-450 tracking-wider">Lengkapi Informasi Anda</span>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+                            <input
+                              type="text"
+                              value={ownerName}
+                              onChange={(e) => setOwnerName(e.target.value)}
+                              placeholder="Nama Pembeli"
+                              required
+                              className="px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none font-bold text-slate-800 bg-white"
+                            />
+                            <input
+                              type="email"
+                              value={ownerEmail}
+                              onChange={(e) => setOwnerEmail(e.target.value)}
+                              placeholder="Email Aktif"
+                              required
+                              className="px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none font-bold text-slate-800 bg-white"
+                            />
+                            <input
+                              type="tel"
+                              value={ownerPhone}
+                              onChange={(e) => setOwnerPhone(e.target.value)}
+                              placeholder="No. WhatsApp"
+                              required
+                              className="px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none font-bold text-slate-800 bg-white"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Qty & Totals */}
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 text-white p-5 rounded-2xl shadow-inner text-xs">
+                        <div className="flex items-center gap-3">
+                          <span className="font-bold text-slate-300">Jumlah Unit:</span>
+                          <div className="flex items-center rounded-xl bg-slate-800 p-1 border border-slate-700">
+                            <button
+                              type="button"
+                              onClick={() => setPurchaseQty(prev => Math.max(1, prev - 1))}
+                              className="w-7 h-7 flex items-center justify-center hover:bg-slate-700 rounded-lg text-slate-300 cursor-pointer"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-10 text-center font-extrabold text-sm">{purchaseQty}</span>
+                            <button
+                              type="button"
+                              onClick={() => setPurchaseQty(prev => Math.min(selectedProduct.stock, prev + 1))}
+                              className="w-7 h-7 flex items-center justify-center hover:bg-slate-700 rounded-lg text-slate-300 cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Pembayaran</p>
+                          <p className="text-lg font-black text-emerald-400 mt-1">Rp {(selectedProduct.price * purchaseQty).toLocaleString("id-ID")}</p>
+                        </div>
+                      </div>
+
+                      {/* Checkout Submit */}
+                      <div className="flex justify-end gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedProduct(null)}
+                          className="px-5 py-3 rounded-xl border border-gray-200 text-xs font-extrabold text-gray-500 hover:bg-gray-50 cursor-pointer"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={checkoutLoading}
+                          className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-xs px-7 py-3 rounded-xl shadow-md shadow-emerald-500/20 transition cursor-pointer disabled:opacity-60"
+                        >
+                          {checkoutLoading ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                              <span>Memproses checkout...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Checkout Sekarang</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       </section>
 
