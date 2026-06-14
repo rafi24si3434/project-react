@@ -220,8 +220,13 @@ project-react/
 ├── src/
 │   ├── components/
 │   │   ├── ui/                 # Komponen dasar Shadcn UI (Table, Input, Button, dll.)
+│   │   ├── ActivityTimeline.jsx# [New] Komponen timeline aktivitas dengan visualisasi status
+│   │   ├── DataRow.jsx         # [New] Baris data grid modular dengan hover transitions
 │   │   ├── ErrorBoundary.jsx   # Penangkap error runtime React (mencegah layar putih)
+│   │   ├── HeroStat.jsx        # [New] Kartu stat glassmorphic mini dengan glow effects
+│   │   ├── MetricCard.jsx      # [New] Kartu metrik modular bertema dengan icon indikator
 │   │   ├── ProtectedRoute.jsx  # Guard route berbasis status Auth & verifikasi Role
+│   │   ├── SectionCard.jsx     # [New] Kontainer card modular berkelas untuk membungkus konten
 │   │   └── Sidebar.jsx         # Navigasi samping dinamis menyesuaikan tipe Role
 │   ├── context/
 │   │   └── AuthContext.jsx     # State manager otentikasi & manajemen sesi profil

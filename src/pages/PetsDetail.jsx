@@ -29,6 +29,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { supabase } from "../lib/supabase";
+import HeroStat from "../components/HeroStat";
+import SectionCard from "../components/SectionCard";
+import DataRow from "../components/DataRow";
 
 const cityOptions = [
   "Jakarta Selatan",
@@ -174,40 +177,7 @@ function buildPetProfile(pet) {
   };
 }
 
-function HeroStat({ label, value }) {
-  return (
-    <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">{label}</p>
-      <p className="mt-2 text-xl font-extrabold text-white">{value}</p>
-    </div>
-  );
-}
 
-function SectionCard({ icon: Icon, title, subtitle, iconClassName = "", children }) {
-  return (
-    <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-      <div className="mb-5 flex items-center gap-3">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gray-50 ${iconClassName}`}>
-          <Icon className="h-5 w-5" />
-        </div>
-        <div>
-          <h2 className="text-base font-bold text-gray-800">{title}</h2>
-          <p className="text-xs text-gray-400">{subtitle}</p>
-        </div>
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function DataRow({ label, value }) {
-  return (
-    <div className="grid gap-2 rounded-2xl border border-gray-100 bg-gray-50/80 px-4 py-3 md:grid-cols-[180px_minmax(0,1fr)] md:items-start">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="text-sm font-semibold leading-relaxed text-gray-800">{value}</p>
-    </div>
-  );
-}
 
 export default function PetsDetail() {
   const { id } = useParams();

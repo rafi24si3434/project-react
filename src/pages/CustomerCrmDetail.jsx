@@ -44,36 +44,12 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "../lib/supabase";
+import MetricCard from "../components/MetricCard";
+import ActivityTimeline from "../components/ActivityTimeline";
 
 function parseAmount(value) {
   const amount = Number(String(value).replace(/[^\d]/g, ""));
   return Number.isNaN(amount) ? 0 : amount;
-}
-
-function MetricCard({ icon: Icon, label, value, accent = "emerald" }) {
-  const colorMap = {
-    emerald: "bg-emerald-50 text-emerald-600",
-    blue: "bg-blue-50 text-blue-600",
-    violet: "bg-violet-50 text-violet-600",
-    amber: "bg-amber-50 text-amber-600",
-    rose: "bg-rose-50 text-rose-600",
-    indigo: "bg-indigo-50 text-indigo-600",
-    pink: "bg-pink-50 text-pink-600",
-    sky: "bg-sky-50 text-sky-600",
-  };
-  const c = colorMap[accent] || colorMap.emerald;
-
-  return (
-    <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm text-left">
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${c}`}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</p>
-        <p className="mt-0.5 truncate text-sm font-bold text-gray-800">{value}</p>
-      </div>
-    </div>
-  );
 }
 
 function DataField({ label, value, icon: Icon }) {
@@ -535,24 +511,7 @@ export default function CustomerCrmDetail() {
 
           <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
             <SectionHeader icon={Clock} title="Timeline Aktivitas" subtitle="Jejak aktivitas customer di platform" accent="text-indigo-600" />
-            {customer.logs?.length > 0 ? (
-              <div className="space-y-6 relative border-l border-gray-200 ml-4 pl-6 text-left">
-                {customer.logs.map((log) => (
-                  <div key={log.id} className="relative">
-                    <span className="absolute -left-9 top-0.5 bg-emerald-500 w-6 h-6 rounded-full border-4 border-white flex items-center justify-center text-[10px] text-white">✓</span>
-                    <div>
-                      <span className="text-[10px] font-bold text-gray-400">{log.date}</span>
-                      <h5 className="text-xs font-bold text-gray-800 mt-1">{log.activity}</h5>
-                      <p className="text-xs text-gray-500 mt-0.5">{log.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-gray-100 bg-gray-50 py-8 text-center">
-                <p className="text-sm text-gray-400">Belum ada catatan aktivitas.</p>
-              </div>
-            )}
+            <ActivityTimeline logs={customer.logs} />
           </div>
         </TabsContent>
 
