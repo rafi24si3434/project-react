@@ -270,3 +270,90 @@
     INSERT INTO public.users (auth_user_id, full_name, email, phone_number, role)
     VALUES ('9e3aa95b-bd90-488f-a21d-55e3c586dbfb', 'rafiganteng', 'rafi@gmail.com', '0821541375', 'customer')
     ON CONFLICT (email) DO UPDATE SET auth_user_id = excluded.auth_user_id, role = 'customer';
+
+
+    -- =========================================================================
+    -- 10. CREATE CAMPAIGNS TABLE FOR CAMPAIGN MANAGEMENT
+    -- =========================================================================
+    DROP TABLE IF EXISTS public.campaigns cascade;
+
+    CREATE TABLE public.campaigns (
+      id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+      name text NOT NULL,
+      channel text NOT NULL,
+      budget numeric NOT NULL DEFAULT 0,
+      reach integer NOT NULL DEFAULT 0,
+      conversion numeric NOT NULL DEFAULT 0,
+      status text DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Selesai')) NOT NULL,
+      created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    );
+
+    ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
+
+    CREATE POLICY "Allow select for admin and staff" ON public.campaigns FOR SELECT USING (public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+    CREATE POLICY "Allow insert for admin and staff" ON public.campaigns FOR INSERT WITH CHECK (public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+    CREATE POLICY "Allow delete for admin and staff" ON public.campaigns FOR DELETE USING (public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+
+    -- Seed campaigns data
+    INSERT INTO public.campaigns (name, channel, budget, reach, conversion, status) VALUES
+    ('PetCare Summer Festival', 'Instagram Ads', 4500000, 12000, 8.5, 'Aktif'),
+    ('Vaksinasi Gratis Rabies', 'WhatsApp Broadcast', 2000000, 5000, 18.2, 'Aktif'),
+    ('Liburan Tenang Bersama PetCare', 'Instagram Ads', 3500000, 8500, 6.4, 'Aktif'),
+    ('Bulan Kesehatan Gigi Hewan', 'Email Newsletter', 1500000, 4000, 11.0, 'Selesai'),
+    ('Pekan Mainan Anabul', 'TikTok Ads', 5000000, 15000, 9.1, 'Selesai');
+
+
+    -- =========================================================================
+    -- 11. CREATE FEEDBACK & COMPLAINTS TABLES FOR CRM SATISFACTION
+    -- =========================================================================
+    DROP TABLE IF EXISTS public.feedback cascade;
+    DROP TABLE IF EXISTS public.complaints cascade;
+
+    -- Feedback Table
+    CREATE TABLE public.feedback (
+      id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+      customer_id uuid REFERENCES public.users(auth_user_id) ON DELETE CASCADE,
+      rating integer CHECK (rating BETWEEN 1 AND 5) NOT NULL,
+      review_text text NOT NULL,
+      reply_text text DEFAULT '',
+      is_replied boolean DEFAULT false NOT NULL,
+      created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    );
+
+    -- Complaints Table
+    CREATE TABLE public.complaints (
+      id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+      customer_id uuid REFERENCES public.users(auth_user_id) ON DELETE SET NULL,
+      customer_name text,
+      note text NOT NULL,
+      status text DEFAULT 'Pending' CHECK (status IN ('Pending', 'Selesai')) NOT NULL,
+      compensation_sent boolean DEFAULT false NOT NULL,
+      created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+    );
+
+    -- Enable RLS
+    ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.complaints ENABLE ROW LEVEL SECURITY;
+
+    -- Feedback RLS Policies
+    CREATE POLICY "Allow read feedback for everyone" ON public.feedback FOR SELECT USING (true);
+    CREATE POLICY "Allow insert own feedback for customers" ON public.feedback FOR INSERT WITH CHECK (auth.uid() = customer_id OR customer_id IS NULL);
+    CREATE POLICY "Allow manage feedback for admin and staff" ON public.feedback FOR ALL USING (public.get_user_role(auth.uid()) IN ('admin', 'staff')) WITH CHECK (public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+
+    -- Complaints RLS Policies
+    CREATE POLICY "Allow select own complaints" ON public.complaints FOR SELECT USING (auth.uid() = customer_id OR public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+    CREATE POLICY "Allow insert complaints" ON public.complaints FOR INSERT WITH CHECK (auth.uid() = customer_id OR customer_id IS NULL OR public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+    CREATE POLICY "Allow manage complaints for admin and staff" ON public.complaints FOR ALL USING (public.get_user_role(auth.uid()) IN ('admin', 'staff')) WITH CHECK (public.get_user_role(auth.uid()) IN ('admin', 'staff'));
+
+    -- Seed feedback data
+    INSERT INTO public.feedback (rating, review_text) VALUES
+    (5, 'Pelayanan dokter hewan sangat baik dan detail. Anabul saya merasa nyaman.'),
+    (4, 'Grooming bersih wangi tahan lama. Tempat tunggu ber-AC dingin.'),
+    (5, 'Sangat direkomendasikan! Penanganan operasi darurat kucing saya cepat sekali.'),
+    (3, 'Penjelasan obat lengkap tapi antrean apotek agak sedikit lama.');
+
+    -- Seed complaints data
+    INSERT INTO public.complaints (customer_name, note, status) VALUES
+    ('Budi Santoso', 'Antrean kunjungan terlalu lama pada hari Sabtu pagi.', 'Pending'),
+    ('Rina Amelia', 'Metode pembayaran transfer belum terverifikasi di struk belanja.', 'Pending'),
+    ('Hendra Kurnia', 'Perubahan jadwal dokter tidak dinotifikasikan lebih awal.', 'Selesai');

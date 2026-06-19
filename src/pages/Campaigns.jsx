@@ -13,7 +13,7 @@ import {
   FaCheckCircle,
   FaSpinner
 } from "react-icons/fa";
-import { crmCustomers } from "@/data/CustomerCrmData";
+import { supabase } from "../lib/supabase";
 import Modal from "../components/Modal";
 import ToastNotification from "../components/ToastNotification";
 
@@ -100,6 +100,7 @@ const templates = [
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
+  const [dbCustomers, setDbCustomers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -109,24 +110,73 @@ export default function Campaigns() {
   const nameInputRef = useRef(null);
   const formRef = useRef(null);
 
-  // useEffect: Mengambil daftar promo aktif saat halaman dibuka
-  useEffect(() => {
+  // Load campaigns and customers from Supabase
+  const loadAllData = async () => {
     setIsLoading(true);
-    const timer = setTimeout(() => {
-      setCampaigns(initialCampaigns);
+    try {
+      // 1. Fetch campaigns
+      const { data: campData, error: campErr } = await supabase
+        .from("campaigns")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (campErr) throw campErr;
+      setCampaigns(campData || []);
+
+      // 2. Fetch customers (users with role = 'customer')
+      const { data: usersData, error: usersErr } = await supabase
+        .from("users")
+        .select("*")
+        .eq("role", "customer");
+
+      if (usersErr) throw usersErr;
+
+      const { data: ordersData } = await supabase
+        .from("orders")
+        .select("customer_id, total_amount, status");
+
+      const mappedCustomers = (usersData || []).map((user) => {
+        const userOrders = (ordersData || []).filter(
+          (o) => o.customer_id === user.auth_user_id && o.status !== "Cancelled"
+        );
+        const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+
+        let level = "Silver";
+        if (totalSpent > 1000000) level = "VIP";
+        else if (totalSpent > 500000) level = "Gold";
+
+        return {
+          id: user.id,
+          auth_user_id: user.auth_user_id,
+          name: user.full_name,
+          email: user.email,
+          phone: user.phone_number || "—",
+          avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(user.full_name)}`,
+          membership: {
+            level,
+            isActive: true
+          },
+          marketing: {
+            subscription: ["WhatsApp", "Email", "SMS"]
+          }
+        };
+      });
+
+      setDbCustomers(mappedCustomers);
+    } catch (err) {
+      console.error("Error loading campaigns data:", err);
+      setToastMessage("Gagal memuat data dari Supabase.");
+      setShowToast(true);
+    } finally {
       setIsLoading(false);
-    }, 450);
-    return () => clearTimeout(timer);
+    }
+  };
+
+  useEffect(() => {
+    loadAllData();
   }, []);
 
-  // useEffect: Memperbarui data promo ketika terjadi perubahan (simulasi log/track)
-  useEffect(() => {
-    if (campaigns.length > 0) {
-      console.log("Campaign list updated successfully. Total count:", campaigns.length);
-    }
-  }, [campaigns]);
-
-  // useEffect: Focus input judul promo ketika modal pembuatan promo dibuka
+  // Focus input judul promo ketika modal dibuka
   useEffect(() => {
     if (isModalOpen && nameInputRef.current) {
       const timer = setTimeout(() => {
@@ -161,12 +211,12 @@ export default function Campaigns() {
     }).format(value);
   };
 
-  // Filter segment target customer
+  // Filter segment target customer from database users
   const targetCustomers = useMemo(() => {
-    return crmCustomers.filter((c) => {
+    return dbCustomers.filter((c) => {
       switch (bcSegment) {
         case "vip":
-          return c.membership.status === "VIP";
+          return c.membership.level === "VIP";
         case "gold":
           return c.membership.level === "Gold";
         case "silver":
@@ -181,7 +231,7 @@ export default function Campaigns() {
           return true;
       }
     });
-  }, [bcSegment]);
+  }, [bcSegment, dbCustomers]);
 
   // Apply template selection
   const handleSelectTemplate = (id) => {
@@ -196,45 +246,64 @@ export default function Campaigns() {
   };
 
   // Handle Add Campaign
-  const handleAddCampaign = () => {
+  const handleAddCampaign = async () => {
     if (!newCampName || !newCampBudget) {
       setToastMessage("Harap isi semua kolom wajib!");
       setShowToast(true);
       return;
     }
 
-    const colorMap = {
-      "Instagram Ads": "bg-pink-50 text-pink-700",
-      "TikTok Ads": "bg-amber-50 text-amber-700",
-      "WhatsApp Broadcast": "bg-emerald-50 text-emerald-700",
-      "Email Newsletter": "bg-violet-50 text-violet-700",
-      "Google Ads": "bg-blue-50 text-blue-700",
-    };
+    const calculatedReach = Math.floor(parseFloat(newCampBudget) / 400 + Math.random() * 200);
+    const calculatedConversion = parseFloat((Math.random() * 12 + 5).toFixed(1));
 
-    const newCamp = {
-      id: `CAMP-${String(campaigns.length + 1).padStart(3, "0")}`,
-      name: newCampName,
-      channel: newCampChannel,
-      budget: parseFloat(newCampBudget),
-      reach: Math.floor(parseFloat(newCampBudget) / 400 + Math.random() * 200),
-      conversion: parseFloat((Math.random() * 12 + 5).toFixed(1)),
-      status: "Aktif",
-      avatarBg: colorMap[newCampChannel] || "bg-gray-50 text-gray-700",
-    };
+    try {
+      const { data, error } = await supabase
+        .from("campaigns")
+        .insert({
+          name: newCampName,
+          channel: newCampChannel,
+          budget: parseFloat(newCampBudget),
+          reach: calculatedReach,
+          conversion: calculatedConversion,
+          status: "Aktif"
+        })
+        .select()
+        .single();
 
-    setCampaigns([newCamp, ...campaigns]);
-    setNewCampName("");
-    setNewCampBudget("");
-    setIsModalOpen(false);
-    setToastMessage("Campaign baru berhasil ditambahkan!");
-    setShowToast(true);
+      if (error) throw error;
+
+      setCampaigns([data, ...campaigns]);
+      setNewCampName("");
+      setNewCampBudget("");
+      setIsModalOpen(false);
+      setToastMessage("Campaign baru berhasil ditambahkan!");
+      setShowToast(true);
+    } catch (err) {
+      console.error("Error creating campaign:", err);
+      setToastMessage("Gagal menambahkan campaign.");
+      setShowToast(true);
+    }
   };
 
-  const handleDeleteCampaign = (id, name) => {
+  // Handle Delete Campaign
+  const handleDeleteCampaign = async (id, name) => {
     if (window.confirm(`Hapus campaign ${name}?`)) {
-      setCampaigns(campaigns.filter((c) => c.id !== id));
-      setToastMessage(`Campaign ${name} dihapus.`);
-      setShowToast(true);
+      try {
+        const { error } = await supabase
+          .from("campaigns")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        setCampaigns(campaigns.filter((c) => c.id !== id));
+        setToastMessage(`Campaign ${name} berhasil dihapus.`);
+        setShowToast(true);
+      } catch (err) {
+        console.error("Error deleting campaign:", err);
+        setToastMessage("Gagal menghapus campaign.");
+        setShowToast(true);
+      }
     }
   };
 
@@ -260,10 +329,11 @@ export default function Campaigns() {
   };
 
   // Stats calculation
-  const totalBudget = useMemo(() => campaigns.reduce((sum, c) => sum + c.budget, 0), [campaigns]);
-  const totalReach = useMemo(() => campaigns.reduce((sum, c) => sum + c.reach, 0), [campaigns]);
+  const totalBudget = useMemo(() => campaigns.reduce((sum, c) => sum + Number(c.budget || 0), 0), [campaigns]);
+  const totalReach = useMemo(() => campaigns.reduce((sum, c) => sum + Number(c.reach || 0), 0), [campaigns]);
   const averageConversion = useMemo(() => {
-    const sum = campaigns.reduce((acc, c) => acc + c.conversion, 0);
+    if (!campaigns.length) return "0.0";
+    const sum = campaigns.reduce((acc, c) => acc + Number(c.conversion || 0), 0);
     return (sum / campaigns.length).toFixed(1);
   }, [campaigns]);
 
@@ -484,7 +554,7 @@ export default function Campaigns() {
                 onChange={(e) => setBcSegment(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-300 transition"
               >
-                <option value="all">Semua Customer ({crmCustomers.length})</option>
+                <option value="all">Semua Customer ({dbCustomers.length})</option>
                 <option value="vip">Hanya VIP Member</option>
                 <option value="gold">Level Member Gold</option>
                 <option value="silver">Level Member Silver</option>

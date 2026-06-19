@@ -14,7 +14,11 @@ import {
   ShoppingCart,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  MessageSquare,
+  HelpCircle,
+  Gift,
+  Copy
 } from "lucide-react";
 import ToastNotification from "../components/ToastNotification";
 
@@ -32,6 +36,7 @@ import BookingModal from "../components/member/BookingModal";
 import PetFormModal from "../components/member/PetFormModal";
 import ProfileModal from "../components/member/ProfileModal";
 import PetDetailModal from "../components/member/PetDetailModal";
+import FeedbackComplaintModal from "../components/member/FeedbackComplaintModal";
 
 export default function Member() {
   const { user, profile, logout, refreshProfile } = useAuth();
@@ -87,6 +92,9 @@ export default function Member() {
   // Pet Details Modal States
   const [selectedPetForDetail, setSelectedPetForDetail] = useState(null);
   const [isPetDetailOpen, setIsPetDetailOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [customerReviews, setCustomerReviews] = useState([]);
+  const [customerComplaints, setCustomerComplaints] = useState([]);
 
   // Appointment Booking Modal States
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -216,6 +224,28 @@ export default function Member() {
 
       if (productsError) throw productsError;
       setProducts(productsData || []);
+
+      // 6. Fetch Customer Feedback
+      const { data: fbData, error: fbError } = await supabase
+        .from("feedback")
+        .select("*")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!fbError) {
+        setCustomerReviews(fbData || []);
+      }
+
+      // 7. Fetch Customer Complaints
+      const { data: compData, error: compError } = await supabase
+        .from("complaints")
+        .select("*")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!compError) {
+        setCustomerComplaints(compData || []);
+      }
 
     } catch (err) {
       console.error("Error loading member data:", err);
@@ -596,6 +626,64 @@ export default function Member() {
     }
   };
 
+  const handleReviewSubmit = async (rating, reviewText) => {
+    try {
+      const { data, error } = await supabase
+        .from("feedback")
+        .insert({
+          customer_id: user.id,
+          rating,
+          review_text: reviewText
+        })
+        .select();
+
+      if (error) throw error;
+
+      setToastMsg("Terima kasih atas ulasan berharga Anda!");
+      setToastType("success");
+      setShowToast(true);
+
+      if (data && data.length > 0) {
+        setCustomerReviews(prev => [data[0], ...prev]);
+      }
+      loadMemberData();
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      setToastMsg("Gagal mengirim ulasan.");
+      setToastType("error");
+      setShowToast(true);
+    }
+  };
+
+  const handleComplaintSubmit = async (note) => {
+    try {
+      const { data, error } = await supabase
+        .from("complaints")
+        .insert({
+          customer_id: user.id,
+          note,
+          status: "Pending"
+        })
+        .select();
+
+      if (error) throw error;
+
+      setToastMsg("Keluhan Anda telah dicatat, admin akan segera menanganinya!");
+      setToastType("success");
+      setShowToast(true);
+
+      if (data && data.length > 0) {
+        setCustomerComplaints(prev => [data[0], ...prev]);
+      }
+      loadMemberData();
+    } catch (err) {
+      console.error("Error submitting complaint:", err);
+      setToastMsg("Gagal mengajukan tiket keluhan.");
+      setToastType("error");
+      setShowToast(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-left">
       {/* ── TOP NAVBAR ── */}
@@ -631,13 +719,14 @@ export default function Member() {
         </div>
 
         {/* ── TAB BAR ── */}
-        <div className="bg-white border border-slate-200 p-1.5 rounded-2xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 shadow-sm mb-8">
+        <div className="bg-white border border-slate-200 p-1.5 rounded-2xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 shadow-sm mb-8">
           {[
             { id: "overview", label: "Dashboard", icon: User },
             { id: "pets", label: "Hewan Saya", icon: PawPrint },
             { id: "transactions", label: "Belanja Saya", icon: Receipt },
             { id: "appointments", label: "Jadwal Kunjungan", icon: CalendarCheck },
-            { id: "medical", label: "Rekam Medis", icon: ClipboardList }
+            { id: "medical", label: "Rekam Medis", icon: ClipboardList },
+            { id: "feedback", label: "Bantuan & Ulasan", icon: MessageSquare }
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -761,6 +850,27 @@ export default function Member() {
                         Semua rekam medis anabul Anda dienkripsi secara aman. Hanya dokter hewan penanggung jawab yang dapat memodifikasi rekam medis demi kesehatan dan keselamatan anabul Anda.
                       </p>
                     </div>
+                  </div>
+
+                  {/* Ulasan & Bantuan Layanan Card */}
+                  <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center text-2xl shadow-sm shrink-0">
+                        💬
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-slate-800 text-sm">Ulasan & Bantuan Layanan</h4>
+                        <p className="text-xs text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                          Beri ulasan klinik untuk meningkatkan pelayanan kami, atau laporkan kendala Anda kepada tim admin kami.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsFeedbackModalOpen(true)}
+                      className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 text-white text-xs font-bold shadow-md shadow-violet-500/10 cursor-pointer transition active:scale-[0.98] shrink-0"
+                    >
+                      Beri Masukan & Bantuan
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1015,6 +1125,180 @@ export default function Member() {
               </div>
             )}
 
+            {/* ── TAB CONTENT: FEEDBACK & COMPLAINTS ── */}
+            {activeTab === "feedback" && (
+              <div className="space-y-8 animate-fade-in">
+                {/* Hero Header */}
+                <div className="bg-gradient-to-r from-violet-600 via-indigo-600 to-indigo-700 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden text-left">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16 pointer-events-none"></div>
+                  <div className="relative z-10 max-w-2xl">
+                    <h3 className="text-xl font-extrabold tracking-tight mb-2">Pusat Layanan & Masukan Customer 🐾</h3>
+                    <p className="text-xs text-indigo-100 mb-6 leading-relaxed">
+                      Kami berkomitmen untuk terus meningkatkan pelayanan kesehatan anabul kesayangan Anda. 
+                      Silakan kirimkan kritik, saran, ulasan pengalaman Anda, atau laporkan kendala teknis yang Anda hadapi.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={() => setIsFeedbackModalOpen(true)}
+                        className="px-5 py-3 bg-white text-indigo-650 hover:bg-slate-50 transition font-extrabold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-indigo-900/10 cursor-pointer"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Tulis Ulasan Klinik
+                      </button>
+                      <button
+                        onClick={() => setIsFeedbackModalOpen(true)}
+                        className="px-5 py-3 bg-indigo-500/50 border border-indigo-400 hover:bg-indigo-500/70 transition font-extrabold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        Laporkan Masalah Teknis
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                  
+                  {/* Left Column: Tickets list */}
+                  <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4 text-left">
+                    <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2 border-b border-slate-100 pb-3">
+                      <HelpCircle className="w-4 h-4 text-rose-500" />
+                      Status Keluhan & Tiket Bantuan ({customerComplaints.length})
+                    </h4>
+                    
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                      {customerComplaints.length > 0 ? (
+                        customerComplaints.map((comp) => (
+                          <div
+                            key={comp.id}
+                            className={`border rounded-2xl p-4 bg-slate-50/50 space-y-3 border-l-4 transition-all duration-300 ${
+                              comp.status === "Selesai" ? "border-l-emerald-500 border-slate-200" : "border-l-rose-500 border-slate-200"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <span className="text-[10px] text-slate-400 font-bold">
+                                ID: #{comp.id.slice(0, 8).toUpperCase()}
+                              </span>
+                              <span
+                                className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full ${
+                                  comp.status === "Selesai"
+                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                                    : "bg-rose-50 text-rose-550 border border-rose-100 animate-pulse"
+                                }`}
+                              >
+                                {comp.status === "Selesai" ? "Teratasi" : "Diproses"}
+                              </span>
+                            </div>
+                            
+                            <p className="text-xs text-slate-650 leading-relaxed font-semibold italic bg-white p-2.5 rounded-xl border border-slate-150">
+                              "{comp.note}"
+                            </p>
+
+                            {/* Compensation Claim Card if solved & sent */}
+                            {comp.status === "Selesai" && comp.compensation_sent && (
+                              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-250 rounded-xl p-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                <div>
+                                  <div className="flex items-center gap-1 text-[10px] font-bold text-amber-800">
+                                    <Gift className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
+                                    Voucher Kompensasi 15% Aktif!
+                                  </div>
+                                  <p className="text-[9px] text-amber-600/90 font-semibold mt-0.5">Voucher khusus diskon belanja obat/grooming.</p>
+                                </div>
+                                <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                                  <code className="bg-white border border-amber-200 px-2.5 py-1 rounded text-xs font-black text-slate-700 tracking-wider">
+                                    VCHR-{comp.id.slice(0, 5).toUpperCase()}
+                                  </code>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(`VCHR-${comp.id.slice(0, 5).toUpperCase()}`);
+                                      setToastMsg("Kode voucher disalin!");
+                                      setToastType("success");
+                                      setShowToast(true);
+                                    }}
+                                    className="p-1.5 rounded bg-amber-500 hover:bg-amber-600 text-white transition cursor-pointer"
+                                    title="Salin Voucher"
+                                  >
+                                    <Copy className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-12 text-center text-slate-400 font-semibold text-xs">
+                          Belum ada keluhan yang dilaporkan. Terima kasih atas kerja samanya!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Reviews list */}
+                  <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4 text-left">
+                    <h4 className="font-extrabold text-slate-800 text-sm flex items-center gap-2 border-b border-slate-100 pb-3">
+                      <MessageSquare className="w-4 h-4 text-emerald-500" />
+                      Riwayat Ulasan Saya ({customerReviews.length})
+                    </h4>
+
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                      {customerReviews.length > 0 ? (
+                        customerReviews.map((rev) => (
+                          <div
+                            key={rev.id}
+                            className="border border-slate-200 rounded-2xl p-4 bg-slate-50/30 space-y-3 text-left"
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex gap-0.5">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <span
+                                    key={i}
+                                    className={`text-sm ${
+                                      i < rev.rating ? "text-amber-400" : "text-slate-200"
+                                    }`}
+                                  >
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+                              <span className="text-[9px] text-slate-400 font-bold">
+                                {new Date(rev.created_at).toLocaleDateString("id-ID", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric"
+                                })}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-slate-650 leading-relaxed font-semibold italic bg-white p-2.5 rounded-xl border border-slate-150">
+                              "{rev.review_text}"
+                            </p>
+
+                            {/* Reply if answered */}
+                            {rev.is_replied && rev.reply_text && (
+                              <div className="bg-violet-50/50 border border-violet-100 rounded-xl p-3 flex gap-2 ml-4">
+                                <div className="w-5 h-5 rounded bg-violet-600 text-white flex items-center justify-center text-[9px] font-black shrink-0 shadow-sm">
+                                  CS
+                                </div>
+                                <div className="text-[11px] leading-relaxed">
+                                  <span className="font-extrabold text-violet-900 block">Tanggapan Klinik PetCare</span>
+                                  <p className="text-slate-650 font-semibold mt-0.5">{rev.reply_text}</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-12 text-center text-slate-400 font-semibold text-xs">
+                          Belum ada ulasan yang dibuat. Bagikan ulasan pertama Anda!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
           </div>
         )}
       </main>
@@ -1093,6 +1377,14 @@ export default function Member() {
         pets={pets}
         handleBookingSubmit={handleBookingSubmit}
         submittingBooking={submittingBooking}
+      />
+
+      {/* ── FEEDBACK & COMPLAINT MODAL ── */}
+      <FeedbackComplaintModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        onSubmitReview={handleReviewSubmit}
+        onSubmitComplaint={handleComplaintSubmit}
       />
 
       {/* Toast notifications */}

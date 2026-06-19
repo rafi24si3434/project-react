@@ -10,48 +10,10 @@ import {
   FaReply,
   FaPlusCircle
 } from "react-icons/fa";
-import { crmCustomers } from "@/data/CustomerCrmData";
+import { supabase } from "../lib/supabase";
 import ToastNotification from "../components/ToastNotification";
 
 export default function Feedback() {
-  // Extract reviews from customer data
-  const initialReviews = useMemo(() => {
-    return crmCustomers
-      .filter((c) => c.rating > 0)
-      .map((c) => ({
-        id: `REV-${c.id}`,
-        customerName: c.name,
-        customerAvatar: c.avatar,
-        rating: c.rating,
-        reviewText: c.latestReview,
-        date: c.activity.lastLogin === "Baru saja" ? "Hari ini" : c.activity.lastLogin,
-        isReplied: false,
-        replyText: "",
-      }));
-  }, []);
-
-  // Extract complaints from customer data
-  const initialComplaints = useMemo(() => {
-    const list = [];
-    crmCustomers.forEach((c) => {
-      if (c.complaintHistory && c.complaintHistory.length > 0) {
-        c.complaintHistory.forEach((comp) => {
-          list.push({
-            id: comp.id,
-            customerId: c.id,
-            customerName: c.name,
-            customerAvatar: c.avatar,
-            customerEmail: c.email,
-            note: comp.note,
-            status: "Pending", // "Pending" | "Selesai"
-            compensationSent: false,
-          });
-        });
-      }
-    });
-    return list;
-  }, []);
-
   const [reviews, setReviews] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,23 +33,130 @@ export default function Feedback() {
   const complaintTextareaRef = useRef(null);
   const feedbackFormRef = useRef(null);
 
-  // useEffect: Mengambil data feedback terbaru & komplain terbaru secara asinkron
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setReviews(initialReviews);
-      setComplaints(initialComplaints);
-      setIsLoading(false);
-      console.log("[useEffect] Data feedback & komplain berhasil dimuat.");
-    }, 450);
-    return () => clearTimeout(timer);
-  }, []);
-
   // Trigger Toast Notification
   const triggerToast = (message) => {
     setToastMessage(message);
     setShowToast(true);
   };
+
+  // Load reviews and complaints from Supabase
+  const loadFeedbackAndComplaints = async () => {
+    setIsLoading(true);
+    try {
+      // 1. Fetch Feedback with fallback mapping
+      let fbData = [];
+      const { data: fbJoinData, error: fbJoinErr } = await supabase
+        .from("feedback")
+        .select(`
+          *,
+          users (full_name)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (fbJoinErr) {
+        console.warn("Feedback join query failed, using in-memory mapping fallback:", fbJoinErr.message);
+        const { data: rawFb, error: rawFbErr } = await supabase
+          .from("feedback")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (rawFbErr) throw rawFbErr;
+
+        const { data: usersData } = await supabase
+          .from("users")
+          .select("auth_user_id, full_name");
+
+        const userMap = {};
+        if (usersData) {
+          usersData.forEach((u) => {
+            userMap[u.auth_user_id] = u.full_name;
+          });
+        }
+
+        fbData = (rawFb || []).map((f) => ({
+          ...f,
+          users: f.customer_id ? { full_name: userMap[f.customer_id] } : null
+        }));
+      } else {
+        fbData = fbJoinData || [];
+      }
+
+      const mappedReviews = fbData.map((f) => ({
+        id: f.id,
+        customerName: f.users?.full_name || "Customer PetCare",
+        customerAvatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(f.users?.full_name || f.id)}`,
+        rating: f.rating,
+        reviewText: f.review_text,
+        date: new Date(f.created_at).toLocaleDateString("id-ID", {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        }),
+        isReplied: f.is_replied,
+        replyText: f.reply_text || ""
+      }));
+
+      setReviews(mappedReviews);
+
+      // 2. Fetch Complaints with fallback mapping
+      let compData = [];
+      const { data: compJoinData, error: compJoinErr } = await supabase
+        .from("complaints")
+        .select(`
+          *,
+          users (full_name, email)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (compJoinErr) {
+        console.warn("Complaints join query failed, using in-memory mapping fallback:", compJoinErr.message);
+        const { data: rawComp, error: rawCompErr } = await supabase
+          .from("complaints")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (rawCompErr) throw rawCompErr;
+
+        const { data: usersData } = await supabase
+          .from("users")
+          .select("auth_user_id, full_name, email");
+
+        const userMap = {};
+        if (usersData) {
+          usersData.forEach((u) => {
+            userMap[u.auth_user_id] = { full_name: u.full_name, email: u.email };
+          });
+        }
+
+        compData = (rawComp || []).map((c) => ({
+          ...c,
+          users: c.customer_id ? userMap[c.customer_id] : null
+        }));
+      } else {
+        compData = compJoinData || [];
+      }
+
+      const mappedComplaints = compData.map((c) => ({
+        id: c.id,
+        customerId: c.customer_id,
+        customerName: c.users?.full_name || c.customer_name || "Anonim",
+        customerAvatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(c.users?.full_name || c.customer_name || c.id)}`,
+        customerEmail: c.users?.email || "no-email@petcare.id",
+        note: c.note,
+        status: c.status,
+        compensationSent: c.compensation_sent
+      }));
+
+      setComplaints(mappedComplaints);
+    } catch (err) {
+      console.error("Error loading feedback/complaints:", err);
+      triggerToast("Gagal memuat data feedback & keluhan.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadFeedbackAndComplaints();
+  }, []);
 
   // Filter reviews
   const filteredReviews = useMemo(() => {
@@ -104,66 +173,123 @@ export default function Feedback() {
   }, [complaints, complaintFilter]);
 
   // Handle send reply to review
-  const handleSendReply = (reviewId) => {
+  const handleSendReply = async (reviewId) => {
     const text = replyInputs[reviewId];
     if (!text) return;
 
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === reviewId
-          ? { ...r, isReplied: true, replyText: text }
-          : r
-      )
-    );
-    // clear input
-    setReplyInputs((prev) => ({ ...prev, [reviewId]: "" }));
-    triggerToast("Balasan ulasan berhasil dipublikasikan!");
+    try {
+      const { error } = await supabase
+        .from("feedback")
+        .update({
+          is_replied: true,
+          reply_text: text
+        })
+        .eq("id", reviewId);
+
+      if (error) throw error;
+
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId
+            ? { ...r, isReplied: true, replyText: text }
+            : r
+        )
+      );
+      // clear input
+      setReplyInputs((prev) => ({ ...prev, [reviewId]: "" }));
+      triggerToast("Balasan ulasan berhasil dipublikasikan!");
+    } catch (err) {
+      console.error("Error replying to feedback:", err);
+      triggerToast("Gagal mengirim balasan ulasan.");
+    }
   };
 
   // Handle Add Complaint
-  const handleAddComplaint = (e) => {
+  const handleAddComplaint = async (e) => {
     e.preventDefault();
     if (!newComplaintName || !newComplaintText) {
       alert("Harap lengkapi nama customer dan isi komplain!");
       return;
     }
-    const newComp = {
-      id: `COMP-${String(complaints.length + 101)}`,
-      customerId: `CUST-999`,
-      customerName: newComplaintName,
-      customerAvatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100",
-      customerEmail: "internal@petcare.id",
-      note: newComplaintText,
-      status: "Pending",
-      compensationSent: false,
-    };
-    setComplaints([newComp, ...complaints]);
-    setNewComplaintName("");
-    setNewComplaintText("");
-    triggerToast("Keluhan baru berhasil dicatat secara internal!");
+
+    try {
+      const { data, error } = await supabase
+        .from("complaints")
+        .insert({
+          customer_name: newComplaintName,
+          note: newComplaintText,
+          status: "Pending"
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newComp = {
+        id: data.id,
+        customerId: null,
+        customerName: data.customer_name,
+        customerAvatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(data.customer_name)}`,
+        customerEmail: "no-email@petcare.id",
+        note: data.note,
+        status: data.status,
+        compensationSent: data.compensation_sent
+      };
+
+      setComplaints([newComp, ...complaints]);
+      setNewComplaintName("");
+      setNewComplaintText("");
+      triggerToast("Keluhan baru berhasil dicatat secara internal!");
+    } catch (err) {
+      console.error("Error creating complaint:", err);
+      triggerToast("Gagal mencatat keluhan.");
+    }
   };
 
   const focusComplaintTextarea = () => {
     if (complaintTextareaRef.current) {
       complaintTextareaRef.current.focus();
-      console.log("[useRef] Auto-focus pada textarea detail keluhan");
     }
   };
 
   // Handle Resolve Complaint Ticket
-  const handleResolveComplaint = (ticketId) => {
-    setComplaints((prev) =>
-      prev.map((c) => (c.id === ticketId ? { ...c, status: "Selesai" } : c))
-    );
-    triggerToast(`Tiket komplain ${ticketId} telah diselesaikan.`);
+  const handleResolveComplaint = async (ticketId) => {
+    try {
+      const { error } = await supabase
+        .from("complaints")
+        .update({ status: "Selesai" })
+        .eq("id", ticketId);
+
+      if (error) throw error;
+
+      setComplaints((prev) =>
+        prev.map((c) => (c.id === ticketId ? { ...c, status: "Selesai" } : c))
+      );
+      triggerToast(`Tiket komplain ${ticketId.slice(0, 8)} telah diselesaikan.`);
+    } catch (err) {
+      console.error("Error resolving complaint:", err);
+      triggerToast("Gagal menyelesaikan komplain.");
+    }
   };
 
   // Handle Send Compensation Gift
-  const handleSendCompensation = (ticketId, customerName, email) => {
-    setComplaints((prev) =>
-      prev.map((c) => (c.id === ticketId ? { ...c, compensationSent: true } : c))
-    );
-    triggerToast(`Voucher kompensasi 15% dikirim ke email ${email}`);
+  const handleSendCompensation = async (ticketId, customerName, email) => {
+    try {
+      const { error } = await supabase
+        .from("complaints")
+        .update({ compensation_sent: true })
+        .eq("id", ticketId);
+
+      if (error) throw error;
+
+      setComplaints((prev) =>
+        prev.map((c) => (c.id === ticketId ? { ...c, compensationSent: true } : c))
+      );
+      triggerToast(`Voucher kompensasi 15% dikirim ke email ${email}`);
+    } catch (err) {
+      console.error("Error sending compensation:", err);
+      triggerToast("Gagal mengirim kompensasi.");
+    }
   };
 
   // Rating distribution calculations
@@ -176,7 +302,7 @@ export default function Feedback() {
   }, [reviews]);
 
   const avgRating = useMemo(() => {
-    if (reviews.length === 0) return 0;
+    if (reviews.length === 0) return "0.0";
     const total = reviews.reduce((sum, r) => sum + r.rating, 0);
     return (total / reviews.length).toFixed(1);
   }, [reviews]);

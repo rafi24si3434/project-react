@@ -23,99 +23,132 @@ Sistem ini didukung oleh **Supabase (PostgreSQL)** sebagai basis data relasional
 ```mermaid
 erDiagram
     auth_users {
-        uuid id PK
-        string email
-        string encrypted_password
+        uuid      id                 PK
+        string    email
+        string    encrypted_password
     }
-    public_users {
-        uuid id PK
-        uuid auth_user_id FK
-        string full_name
-        string email UK
-        string phone_number
-        string address
-        string role
+
+    users {
+        uuid      id                 PK
+        uuid      auth_user_id       FK
+        string    full_name
+        string    email              UK
+        string    phone_number
+        string    address
+        string    role
         timestamp created_at
+        timestamp updated_at
     }
+
     pets {
-        uuid id PK
-        uuid owner_id FK
-        string name
-        string type
-        string breed
-        string gender
-        date birth_date
-        numeric weight
-        string health_notes
-        string photo_url
-        timestamp created_at
-    }
-    appointments {
-        uuid id PK
-        uuid owner_id FK
-        uuid pet_id FK
-        string doctor
-        date date
-        string time
-        string type
-        string notes
-        string status
-        timestamp created_at
-    }
-    products {
-        string id PK
-        string name
-        string category
-        integer stock
-        string unit
-        numeric price
-        string description
-        string image_url
-        timestamp created_at
-    }
-    orders {
-        uuid id PK
-        uuid customer_id FK
-        numeric total_amount
-        string status
-        timestamp created_at
-    }
-    order_items {
-        uuid id PK
-        uuid order_id FK
-        string product_id FK
-        integer quantity
-        numeric price
-        timestamp created_at
-    }
-    medical_records {
-        uuid id PK
-        uuid pet_id FK
-        uuid owner_id FK
-        string diagnosa
-        string treatment
-        date date
-        string vet_name
-        timestamp created_at
-    }
-    activity_logs {
-        uuid id PK
-        uuid user_id FK
-        string activity
-        string description
+        uuid      id                 PK
+        uuid      owner_id           FK
+        string    name
+        string    type
+        string    breed
+        string    gender
+        date      birth_date
+        numeric   weight
+        string    health_notes
+        string    photo_url
         timestamp created_at
     }
 
-    auth_users ||--|| public_users : "profiles auth_user_id"
-    public_users ||--o{ pets : "owns"
-    public_users ||--o{ appointments : "books"
-    public_users ||--o{ orders : "places"
-    public_users ||--o{ medical_records : "has medical history"
-    public_users ||--o{ activity_logs : "triggers actions"
-    pets ||--o{ appointments : "scheduled for"
-    pets ||--o{ medical_records : "undergoes treatments"
-    orders ||--|{ order_items : "contains"
-    products ||--o{ order_items : "ordered in"
+    appointments {
+        uuid      id                 PK
+        uuid      owner_id           FK
+        uuid      pet_id             FK
+        string    doctor
+        date      date
+        string    time
+        string    type
+        string    notes
+        string    status
+        timestamp created_at
+    }
+
+    medical_records {
+        uuid      id                 PK
+        uuid      pet_id             FK
+        uuid      owner_id           FK
+        string    diagnosa
+        string    treatment
+        date      date
+        string    vet_name
+        timestamp created_at
+    }
+
+    products {
+        string    id                 PK
+        string    name
+        string    category
+        integer   stock
+        string    unit
+        numeric   price
+        string    description
+        string    image_url
+        timestamp created_at
+    }
+
+    orders {
+        uuid      id                 PK
+        uuid      customer_id        FK
+        numeric   total_amount
+        string    status
+        timestamp created_at
+    }
+
+    order_items {
+        uuid      id                 PK
+        uuid      order_id           FK
+        string    product_id         FK
+        integer   quantity
+        numeric   price
+        timestamp created_at
+    }
+
+    feedback {
+        uuid      id                 PK
+        uuid      customer_id        FK
+        integer   rating
+        string    review_text
+        string    reply_text
+        boolean   is_replied
+        timestamp created_at
+    }
+
+    complaints {
+        uuid      id                 PK
+        uuid      customer_id        FK
+        string    customer_name
+        string    note
+        string    status
+        boolean   compensation_sent
+        timestamp created_at
+    }
+
+    activity_logs {
+        uuid      id                 PK
+        uuid      user_id            FK
+        string    activity
+        string    description
+        timestamp created_at
+    }
+
+    auth_users      ||--|| users           : "profiles auth_user_id"
+    users           ||--o{ pets            : "owns"
+    users           ||--o{ appointments    : "books"
+    users           ||--o{ medical_records : "views clinical history"
+    users           ||--o{ orders          : "places orders"
+    users           ||--o{ feedback        : "reviews services"
+    users           ||--o{ complaints      : "raises issues"
+    users           ||--o{ activity_logs   : "performs actions"
+
+    pets            ||--o{ appointments    : "scheduled for"
+    pets            ||--o{ medical_records : "undergoes treatment"
+
+    orders          ||--|{ order_items     : "contains"
+    products        ||--o{ order_items     : "ordered in"
 ```
 
 ### Detail Struktur Kolom
@@ -151,7 +184,7 @@ erDiagram
    - `notes`: Text (Keluhan/Catatan Tambahan).
    - `status`: Text (Status janji: `'Pending'`, `'Confirmed'`, `'Completed'`, `'Cancelled'`).
 
-4. **`public.products` (Katalog Apotek/Toko)**
+5. **`public.products` (Katalog Apotek/Toko)**
    - `id`: Text (Primary Key, kode SKU cth: `'INV-01'`, `'INV-02'`).
    - `name`: Text (Nama Produk).
    - `category`: Text (Kategori: `'Obat'`, `'Makanan'`, `'Alat Medis'`, `'Aksesoris'`).
@@ -160,7 +193,7 @@ erDiagram
    - `price`: Numeric (Harga Jual).
    - `description`: Text (Keterangan/Indikasi/Petunjuk penyimpanan).
 
-5. **`public.orders` & `public.order_items` (Transaksi & Item Belanja)**
+6. **`public.orders` & `public.order_items` (Transaksi & Item Belanja)**
    - **Orders**:
      - `id`: UUID (Primary Key).
      - `customer_id`: UUID (Menghubungkan ke `public.users(auth_user_id)`).
@@ -173,7 +206,7 @@ erDiagram
      - `quantity`: Integer (Jumlah Beli, minimal 1).
      - `price`: Numeric (Harga per unit saat pembelian).
 
-6. **`public.medical_records` (Rekam Medis)**
+7. **`public.medical_records` (Rekam Medis)**
    - `id`: UUID (Primary Key).
    - `pet_id`: UUID (Menghubungkan ke `public.pets(id)`).
    - `owner_id`: UUID (Menghubungkan ke `public.users(auth_user_id)`).
@@ -182,11 +215,27 @@ erDiagram
    - `date`: Date (Tanggal Pemeriksaan).
    - `vet_name`: Text (Nama Dokter Pemeriksa).
 
-7. **`public.activity_logs` (Log Aktivitas Pengguna)**
+8. **`public.activity_logs` (Log Aktivitas Pengguna)**
    - `id`: UUID (Primary Key).
    - `user_id`: UUID (Menghubungkan ke `public.users(auth_user_id)`).
    - `activity`: Text (Aktivitas cth: `'Customer Membeli Produk'`).
    - `description`: Text (Deskripsi rinci mengenai log tersebut).
+
+9. **`public.feedback` (Ulasan Pelanggan)**
+   - `id`: UUID (Primary Key).
+   - `customer_id`: UUID (Menghubungkan ke `public.users(auth_user_id)`).
+   - `rating`: Integer (Skor kepuasan: `1` sampai `5`).
+   - `review_text`: Text (Detail ulasan tertulis customer).
+   - `reply_text`: Text (Balasan tanggapan resmi dari Admin/CS).
+   - `is_replied`: Boolean (Status apakah ulasan telah dibalas).
+
+10. **`public.complaints` (Tiket Keluhan Layanan)**
+   - `id`: UUID (Primary Key).
+   - `customer_id`: UUID (Menghubungkan ke `public.users(auth_user_id)`).
+   - `customer_name`: Text (Nama customer pencatat keluhan - berguna untuk pencatatan manual).
+   - `note`: Text (Deskripsi keluhan/masalah layanan).
+   - `status`: Text (Status tiket komplain: `'Pending'`, `'Selesai'`).
+   - `compensation_sent`: Boolean (Status pengiriman voucher kompensasi).
 
 ---
 
@@ -210,6 +259,10 @@ Seluruh tabel publik mengaktifkan **Row Level Security (RLS)** untuk mengisolasi
 * **Tabel `public.medical_records`**:
   - Customer hanya dapat membaca (`SELECT`) rekam medis milik hewannya sendiri (`auth.uid() = owner_id`).
   - Dokter (Admin/Staff) dapat mengelola rekam medis hewan peliharaan secara penuh.
+* **Tabel `public.feedback` & `public.complaints`**:
+  - Siapa saja dapat melihat data feedback publik (`SELECT`), namun hanya customer terkait yang dapat membaca tiket keluhan pribadinya.
+  - Customer hanya dapat meng-insert data miliknya sendiri.
+  - Admin/Staff memiliki akses penuh (CRUD) untuk mengelola balasan dan menyelesaikan tiket komplain.
 
 ---
 
@@ -219,14 +272,29 @@ Seluruh tabel publik mengaktifkan **Row Level Security (RLS)** untuk mengisolasi
 project-react/
 ├── src/
 │   ├── components/
+│   │   ├── member/             # [New] Komponen Modular untuk Customer Portal
+│   │   │   ├── MemberNavbar.jsx           # Top navbar glassmorphic area member
+│   │   │   ├── MemberStats.jsx            # Kartu rangkuman statistik anabul & poin loyalty
+│   │   │   ├── LoyaltyCard.jsx            # Tampilan hologram kartu loyalitas keanggotaan
+│   │   │   ├── PetCard.jsx                # Info kartu profil hewan peliharaan
+│   │   │   ├── ProductCard.jsx            # Kartu item apotek/toko obat dengan hover effect
+│   │   │   ├── InvoiceCard.jsx            # Struk bergaya serrated-edge untuk riwayat transaksi
+│   │   │   ├── AppointmentCard.jsx        # Detail jadwal janji temu berobat
+│   │   │   ├── MedicalRecordCard.jsx      # Riwayat catatan medis/diagnosa anabul
+│   │   │   ├── CartDrawer.jsx             # Sisi laci (drawer) belanja keranjang obat
+│   │   │   ├── BookingModal.jsx           # Form pop-up janji temu berobat (Form Berobat)
+│   │   │   ├── PetFormModal.jsx           # Form pendaftaran anabul baru
+│   │   │   ├── ProfileModal.jsx           # Form pengeditan data diri profil customer
+│   │   │   ├── PetDetailModal.jsx         # Detail histori klinis anabul per individu
+│   │   │   └── FeedbackComplaintModal.jsx # Modal interaktif ulasan & laporan keluhan customer
 │   │   ├── ui/                 # Komponen dasar Shadcn UI (Table, Input, Button, dll.)
-│   │   ├── ActivityTimeline.jsx# [New] Komponen timeline aktivitas dengan visualisasi status
-│   │   ├── DataRow.jsx         # [New] Baris data grid modular dengan hover transitions
+│   │   ├── ActivityTimeline.jsx# Komponen timeline aktivitas dengan visualisasi status
+│   │   ├── DataRow.jsx         # Baris data grid modular dengan hover transitions
 │   │   ├── ErrorBoundary.jsx   # Penangkap error runtime React (mencegah layar putih)
-│   │   ├── HeroStat.jsx        # [New] Kartu stat glassmorphic mini dengan glow effects
-│   │   ├── MetricCard.jsx      # [New] Kartu metrik modular bertema dengan icon indikator
+│   │   ├── HeroStat.jsx        # Kartu stat glassmorphic mini dengan glow effects
+│   │   ├── MetricCard.jsx      # Kartu metrik modular bertema dengan icon indikator
 │   │   ├── ProtectedRoute.jsx  # Guard route berbasis status Auth & verifikasi Role
-│   │   ├── SectionCard.jsx     # [New] Kontainer card modular berkelas untuk membungkus konten
+│   │   ├── SectionCard.jsx     # Kontainer card modular berkelas untuk membungkus konten
 │   │   └── Sidebar.jsx         # Navigasi samping dinamis menyesuaikan tipe Role
 │   ├── context/
 │   │   └── AuthContext.jsx     # State manager otentikasi & manajemen sesi profil
@@ -238,17 +306,21 @@ project-react/
 │   │   │   └── Register.jsx    # Pendaftaran Customer Baru (menggunakan upsert aman)
 │   │   ├── AddPet.jsx          # Registrasi pet dengan owner email validator
 │   │   ├── Appointments.jsx    # Manajemen Janji Temu (Booking & Status Updater)
+│   │   ├── Campaigns.jsx       # [Admin] Program pemasaran & Whatsapp/Email blast
 │   │   ├── CustomerCrm.jsx     # [Admin] Monitoring Customer CRM & statistik agregat
 │   │   ├── CustomerCrmDetail.jsx# [Admin] Detail profil, transaksi, aktivitas, & timeline customer
-│   │   ├── Dashboard.jsx       # Dashboard ganda (Statistik Admin vs Portal Customer)
+│   │   ├── Dashboard.jsx       # Dashboard utama Admin & Staff
+│   │   ├── Feedback.jsx        # [Admin] Pusat resolusi tiket komplain & moderasi ulasan
 │   │   ├── LandingPage.jsx     # Landing Page publik yang terhubung ke Form Booking & Apotek Cepat
 │   │   ├── MedicalRecords.jsx  # Riwayat medis hewan (Tampilan Ringkas / Detail)
+│   │   ├── Member.jsx          # Area Portal Utama Khusus Customer (Member Portal)
 │   │   ├── Orders.jsx          # [Customer] Pelacakan transaksi & pesanan apotek
 │   │   ├── PetOwners.jsx       # [Admin] Daftar Pemilik Hewan & data relasional
 │   │   ├── PetOwnersDetail.jsx # [Admin] Detail pemilik, tren kunjungan, & timeline janji temu
 │   │   ├── Pets.jsx            # Daftar hewan dengan visualisasi kartu emoji & statistik
 │   │   ├── PetsDetail.jsx      # Detail rekam medis, skor perawatan, & grafik nilai anabul
 │   │   ├── Shop.jsx            # [Customer] Toko Obat & Apotek Online (Keranjang & Checkout)
+│   │   ├── Vets.jsx            # [Admin] Manajemen Profil & Ketersediaan Jadwal Dokter
 │   │   └── Profile.jsx         # Pengaturan profil pengguna
 │   ├── App.jsx                 # Registrasi Routing Halaman & Error Boundary Wrapper
 │   ├── main.jsx                # Entry point aplikasi React
@@ -267,7 +339,9 @@ Aplikasi memiliki manajemen hak akses berbasis role:
 
 | Fitur / Halaman | Admin | Staff | Customer | Guest (Non-Login) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Dashboard** | View Admin Stats | View Admin Stats | View Customer Stats | Redirection ke Login |
+| **Dashboard** | View Admin Stats | View Admin Stats | Redirection ke /member | Redirection ke Login |
+| **Portal Member** | Redirection ke /dashboard | Redirection ke /dashboard | Full Access (Personal) | Redirection ke Login |
+| **Feedback & Komplain** | Kelola & Balas (Full) | Kelola & Balas (Full) | Bantuan & Ulasan Tab | No Access |
 | **Manajemen User** | Full Access (CRUD) | No Access | No Access | No Access |
 | **Customer CRM** | Full Access | Full Access | No Access | No Access |
 | **Add Pet (Hewan)** | Semua Owner Email | Semua Owner Email | Hanya Dirinya Sendiri | No Access |
@@ -284,8 +358,15 @@ Aplikasi memiliki manajemen hak akses berbasis role:
 Sistem memiliki mekanisme pemulihan profil mandiri di `AuthContext.jsx`. Jika pengguna terdaftar di Supabase Auth (misal sesi browser masih tersimpan di `localStorage`) namun profil publik mereka di tabel `public.users` tidak ditemukan (akibat database di-migrasi/direset), sistem secara otomatis meng-upsert profil baru secara instan begitu sesi terdeteksi agar sesi navigasi tidak rusak atau crash.
 
 ### 🔗 Relational Join Fallbacks
-PostgREST pada Supabase tidak dapat melakukan join relasional lintas skema (seperti antara skema `public` dengan skema `auth.users`). Untuk menjaga performa, halaman **Pets**, **Appointments**, dan **Medical Records** dilengkapi logika fallback:
-- Jika join query langsung gagal karena relasi skema, sistem secara otomatis menjalankan query terpisah ke tabel target lalu memetakan nama pemilik secara dinamis di memori sebelum dirender ke tabel React.
+PostgREST pada Supabase tidak dapat melakukan join relasional lintas skema (seperti antara skema `public` dengan skema `auth.users`). Untuk menjaga performa, halaman **Feedback**, **Pets**, **Appointments**, dan **Medical Records** dilengkapi logika fallback:
+- Jika join query langsung gagal karena relasi skema, sistem secara otomatis menjalankan query terpisah ke tabel target lalu memetakan data profil (seperti nama & email) secara dinamis di memori sebelum dirender ke tabel React.
+
+### 🎁 Closed-Loop Feedback & Complaint Resolver (Logika Kompensasi)
+Logika CRM unik yang menghubungkan portal customer langsung dengan admin dashboard:
+- Saat customer melaporkan masalah teknis atau komplain, tiket dibuat secara real-time di database.
+- Admin dapat melihat keluhan tersebut di panel `/feedback` dan memproses statusnya menjadi `Selesai`.
+- Apabila admin menekan tombol **Kompensasi**, sistem mengirim voucher kompensasi diskon 15% secara otomatis.
+- Di portal member customer pada tab **Bantuan & Ulasan**, kartu klaim kode voucher (`VCHR-XXXXX`) akan otomatis muncul dengan opsi salin satu klik untuk digunakan saat checkout obat di apotek online.
 
 ### ⚡ Autopilot Account Creation (Landing Page Form)
 Pengunjung website (non-login) dapat memesan obat atau menjadwalkan kunjungan secara instan melalui form di Landing Page. Di balik layar:
@@ -318,7 +399,7 @@ VITE_SUPABASE_ANON_KEY=<your-anon-key>
 3. Tempel di editor query Supabase, lalu jalankan (**Run**). Ini akan membuat tabel, relasi, fungsi pembantu, dan kebijakan RLS secara otomatis.
 
 ### Langkah 4: Seeding Data (50+ Real Relational Records)
-Untuk mengisi database dengan minimal 50+ data relasional yang saling terhubung untuk keperluan visualisasi dashboard:
+Untuk mengisi database dengan data relasional yang saling terhubung untuk keperluan visualisasi dashboard:
 1. Di **Supabase SQL Editor**, buat tab query baru.
 2. Salin isi berkas [seed_50_records.sql](file:///c:/Project%20React/project-react/seed_50_records.sql).
 3. Tempel di editor query Supabase dan klik **Run**.
