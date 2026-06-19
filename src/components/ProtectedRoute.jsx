@@ -31,9 +31,13 @@ export default function ProtectedRoute({ allowedRoles }) {
     console.warn(
       `[ProtectedRoute] Forbidden: User role "${profile?.role}" is not authorized. Allowed roles: ${JSON.stringify(
         allowedRoles
-      )}. Redirecting to /403`
+      )}`
     );
-    return <Navigate to="/403" replace />;
+    if (profile?.role === "customer") {
+      return <Navigate to="/member" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   console.log("[ProtectedRoute] Access granted to route.");

@@ -70,30 +70,31 @@ function App() {
                 <Route path="/member" element={<Member />} />
               </Route>
 
-              <Route element={<MainLayout />}>
+              {/* Clinic Admin & Staff Area (Main Layout with Sidebar) */}
+              <Route element={<ProtectedRoute allowedRoles={["admin", "staff"]} />}>
+                <Route element={<MainLayout />}>
 
-                {/* Dashboard & Profile */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/orders" element={<Orders />} />
+                  {/* Dashboard & Profile */}
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/orders" element={<Orders />} />
 
-                {/* Pets & Appointments (All roles) */}
-                <Route path="/pets" element={<Pets />} />
-                <Route path="/pets/add" element={<AddPet />} />
-                <Route path="/pets/:id" element={<PetsDetail />} />
-                <Route path="/appointments" element={<Appointments />} />
-                <Route path="/pet-owners" element={<PetOwners />} />
-                <Route path="/pet-owners/:id" element={<PetOwnersDetail />} />
-                
-                {/* Medical & Vaccinations (All roles) */}
-                <Route path="/medical-records" element={<MedicalRecords />} />
-                <Route path="/medical-records/:id" element={<MedicalRecordsDetail />} />
-                <Route path="/vaccinations" element={<Vaccinations />} />
-                <Route path="/vaccinations/:id" element={<VaccinationsDetail />} />
+                  {/* Pets & Appointments */}
+                  <Route path="/pets" element={<Pets />} />
+                  <Route path="/pets/add" element={<AddPet />} />
+                  <Route path="/pets/:id" element={<PetsDetail />} />
+                  <Route path="/appointments" element={<Appointments />} />
+                  <Route path="/pet-owners" element={<PetOwners />} />
+                  <Route path="/pet-owners/:id" element={<PetOwnersDetail />} />
+                  
+                  {/* Medical & Vaccinations */}
+                  <Route path="/medical-records" element={<MedicalRecords />} />
+                  <Route path="/medical-records/:id" element={<MedicalRecordsDetail />} />
+                  <Route path="/vaccinations" element={<Vaccinations />} />
+                  <Route path="/vaccinations/:id" element={<VaccinationsDetail />} />
 
-                {/* Admin & Staff Only */}
-                <Route element={<ProtectedRoute allowedRoles={["admin", "staff"]} />}>
+                  {/* Admin & Staff Only */}
                   <Route path="/customers" element={<CustomerCrm />} />
                   <Route path="/customers/:id" element={<CustomerCrmDetail />} />
                   <Route path="/campaigns" element={<Campaigns />} />
@@ -102,19 +103,19 @@ function App() {
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/inventory/:id" element={<InventoryDetail />} />
                   <Route path="/settings" element={<Settings />} />
+
+                  {/* Admin Only */}
+                  <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                    <Route path="/users" element={<UserManagement />} />
+                  </Route>
+
+                  {/* Error Pages */}
+                  <Route path="/400" element={<ErrorPage code="400" />} />
+                  <Route path="/401" element={<ErrorPage code="401" />} />
+                  <Route path="/403" element={<ErrorPage code="403" />} />
+                  <Route path="*" element={<ErrorPage code="404" />} />
+
                 </Route>
-
-                {/* Admin Only */}
-                <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-                  <Route path="/users" element={<UserManagement />} />
-                </Route>
-
-                {/* Error Pages */}
-                <Route path="/400" element={<ErrorPage code="400" />} />
-                <Route path="/401" element={<ErrorPage code="401" />} />
-                <Route path="/403" element={<ErrorPage code="403" />} />
-                <Route path="*" element={<ErrorPage code="404" />} />
-
               </Route>
             </Route>
 
