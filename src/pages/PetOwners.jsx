@@ -10,6 +10,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { supabase } from "../lib/supabase";
+import Pagination from "../components/Pagination";
 
 /* IMPORT DATA */
 
@@ -23,6 +24,12 @@ export default function PetOwners() {
   const [ownerData, setOwnerData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const searchRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   useEffect(() => {
     const fetchOwnerData = async () => {
@@ -133,6 +140,12 @@ export default function PetOwners() {
     (o) =>
       o.name.toLowerCase().includes(search.toLowerCase()) ||
       o.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedOwners = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
   );
 
   return (
@@ -282,7 +295,7 @@ export default function PetOwners() {
 
         <div className="grid grid-cols-4 gap-4">
 
-          {filtered.map((owner) => (
+          {paginatedOwners.map((owner) => (
 
             <div
               key={owner.id}
@@ -426,7 +439,7 @@ export default function PetOwners() {
 
             <tbody>
 
-              {filtered.map((owner) => (
+              {paginatedOwners.map((owner) => (
 
                 <tr
                   key={owner.id}
@@ -540,6 +553,15 @@ export default function PetOwners() {
         </div>
 
       )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalEntries={filtered.length}
+        entriesPerPage={ITEMS_PER_PAGE}
+        label="owner"
+      />
 
       {/* DETAIL PANEL */}
       {selected && (

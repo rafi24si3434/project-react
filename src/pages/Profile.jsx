@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 import { FaUser, FaEnvelope, FaPhone, FaUserShield, FaSave, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { profile, refreshProfile } = useAuth();
+
+  useEffect(() => {
+    if (profile?.role === "customer") {
+      navigate("/member");
+    }
+  }, [profile, navigate]);
   
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");

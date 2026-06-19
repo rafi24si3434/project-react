@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { 
@@ -8,7 +9,15 @@ import {
 import ToastNotification from "../components/ToastNotification";
 
 export default function Orders() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+
+  useEffect(() => {
+    if (profile?.role === "customer") {
+      navigate("/member");
+    }
+  }, [profile, navigate]);
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedOrderId, setExpandedOrderId] = useState(null);

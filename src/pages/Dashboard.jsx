@@ -226,19 +226,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!profile) return;
+    if (profile.role === "customer") {
+      navigate("/member");
+      return;
+    }
     const loadData = async () => {
       setLoadingDb(true);
-      if (profile.role === "customer") {
-        const data = await fetchCustomerStats(profile.auth_user_id);
-        setCustStats(data);
-      } else {
-        const data = await fetchAdminStats();
-        setAdmStats(data);
-      }
+      const data = await fetchAdminStats();
+      setAdmStats(data);
       setLoadingDb(false);
     };
     loadData();
-  }, [profile]);
+  }, [profile, navigate]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());

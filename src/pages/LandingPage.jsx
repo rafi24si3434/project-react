@@ -11,7 +11,7 @@ import {
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   // --- New Booking & Quick Shop States ---
   const [activeTab, setActiveTab] = useState("booking"); // "booking" | "shop"
@@ -388,7 +388,11 @@ export default function LandingPage() {
 
   const handleCTA = () => {
     if (user) {
-      navigate("/dashboard");
+      if (profile?.role === "customer") {
+        navigate("/member");
+      } else {
+        navigate("/dashboard");
+      }
     } else {
       navigate("/register");
     }
@@ -535,10 +539,10 @@ export default function LandingPage() {
           <div>
             {user ? (
               <Link
-                to="/dashboard"
+                to={profile?.role === "customer" ? "/member" : "/dashboard"}
                 className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold px-5.5 py-2.5 rounded-xl shadow-md shadow-emerald-500/15 active:scale-[0.98] transition-all"
               >
-                <span>Masuk Dashboard</span>
+                <span>{profile?.role === "customer" ? "Area Member" : "Masuk Dashboard"}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : (

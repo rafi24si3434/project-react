@@ -44,6 +44,7 @@ const UserManagement = lazy(() => import("./pages/UserManagement"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Shop = lazy(() => import("./pages/Shop"));
 const Orders = lazy(() => import("./pages/Orders"));
+const Member = lazy(() => import("./pages/Member"));
 
 function App() {
   return (
@@ -63,6 +64,12 @@ function App() {
 
             {/* ── Main (Authenticated) ── */}
             <Route element={<ProtectedRoute />}>
+              
+              {/* Member Portal (No Sidebar Layout) */}
+              <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
+                <Route path="/member" element={<Member />} />
+              </Route>
+
               <Route element={<MainLayout />}>
 
                 {/* Dashboard & Profile */}

@@ -10,7 +10,13 @@ import ToastNotification from "../components/ToastNotification";
 
 export default function Shop() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+
+  useEffect(() => {
+    if (profile?.role === "customer") {
+      navigate("/member");
+    }
+  }, [profile, navigate]);
   
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

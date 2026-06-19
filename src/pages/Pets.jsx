@@ -8,6 +8,7 @@ import {
 } from "react-icons/fa";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import Pagination from "../components/Pagination";
 
 export default function Pets() {
   const navigate = useNavigate();
@@ -20,6 +21,12 @@ export default function Pets() {
   const [isLoading, setIsLoading] = useState(true);
   const [filterType, setFilterType] = useState("All"); // "All" | "Dog" | "Cat" | "Rabbit" | "Bird" | "Hamster"
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filterType]);
 
   // Refs implementation
   const searchPetRef = useRef(null);
@@ -114,6 +121,12 @@ export default function Pets() {
       return matchesSearch && matchesType;
     });
   }, [pets, search, filterType]);
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedPets = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleDeletePet = async (id, name) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus data pet ${name}?`)) {
@@ -295,7 +308,7 @@ export default function Pets() {
 
         <div className="grid grid-cols-4 gap-4">
 
-          {filtered.map((pet) => (
+          {paginatedPets.map((pet) => (
 
             <div
               key={pet.id}
@@ -432,7 +445,7 @@ export default function Pets() {
 
             <tbody>
 
-              {filtered.map((pet) => (
+              {paginatedPets.map((pet) => (
 
                 <tr
                   key={pet.id}
@@ -524,6 +537,15 @@ export default function Pets() {
         </div>
 
       )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        totalEntries={filtered.length}
+        entriesPerPage={ITEMS_PER_PAGE}
+        label="pet"
+      />
 
     </div>
   );

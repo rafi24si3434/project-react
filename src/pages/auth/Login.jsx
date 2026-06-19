@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaPaw } from "react-icons/fa";
+import { supabase } from "../../lib/supabase";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -32,7 +33,20 @@ export default function Login() {
 
     try {
       await login(form.email, form.password);
-      navigate("/dashboard");
+
+      const { data: profileData } = await supabase
+        .from("users")
+        .select("role")
+        .eq("email", form.email)
+        .maybeSingle();
+
+      const userRole = profileData?.role || "customer";
+
+      if (userRole === "customer") {
+        navigate("/member");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       console.error("Login error details:", err);
       if (err.message && (err.message.includes("Email not confirmed") || err.message.includes("confirm"))) {

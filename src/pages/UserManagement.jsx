@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
-import { FaUserPlus, FaSearch, FaEdit, FaTrash, FaCheck, FaTimes, FaSpinner, FaUserShield } from "react-icons/fa";
+import { FaUserPlus, FaSearch, FaEdit, FaTrash, FaCheck, FaTimes, FaSpinner, FaUserShield, FaListUl, FaThLarge } from "react-icons/fa";
+import Pagination from "../components/Pagination";
 
 // Secondary client to prevent signing out the current admin session during sign up
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -18,6 +19,18 @@ const tempClient = createClient(supabaseUrl, supabaseAnonKey, {
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem("viewMode_user_management") || "list");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 8;
+
+  useEffect(() => {
+    localStorage.setItem("viewMode_user_management", viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
@@ -193,6 +206,12 @@ export default function UserManagement() {
     );
   });
 
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen space-y-6 text-left">
       {/* Header */}
@@ -207,13 +226,41 @@ export default function UserManagement() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreateModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-bold px-5 py-3 rounded-2xl shadow-md shadow-emerald-500/20 transition-all duration-300 cursor-pointer"
-        >
-          <FaUserPlus className="text-xs" />
-          Tambah User Baru
-        </button>
+        <div className="flex items-center gap-3 self-end md:self-center">
+          {/* View Toggle */}
+          <div className="bg-white border border-gray-150 p-1 rounded-2xl flex items-center shadow-sm">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                viewMode === "list"
+                  ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/10"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <FaListUl className="text-xs" />
+              List
+            </button>
+            <button
+              onClick={() => setViewMode("card")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                viewMode === "card"
+                  ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/10"
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <FaThLarge className="text-xs" />
+              Card
+            </button>
+          </div>
+
+          <button
+            onClick={handleOpenCreateModal}
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-bold px-5 py-3 rounded-2xl shadow-md shadow-emerald-500/20 transition-all duration-300 cursor-pointer"
+          >
+            <FaUserPlus className="text-xs" />
+            Tambah User Baru
+          </button>
+        </div>
       </div>
 
       {success && (
@@ -254,68 +301,146 @@ export default function UserManagement() {
           <p className="text-sm text-gray-400 font-semibold">Memuat daftar user dari Supabase...</p>
         </div>
       ) : filteredUsers.length > 0 ? (
-        <div className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm">
-          <table className="w-full text-sm text-left">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Nama Lengkap</th>
-                <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Email</th>
-                <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Nomor Telepon</th>
-                <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Role</th>
-                <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Dibuat Pada</th>
-                <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((u) => (
-                <tr key={u.id} className="border-b border-gray-100 last:border-none hover:bg-gray-50/30 transition">
-                  <td className="px-6 py-4">
-                    <div className="font-bold text-gray-800">{u.full_name}</div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-600 font-medium">{u.email}</td>
-                  <td className="px-6 py-4 text-gray-500 font-semibold">{u.phone_number || "-"}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full ${
-                      u.role === "admin" 
-                        ? "bg-red-50 text-red-600 border border-red-100" 
-                        : u.role === "staff"
-                        ? "bg-blue-50 text-blue-600 border border-blue-100"
-                        : "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                    }`}>
-                      <FaUserShield className="text-[9px]" />
-                      {u.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-gray-400 font-semibold">
-                    {new Date(u.created_at).toLocaleDateString("id-ID", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric"
-                    })}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2 justify-center">
-                      <button
-                        onClick={() => handleOpenEditModal(u)}
-                        className="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition cursor-pointer"
-                        title="Edit User"
-                      >
-                        <FaEdit className="text-xs" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(u)}
-                        className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-550 flex items-center justify-center transition cursor-pointer"
-                        title="Hapus User"
-                      >
-                        <FaTrash className="text-xs" />
-                      </button>
-                    </div>
-                  </td>
+        <>
+          {viewMode === "list" ? (
+          <div className="bg-white rounded-3xl border border-gray-150 overflow-hidden shadow-sm animate-in fade-in duration-200">
+            <table className="w-full text-sm text-left">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Nama Lengkap</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Email</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Nomor Telepon</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Role</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4">Dibuat Pada</th>
+                  <th className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-6 py-4 text-center">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {paginatedUsers.map((u) => (
+                  <tr key={u.id} className="border-b border-gray-100 last:border-none hover:bg-gray-50/30 transition">
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-gray-800">{u.full_name}</div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">{u.email}</td>
+                    <td className="px-6 py-4 text-gray-500 font-semibold">{u.phone_number || "-"}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full ${
+                        u.role === "admin" 
+                          ? "bg-red-50 text-red-600 border border-red-100" 
+                          : u.role === "staff"
+                          ? "bg-blue-50 text-blue-600 border border-blue-100"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                      }`}>
+                        <FaUserShield className="text-[9px]" />
+                        {u.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-400 font-semibold">
+                      {new Date(u.created_at).toLocaleDateString("id-ID", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                      })}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={() => handleOpenEditModal(u)}
+                          className="w-8 h-8 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition cursor-pointer"
+                          title="Edit User"
+                        >
+                          <FaEdit className="text-xs" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(u)}
+                          className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-550 flex items-center justify-center transition cursor-pointer"
+                          title="Hapus User"
+                        >
+                          <FaTrash className="text-xs" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-205">
+            {paginatedUsers.map((u) => (
+              <div key={u.id} className="bg-white rounded-3xl border border-gray-150 p-6 shadow-sm hover:shadow-md transition-all duration-300 relative group flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center font-extrabold text-emerald-600 text-base shadow-sm">
+                        {u.full_name ? u.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "U"}
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-gray-800 text-sm leading-snug">{u.full_name}</h4>
+                        <span className={`inline-flex items-center gap-1 mt-1.5 text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                          u.role === "admin" 
+                            ? "bg-red-50 text-red-600 border border-red-100" 
+                            : u.role === "staff"
+                            ? "bg-blue-50 text-blue-600 border border-blue-100"
+                            : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                        }`}>
+                          <FaUserShield className="text-[8px]" />
+                          {u.role}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5 my-4 pt-3 border-t border-gray-100">
+                    <div className="flex items-center gap-2.5 text-xs text-gray-500">
+                      <span className="text-gray-400">📧</span>
+                      <span className="font-medium truncate" title={u.email}>{u.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2.5 text-xs text-gray-500">
+                      <span className="text-gray-400">📞</span>
+                      <span className="font-semibold">{u.phone_number || "-"}</span>
+                    </div>
+                    <div className="flex items-center gap-2.5 text-xs text-gray-400">
+                      <span className="text-gray-400">📅</span>
+                      <span>Terdaftar: {new Date(u.created_at).toLocaleDateString("id-ID", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                      })}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2.5 mt-4 pt-3 border-t border-gray-100 justify-end">
+                  <button
+                    onClick={() => handleOpenEditModal(u)}
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold transition cursor-pointer"
+                  >
+                    <FaEdit className="text-[10px]" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteUser(u)}
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-550 text-xs font-bold transition cursor-pointer"
+                  >
+                    <FaTrash className="text-[10px]" />
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          )}
+          
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalEntries={filteredUsers.length}
+            entriesPerPage={ITEMS_PER_PAGE}
+            label="user"
+          />
+        </>
       ) : (
         <div className="bg-white border border-gray-150 rounded-3xl p-12 text-center text-gray-400 font-semibold">
           User tidak ditemukan.
