@@ -1,0 +1,71 @@
+========================================================================
+PENJELASAN PRD V3 (COMPLETE VERSION) - PETCARE CRM
+========================================================================
+
+1. VISI PRODUK PRD V3 (PRODUCT VISION)
+--------------------------------------
+Menjadi platform CRM klinik hewan terdepan dengan mengintegrasikan database 
+relasional PostgreSQL (Supabase), otomatisasi alur kerja medis, 
+dan dasbor analitik relasional secara multi-peran (Admin, Staff, Cust omer).
+
+      2. STRUKTUR SISTEM YANG DIBUAT (SCOPE)
+      --------------------------------------
+      PRD V3 mewajibkan integrasi penuh dari 4 pilar CRM utama:
+      - OPERATIONAL CRM: Manajemen data terpusat untuk Pemilik (Pet Owners), 
+        Hewan (Pets), Janji Temu (Appointments), Rekam Medis, dan Stok Apotek.
+      - ANALYTICAL CRM: Dasbor grafik pendapatan bulanan, tren penyakit terpopuler, 
+        dan segmentasi keaktifan belanja pelanggan.
+      - COLLABORATIVE CRM: Portal ulasan bintang pelanggan, pelacakan tiket keluhan 
+        (complaints), notifikasi pengingat otomatis, dan kolaborasi staf.
+      - STRATEGIC CRM: Tingkat membership digital (Bronze, Silver, Gold), program 
+        kampanye pemasaran terarah, dan peningkatan retensi anabul.
+
+3. RINCIAN IMPLEMENTASI KODE (CODINGAN) PADA PROYEK
+---------------------------------------------------
+Fitur lengkap V3 diimplementasikan pada beberapa file utama di folder src:
+
+A. AUTOPILOT GUEST-TO-MEMBER REGISTRATION (LandingPage.jsx - handleBooking)
+- Kode baris 94 - 237: Ketika pengunjung non-login (guest) membuat janji temu:
+  1. Sistem mendaftarkan akun baru secara otomatis ke Supabase Auth dengan 
+     password bawaan "PetCare123!" (supabase.auth.signUp).
+  2. Menyisipkan profil ke tabel public.users (role: 'customer').
+  3. Mendaftarkan hewan peliharaan baru ke tabel public.pets.
+  4. Membuat entri janji temu di public.appointments (status: 'Pending').
+  5. Mencatat aktivitas ke tabel public.activity_logs.
+
+B. TOKO OBAT & APOTEK CEPAT INTEGRASI DB (LandingPage.jsx - handleQuickCheckout)
+- Kode baris 239 - 382: Ketika customer berbelanja produk apotek di simulator:
+  1. Sistem memverifikasi ketersediaan stok obat secara real-time di DB.
+  2. Menyisipkan rekaman belanja baru ke tabel public.orders.
+  3. Menyisipkan detail item pesanan ke tabel public.order_items.
+  4. Mengurangi stok produk di tabel public.products secara otomatis.
+
+C. PORTAL MANDIRI CUSTOMER (src/pages/Member.jsx)
+- File Member.jsx (57.6 KB) dirancang secara modular dan memuat 6 tab:
+  * Dashboard: Ringkasan janji temu terdekat dan profil anabul.
+  * Pets: Pendaftaran dan kartu status kesehatan anabul.
+  * Orders: Transaksi obat, status order (Pending/Success), dan invoice.
+  * Booking: Reservasi online kunjungan klinik dan dokter pilihan.
+  * Med Records: Riwayat diagnosa, resep obat, dan nama dokter pemeriksa.
+  * Bantuan & Ulasan (Tab Baru Kustom):
+    - Pelacakan tiket keluhan pelanggan (status: Diproses / Teratasi).
+    - Tombol copy-to-clipboard klaim voucher kompensasi diskon 15% 
+      (VCHR-XXXXX) jika tiket keluhan telah diselesaikan admin.
+    - Riwayat ulasan bintang (1-5★) dan kolom balasan tanggapan CS.
+
+D. PORTAL TIKET KELUHAN ADMIN (src/pages/Feedback.jsx)
+- Mengelola data ulasan (feedback) dan tiket keluhan pelanggan (complaints).
+- Tombol Selesaikan: Mengubah status komplain menjadi resolved/teratasi di DB.
+- Tombol Kompensasi: Mengirim kode voucher diskon 15% ke portal customer 
+  bersangkutan secara real-time via Supabase update.
+
+E. PORTAL PEMASARAN ADMIN (src/pages/Campaigns.jsx)
+- Menampilkan grafik dasbor performa pemasaran (Vite + Recharts).
+- Mengelola kampanye aktif (Instagram Ads, TikTok Ads, Email Newsletter).
+- Fitur WhatsApp Broadcast: Staf dapat memilih template pesan promosi 
+  (Diskon Vaksin, Promo Grooming, Kupon Comeback) dan mengirimkannya ke 
+  segmen pelanggan tertentu (Bronze/Silver/Gold/Dorman) dari database.
+
+STATUS REALISASI: 100% Selesai, berfungsi penuh, terintegrasi database relasional, 
+dan lolos uji kompilasi (build).
+========================================================================

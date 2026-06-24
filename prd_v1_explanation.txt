@@ -1,0 +1,68 @@
+========================================================================
+PENJELASAN PRD V1 (BASIC VERSION) - PETCARE CRM
+========================================================================
+
+1. TUJUAN UTAMA PRD V1 (PRODUCT GOAL)
+------------------------------------
+Tujuan utama versi V1 adalah memperkenalkan platform PetCare CRM kepada 
+calon pengguna (pemilik klinik hewan) serta memberikan informasi mendasar 
+mengenai keberadaan platform untuk memicu ketertarikan awal (awareness).
+
+    2. STRUKTUR LANDING PAGE YANG DIBUAT (SCOPE)
+    --------------------------------------------
+    PRD V1 mewajibkan adanya 4 struktur halaman dasar (Landing Page) berikut:
+    - NAVBAR (Navigasi): Identitas brand, tautan cepat, dan akses login.
+    - HERO SECTION: Proposisi nilai utama klinik dan tombol aksi utama (CTA).
+    - FEATURES (Fitur Utama): Pengenalan 4 modul dasar klinik hewan:
+      * Customer Management: Kelola profil pemilik hewan dan info kontak.
+      * Pet Management: Profil anabul, ras, jenis kelamin, berat, dan foto.
+      * Appointment Management: Pemesanan kunjungan dokter/grooming.
+      * Medical Records: Catatan riwayat diagnosa medis.
+    - FOOTER: Kontak dasar, media sosial, dan hak cipta.
+
+3. RINCIAN IMPLEMENTASI KODE (CODINGAN) PADA LANDINGPAGE.JSX
+------------------------------------------------------------
+Penerapan kode dilakukan pada file: src/pages/LandingPage.jsx
+
+A. NAVBAR (Baris 520 - 570)
+- Menampilkan logo brand berupa ikon cakar "PawPrint" bergradasi warna 
+  Emerald ke Teal (from-emerald-500 to-teal-500) dengan teks "PetCare CRM".
+- Dilengkapi link jangkar (anchor link) responsif ke bagian halaman:
+  * #fitur (Fitur Utama)
+  * #simulator (Simulator Klinik)
+  * #crm (Otomatisasi CRM)
+  * #faq (Pertanyaan Umum)
+  * #testimoni (Testimoni)
+- Dilengkapi tombol aksi dinamis menggunakan React state dari AuthContext:
+  * Jika user belum login: Menampilkan tombol "Masuk" dan "Daftar Gratis".
+  * Jika user sudah login: Menampilkan tombol "Area Member" (untuk customer)
+    atau "Masuk Dashboard" (untuk admin/staf).
+
+B. HERO SECTION (Baris 573 - 625)
+- Headline: "Tingkatkan Loyalitas Pet Owners Dengan CRM Cerdas"
+- Subheadline: Menjelaskan penyatuan rekam medis, otomatisasi janji temu, 
+  dan promosi strategis untuk anabul kesayangan pelanggan.
+- Tombol CTA Ganda:
+  * Tombol Utama: "Mulai Percobaan Gratis" (neon green glow) yang mengarah 
+    ke registrasi (/register) atau panel member (/member) jika sudah masuk.
+  * Tombol Kedua: "Pelajari Fitur" dengan desain outline minimalis.
+- Indikator Penunjang (Micro Proof): "Tanpa Kartu Kredit" & "Akun Demo Siap Pakai".
+
+C. FITUR UTAMA (Baris 739 - 784)
+Menggunakan CSS Grid Layout (grid grid-cols-1 md:grid-cols-4 gap-8) yang 
+otomatis bertransformasi menjadi susunan satu kolom vertikal di perangkat mobile:
+- Modul Data Pasien (Customer Management): Menyimpan data kontak pemilik.
+- Modul Data Hewan (Pet Profile): Visualisasi anabul, umur, dan kartu hewan.
+- Modul Antrean (Appointment): Pemesanan online agar antrean tidak menumpuk.
+- Modul Medis (Medical Records): Histori diagnosa dan penanganan klinis.
+
+D. FOOTER (Baris 1826 - 1879)
+- Menggunakan warna dasar gelap premium (bg-slate-950) dengan 4 kolom info:
+  * Kolom 1: Misi singkat platform PetCare CRM.
+  * Kolom 2: Link navigasi cepat (Fitur Utama, Simulator, FAQ, Testimoni).
+  * Kolom 3: Alamat fisik klinik pusat dan email bantuan (support).
+  * Kolom 4: Menu legal (Kebijakan Privasi, Syarat & Ketentuan, Keamanan).
+- Baris Bawah: Hak Cipta © 2026 PetCare CRM dan tautan media sosial.
+
+STATUS REALISASI: 100% Selesai, berfungsi penuh, dan lolos uji kompilasi (build).
+========================================================================

@@ -6,7 +6,8 @@ import {
   PawPrint, ArrowRight, ShieldCheck, CalendarCheck, 
   Megaphone, Star, ClipboardList, Users, 
   TrendingUp, Sparkles, Clock, CheckCircle2, Heart, 
-  Activity, Info, ShoppingBag, Plus, Minus, Check, AlertCircle, Calendar, User, Mail, Phone
+  Activity, Info, ShoppingBag, Plus, Minus, Check, AlertCircle, Calendar, User, Mail, Phone,
+  ChevronDown, ChevronUp, Layers, HelpCircle, Laptop, Cpu, Link2
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -17,6 +18,8 @@ export default function LandingPage() {
   const [activeTab, setActiveTab] = useState("booking"); // "booking" | "shop"
   const [products, setProducts] = useState([]);
   const [myPets, setMyPets] = useState([]);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [activeFeatureTab, setActiveFeatureTab] = useState("operational"); // "operational" | "analytical" | "collaborative" | "strategic"
   
   // Owner info for guest
   const [ownerName, setOwnerName] = useState("");
@@ -529,9 +532,10 @@ export default function LandingPage() {
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-650">
             <a href="#fitur" className="hover:text-emerald-600 transition-colors">Fitur Utama</a>
-            <a href="#simulator" className="hover:text-emerald-600 transition-colors">Simulator Klinik & Diskon</a>
-            <a href="#crm" className="hover:text-emerald-600 transition-colors">Fungsi CRM</a>
-            <a href="#statistik" className="hover:text-emerald-600 transition-colors">Performa</a>
+            <a href="#simulator" className="hover:text-emerald-600 transition-colors">Simulator Klinik</a>
+            <a href="#crm" className="hover:text-emerald-600 transition-colors">Otomatisasi CRM</a>
+            <a href="#alur" className="hover:text-emerald-600 transition-colors">Alur Kerja</a>
+            <a href="#faq" className="hover:text-emerald-600 transition-colors">FAQ</a>
             <a href="#testimoni" className="hover:text-emerald-600 transition-colors">Testimoni</a>
           </nav>
 
@@ -706,59 +710,324 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── FEATURES SECTION ─── */}
-      <section id="fitur" className="py-20 bg-slate-50 border-t border-gray-150 relative">
+      {/* ─── SOCIAL PROOF SECTION ─── */}
+      <section className="bg-slate-50 border-y border-gray-150 py-10 relative">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-6 text-center text-xs font-semibold text-gray-500">
+          <div className="space-y-1">
+            <p className="text-2xl font-black text-emerald-600">12,000+</p>
+            <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Pemilik Hewan Terdaftar</p>
+          </div>
+          <div className="h-8 w-px bg-gray-200 hidden md:block" />
+          <div className="space-y-1">
+            <p className="text-2xl font-black text-emerald-600">18,500+</p>
+            <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Anabul Sehat Terawat</p>
+          </div>
+          <div className="h-8 w-px bg-gray-200 hidden md:block" />
+          <div className="space-y-1">
+            <p className="text-2xl font-black text-emerald-600">25,000+</p>
+            <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Kunjungan Berhasil</p>
+          </div>
+          <div className="h-8 w-px bg-gray-200 hidden md:block" />
+          <div className="space-y-1">
+            <p className="text-2xl font-black text-emerald-600">450+</p>
+            <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Klinik SaaS Partner</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PROBLEM SECTION ─── */}
+      <section className="py-20 bg-white relative text-left">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-              Fitur Platform
+            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-3 py-1.5 rounded-full">
+              Kendala Operasional Klinik
             </span>
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Satu Sistem Untuk Semua Kebutuhan Klinik
+              Mengapa Manajemen Klinik Hewan Tradisional Sangat Melelahkan?
             </h2>
-            <p className="text-slate-500 text-sm md:text-base font-semibold">
-              Klinik tidak lagi kesulitan mengintegrasikan data rekam medis dengan komunikasi pelanggan. Semuanya tersambung otomatis.
+            <p className="text-slate-500 text-sm font-semibold">
+              Klinik hewan tanpa sistem CRM terpusat sering menghadapi kendala berulang yang mengikis loyalitas pelanggan.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Fitur 1 */}
-            <div className="bg-white border border-gray-150 p-8 rounded-3xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <ClipboardList className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">E-Medical Records</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                Catatan rekam medis terstruktur, riwayat alergi, diagnosis penyakit, dan daftar obat. Aman dan tersinkronisasi.
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
+              <span className="text-3xl block">🗂️</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Data Pasien Tersebar</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
+                Catatan riwayat medis kertas yang terpisah, mudah terselip, dan sulit dicari dengan cepat saat kondisi darurat.
               </p>
             </div>
-
-            {/* Fitur 2 */}
-            <div className="bg-white border border-gray-150 p-8 rounded-3xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <CalendarCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Janji Temu Online</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                Sistem penjadwalan online tanpa repot. Customer dapat memilih tanggal, hewan peliharaan, dan dokter yang diinginkan.
+            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
+              <span className="text-3xl block">🗓️</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Jadwal Antrean Kacau</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
+                Pemesanan manual via telepon sering bertabrakan dengan jadwal praktek dokter, memicu antrean menumpuk.
               </p>
             </div>
-
-            {/* Fitur 3 */}
-            <div className="bg-white border border-gray-150 p-8 rounded-3xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 mb-2">Keamanan Supabase</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                Otentikasi terenkripsi Supabase Auth dan Row Level Security (RLS). Menjamin hak privasi data rekam medis pasien aman.
+            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
+              <span className="text-3xl block">📉</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Kehilangan Retensi Pelanggan</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
+                Tidak adanya otomatisasi pengingat booster vaksin berkala, menyebabkan pemilik hewan lupa kembali berkunjung.
+              </p>
+            </div>
+            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
+              <span className="text-3xl block">📊</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Buta Performa Finansial</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
+                Kesulitan menganalisis omset kasir, transaksi obat apotek, dan tingkat kepuasan pelanggan secara real-time.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="simulator" className="py-20 bg-white border-t border-gray-150 relative">
+      {/* ─── SOLUTION SECTION ─── */}
+      <section className="py-20 bg-slate-50 border-t border-gray-150 relative text-left">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+              Solusi PetCare CRM
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Sistem SaaS Klinik Hewan Modern & CRM Terpadu
+            </h2>
+            <p className="text-slate-500 text-sm font-semibold">
+              Kami menyatukan kebutuhan medis klinis dan strategi pemasaran relasional di satu platform yang aman.
+            </p>
+            
+            <div className="space-y-4 text-xs font-semibold">
+              <div className="flex gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                <p className="text-slate-650 leading-relaxed"><strong className="text-slate-850">Database Relasional Cepat</strong>: Mengintegrasikan pemilik, profil anabul, janji temu, dan diagnosa klinis aman dalam skema PostgreSQL.</p>
+              </div>
+              <div className="flex gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                <p className="text-slate-650 leading-relaxed"><strong className="text-slate-850">Otomatisasi Pengingat</strong>: Menghubungi customer otomatis via WhatsApp & Email untuk check-up berkala.</p>
+              </div>
+              <div className="flex gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                <p className="text-slate-650 leading-relaxed"><strong className="text-slate-850">Portal Mandiri Customer</strong>: Area member khusus tempat pemilik anabul berbelanja apotek, booking jadwal, dan klaim kompensasi kupon.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-150 p-8 rounded-[2.5rem] shadow-lg relative overflow-hidden text-xs">
+            <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[80px]" />
+            <h4 className="font-extrabold text-sm text-slate-850 border-b border-gray-100 pb-3 mb-4">🏆 PetCare CRM Value Proposal</h4>
+            <div className="space-y-4 font-semibold text-gray-500">
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <span>Efisiensi Waktu Administrasi</span>
+                  <span className="text-emerald-600 font-extrabold">Hemat 70%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-emerald-500 w-[70%]" /></div>
+              </div>
+              
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <span>Peningkatan Retensi Kunjungan</span>
+                  <span className="text-emerald-600 font-extrabold">Naik 42%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-emerald-500 w-[42%]" /></div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between">
+                  <span>Keamanan Data Medis (RLS)</span>
+                  <span className="text-emerald-600 font-extrabold">100% Secure</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-emerald-500 w-[100%]" /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CRM WORKFLOW SECTION ─── */}
+      <section id="alur" className="py-20 bg-white border-t border-gray-150 relative text-left">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+              Customer Journey
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Siklus Hidup Hubungan Pelanggan (Customer Lifecycle)
+            </h2>
+            <p className="text-slate-500 text-sm font-semibold">
+              Bagaimana sistem mendampingi anabul dan pemilik dari kunjungan pertama hingga keanggotaan setia.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
+              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">1</span>
+              <span className="text-2xl block">🤝</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Registrasi & Booking</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-medium">Pemilik mendaftarkan diri & anabul secara instan lewat widget simulator atau booking form online.</p>
+            </div>
+            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
+              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">2</span>
+              <span className="text-2xl block">🩺</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Pemeriksaan & Diagnosa</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-medium">Dokter meng-input hasil rekam medis anabul yang tersimpan secara permanen & aman di database.</p>
+            </div>
+            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
+              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">3</span>
+              <span className="text-2xl block">🔔</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">WhatsApp Reminder</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-medium">Sistem mengirim notifikasi jadwal pengingat vaksin booster otomatis saat masa aktif vaksin anabul mendekati limit.</p>
+            </div>
+            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
+              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">4</span>
+              <span className="text-2xl block">🏆</span>
+              <h4 className="font-extrabold text-slate-800 text-sm">Loyalty & Voucher</h4>
+              <p className="text-xs text-slate-450 leading-relaxed font-medium">Customer mengumpulkan poin belanja apotek obat untuk naik ke tingkat keanggotaan VIP & klaim kupon diskon.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FEATURE GRID SECTION ─── */}
+      <section id="fitur" className="py-20 bg-slate-50 border-t border-gray-150 relative text-left">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+              4 Pilar Fitur CRM
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Segregasi Strategis Layanan PetCare CRM
+            </h2>
+            <p className="text-slate-500 text-sm font-semibold">
+              Platform komprehensif yang dirancang untuk mendukung operasional klinik, pemasaran taktis, kolaborasi tim, dan keputusan strategis bisnis.
+            </p>
+
+            {/* Feature Tabs */}
+            <div className="flex flex-wrap justify-center gap-2 mt-8">
+              {[
+                { id: "operational", label: "Operational CRM" },
+                { id: "analytical", label: "Analytical CRM" },
+                { id: "collaborative", label: "Collaborative CRM" },
+                { id: "strategic", label: "Strategic CRM" }
+              ].map((ft) => (
+                <button
+                  key={ft.id}
+                  onClick={() => setActiveFeatureTab(ft.id)}
+                  className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                    activeFeatureTab === ft.id
+                      ? "bg-slate-900 text-white shadow-md"
+                      : "bg-white border border-gray-200 text-slate-650 hover:bg-slate-100"
+                  }`}
+                >
+                  {ft.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto bg-white border border-gray-150 rounded-[2.5rem] p-8 md:p-10 shadow-sm relative min-h-[280px]">
+            {activeFeatureTab === "operational" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-black text-slate-850 flex items-center gap-2">
+                    <Cpu className="w-5 h-5 text-emerald-500" />
+                    Memperlancar Operasional Harian Klinik
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                    Operational CRM membantu dokter dan staf mengotomatisasi pekerjaan administratif sehingga bisa fokus sepenuhnya merawat hewan pasien:
+                  </p>
+                  <ul className="space-y-2 text-xs font-bold text-slate-650">
+                    <li className="flex items-center gap-2">🔹 Pendaftaran data anabul & rekam medis digital instan.</li>
+                    <li className="flex items-center gap-2">🔹 Penjadwalan janji temu tanpa tabrakan antrean.</li>
+                    <li className="flex items-center gap-2">🔹 Pengurangan stok inventori apotek obat terpotong otomatis.</li>
+                  </ul>
+                </div>
+                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Pendaftaran Hewan</span><span className="text-emerald-600 font-extrabold">Instant</span></div>
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Jadwal Temu Antrean</span><span className="text-emerald-600 font-extrabold">Auto-Sorted</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Notifikasi WhatsApp</span><span className="text-emerald-600 font-extrabold">Connected</span></div>
+                </div>
+              </div>
+            )}
+
+            {activeFeatureTab === "analytical" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-black text-slate-850 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-emerald-500" />
+                    Mengambil Keputusan Cerdas Berbasis Data
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                    Analytical CRM mengolah tumpukan data transaksi kasir dan rekam medis anabul menjadi grafik visual yang mudah dipahami pemilik bisnis:
+                  </p>
+                  <ul className="space-y-2 text-xs font-bold text-slate-650">
+                    <li className="flex items-center gap-2">📊 Laporan omset pendapatan klinik berkala.</li>
+                    <li className="flex items-center gap-2">📊 Segmentasi tingkat loyalitas belanja customer.</li>
+                    <li className="flex items-center gap-2">📊 Analitik jenis diagnosis penyakit anabul terpopuler.</li>
+                  </ul>
+                </div>
+                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Index Kepuasan (CSAT)</span><span className="text-emerald-600 font-extrabold">94.2%</span></div>
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Peningkatan Omset</span><span className="text-emerald-600 font-extrabold">+35% YoY</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Pelanggan Aktif</span><span className="text-emerald-600 font-extrabold">88%</span></div>
+                </div>
+              </div>
+            )}
+
+            {activeFeatureTab === "collaborative" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-black text-slate-855 flex items-center gap-2">
+                    <Megaphone className="w-5 h-5 text-emerald-500" />
+                    Mempererat Komunikasi Antara Klinik & Pemilik
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                    Collaborative CRM menyambungkan kendala layanan yang dilaporkan pemilik dengan penyelesaian responsif oleh tim admin secara langsung:
+                  </p>
+                  <ul className="space-y-2 text-xs font-bold text-slate-650">
+                    <li className="flex items-center gap-2">📧 Portal ulasan kritik/saran interaktif.</li>
+                    <li className="flex items-center gap-2">📧 Resolusi tiket keluhan internal dan manual log.</li>
+                    <li className="flex items-center gap-2">📧 Pemberian kompensasi diskon belanja secara tertutup.</li>
+                  </ul>
+                </div>
+                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Resolusi Tiket Komplain</span><span className="text-emerald-600 font-extrabold">&lt; 1 Jam</span></div>
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Klaim Voucher Diskon</span><span className="text-emerald-600 font-extrabold">Otomatis</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Rating Google Maps Review</span><span className="text-emerald-600 font-extrabold">4.8 / 5.0</span></div>
+                </div>
+              </div>
+            )}
+
+            {activeFeatureTab === "strategic" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-black text-slate-855 flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-emerald-500" />
+                    Menghargai Loyalitas Pemilik Anabul Terpilih
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                    Strategic CRM menyusun sistem retensi terpadu melalui insentif potongan harga dan tingkat membership:
+                  </p>
+                  <ul className="space-y-2 text-xs font-bold text-slate-650">
+                    <li className="flex items-center gap-2">💎 Kenaikan membership Bronze, Silver, Gold berdasarkan total belanja.</li>
+                    <li className="flex items-center gap-2">💎 Pengiriman kampanye promosi berperingkat.</li>
+                    <li className="flex items-center gap-2">💎 Akses khusus VIP check-up dan antrean cepat.</li>
+                  </ul>
+                </div>
+                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Tingkat Keanggotaan</span><span className="text-emerald-600 font-extrabold">Bronze / Silver / Gold</span></div>
+                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Potongan Harga Maksimal</span><span className="text-emerald-600 font-extrabold">Up to 25% OFF</span></div>
+                  <div className="flex justify-between"><span className="text-gray-400">Keanggotaan VIP Aktif</span><span className="text-emerald-600 font-extrabold">24% Member</span></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── SIMULATOR SECTION (CUSTOMER JOURNEY & QUICK SHOP) ─── */}
+      <section id="simulator" className="py-20 bg-white border-t border-gray-150 relative text-left">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
@@ -768,7 +1037,7 @@ export default function LandingPage() {
               Pendaftaran, Jadwal Temu & Beli Obat
             </h2>
             <p className="text-slate-500 text-sm md:text-base font-semibold">
-              Gunakan formulir interaktif di bawah ini untuk mendaftarkan hewan peliharaan Anda, menjadwalkan pemeriksaan, atau membeli obat dan makanan anabul secara langsung.
+              Gunakan widget interaktif di bawah untuk mendaftarkan hewan peliharaan, menjadwalkan pemeriksaan, atau membeli obat anabul secara instan.
             </p>
 
             {/* Tab switcher */}
@@ -815,14 +1084,14 @@ export default function LandingPage() {
                 </div>
 
                 {bookingSuccessMsg && (
-                  <div className="mb-6 bg-emerald-50 border border-emerald-250 text-emerald-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
+                  <div className="mb-6 bg-emerald-50 border border-emerald-255 text-emerald-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
                     <span className="text-base">✅</span>
                     <p className="text-left leading-relaxed">{bookingSuccessMsg}</p>
                   </div>
                 )}
 
                 {bookingErrorMsg && (
-                  <div className="mb-6 bg-red-50 border border-red-200 text-red-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
+                  <div className="mb-6 bg-red-50 border border-red-205 text-red-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
                     <span className="text-base">⚠️</span>
                     <p className="text-left leading-relaxed">{bookingErrorMsg}</p>
                   </div>
@@ -1131,6 +1400,7 @@ export default function LandingPage() {
                         <span>🛍️</span> Konfirmasi Pembelian Cepat
                       </h4>
                       <button
+                        type="button"
                         onClick={() => setSelectedProduct(null)}
                         className="text-[10px] bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-gray-500 font-bold transition cursor-pointer"
                       >
@@ -1150,14 +1420,14 @@ export default function LandingPage() {
                     </div>
 
                     {checkoutSuccessMsg && (
-                      <div className="bg-emerald-50 border border-emerald-250 text-emerald-750 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
+                      <div className="bg-emerald-50 border border-emerald-255 text-emerald-755 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
                         <span>✅</span>
                         <p className="leading-relaxed">{checkoutSuccessMsg}</p>
                       </div>
                     )}
 
                     {checkoutErrorMsg && (
-                      <div className="bg-red-50 border border-red-200 text-red-750 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
+                      <div className="bg-red-50 border border-red-200 text-red-755 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
                         <span>⚠️</span>
                         <p className="leading-relaxed">{checkoutErrorMsg}</p>
                       </div>
@@ -1168,7 +1438,7 @@ export default function LandingPage() {
                       {/* Guest credentials */}
                       {!user && (
                         <div className="space-y-3 p-4 border border-dashed border-gray-200 rounded-2xl bg-slate-50/50">
-                          <span className="text-[10px] font-black uppercase text-gray-450 tracking-wider">Lengkapi Informasi Anda</span>
+                          <span className="text-[10px] font-black uppercase text-gray-455 tracking-wider">Lengkapi Informasi Anda</span>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
                             <input
                               type="text"
@@ -1261,21 +1531,59 @@ export default function LandingPage() {
               )}
             </div>
           )}
-
         </div>
       </section>
 
-      {/* ─── CRM FUNCTIONS SECTION ─── */}
-      <section id="crm" className="py-20 bg-slate-50 border-t border-gray-150 relative">
+      {/* ─── INTEGRATIONS SECTION ─── */}
+      <section className="py-20 bg-slate-50 border-t border-gray-150 relative text-left">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+              Konektivitas Tanpa Batas
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Tersambung dengan Layanan & Platform Favorit Anda
+            </h2>
+            <p className="text-slate-500 text-sm font-semibold">
+              PetCare CRM berintegrasi secara mulus dengan berbagai teknologi global untuk mendukung efisiensi klinik:
+            </p>
+            <div className="grid grid-cols-2 gap-4 text-xs font-bold text-slate-700">
+              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
+                <span className="text-lg">⚡</span> Supabase Backend
+              </div>
+              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
+                <span className="text-lg">💬</span> WhatsApp API
+              </div>
+              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
+                <span className="text-lg">📅</span> Google Calendar
+              </div>
+              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
+                <span className="text-lg">💳</span> Midtrans Gateway
+              </div>
+            </div>
+          </div>
+
+          <div className="relative p-8 bg-slate-50 border border-gray-200 flex flex-wrap justify-center gap-4 shadow-inner rounded-[2.5rem]">
+            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">⚡</span> Supabase</div>
+            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">💬</span> WhatsApp SMS</div>
+            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">📧</span> Twilio Mailer</div>
+            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">📅</span> Google Calendar</div>
+            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">💳</span> Payment Midtrans</div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CRM FUNCTIONS SECTION (PREMIUM MARKETING DASHBOARD) ─── */}
+      <section id="crm" className="py-20 bg-white border-t border-gray-150 relative text-left">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left Graphics representation */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="relative bg-emerald-50 rounded-[2.5rem] p-8 border border-emerald-100 shadow-inner">
+              <div className="relative bg-emerald-50/50 rounded-[2.5rem] p-8 border border-emerald-100/80 shadow-inner">
                 <div className="flex justify-between items-center border-b border-emerald-200/50 pb-4 mb-4">
                   <h4 className="font-extrabold text-xs text-emerald-800 flex items-center gap-1.5">
-                    📢 Peta Kampanye CRM
+                    <Link2 className="w-4 h-4" /> Peta Kampanye Pemasaran CRM
                   </h4>
                   <span className="text-[9px] bg-emerald-600 text-white font-extrabold px-2 py-0.5 rounded-full">3 Kampanye Aktif</span>
                 </div>
@@ -1290,7 +1598,7 @@ export default function LandingPage() {
                         <p className="text-[9px] text-gray-400 font-semibold">Terkirim ke 124 Pemilik</p>
                       </div>
                     </div>
-                    <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Sukses</span>
+                    <span className="text-[9px] font-black text-emerald-650 bg-emerald-50 px-2 py-0.5 rounded">Sukses</span>
                   </div>
 
                   {/* Campaign item 2 */}
@@ -1302,14 +1610,14 @@ export default function LandingPage() {
                         <p className="text-[9px] text-gray-400 font-semibold">Diskon 15% · Pemasaran</p>
                       </div>
                     </div>
-                    <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Sukses</span>
+                    <span className="text-[9px] font-black text-emerald-650 bg-emerald-50 px-2 py-0.5 rounded">Sukses</span>
                   </div>
                 </div>
 
                 <div className="mt-6 p-4 rounded-2xl bg-emerald-600 text-white shadow-lg text-xs space-y-1">
-                  <p className="font-extrabold flex items-center gap-1.5">💡 Insight Kampanye</p>
+                  <p className="font-extrabold flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 animate-pulse" /> Insight Kampanye CRM</p>
                   <p className="text-[10px] text-emerald-100 font-medium leading-relaxed">
-                    Kampanye Booster Vaksin meningkatkan tingkat kedatangan janji temu hingga 42% pada minggu ini.
+                    Kampanye otomatis Booster Vaksinasi meningkatkan tingkat kedatangan janji temu hingga 42% pada bulan ini.
                   </p>
                 </div>
               </div>
@@ -1317,44 +1625,44 @@ export default function LandingPage() {
 
             {/* Right Text Content */}
             <div className="lg:col-span-7 space-y-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
                 Otomatisasi Hubungan Pelanggan
               </span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Hubungkan Klinik dan Pemilik Hewan Tanpa Jeda
+                Hubungkan Komunikasi Staf Klinik & Pemilik Anabul Tanpa Batas
               </h2>
               <p className="text-slate-500 text-sm md:text-base font-semibold">
-                Sistem CRM (Customer Relationship Management) terintegrasi kami membantu klinik hewan memperluas jangkauan komunikasi mereka:
+                Sistem CRM (Customer Relationship Management) terintegrasi kami membantu klinik hewan memperluas jangkauan komunikasi mereka secara otomatis:
               </p>
 
               <div className="space-y-4 text-xs font-semibold">
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-650 flex items-center justify-center shrink-0">
                     <Megaphone className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 text-sm">Kampanye Promosi Otomatis</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Buat, kelola, dan sebarkan pesan promosi layanan grooming, paket check-up, atau produk baru langsung ke semua pemilik hewan terdaftar.</p>
+                    <h4 className="font-bold text-slate-800 text-sm">Kampanye Promosi Terarah</h4>
+                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Buat, kelola, dan sebarkan pesan promosi layanan grooming, paket check-up, atau produk baru langsung ke pemilik hewan terdaftar sesuai tingkatan member.</p>
                   </div>
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-655 flex items-center justify-center shrink-0">
                     <Star className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 text-sm">Feedback & Analisis Keluhan</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Evaluasi kualitas pelayanan klinik berdasarkan ulasan bintang dan catat keluhan internal untuk ditindaklanjuti secara cepat demi kepuasan pelanggan.</p>
+                    <h4 className="font-bold text-slate-800 text-sm">Feedback & Tiket Keluhan Instan</h4>
+                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Evaluasi kualitas pelayanan klinik berdasarkan ulasan bintang dan catat keluhan internal untuk diselesaikan secara responsif demi kepuasan pelanggan.</p>
                   </div>
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-650 flex items-center justify-center shrink-0">
                     <Users className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-800 text-sm">Manajemen Customer CRM</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Kelompokkan riwayat interaksi, feedback, keluhan, dan biodata setiap pemilik anabul di satu tab detail customer terpusat.</p>
+                    <h4 className="font-bold text-slate-800 text-sm">Manajemen Customer CRM 360°</h4>
+                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Kelompokkan riwayat interaksi, feedback, keluhan, dan biodata setiap pemilik anabul di satu tab detail customer terpusat untuk penanganan khusus.</p>
                   </div>
                 </div>
               </div>
@@ -1364,53 +1672,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── CLINIC METRICS SECTION ─── */}
-      <section id="statistik" className="py-20 bg-slate-950 text-white relative overflow-hidden">
-        {/* Glow patterns */}
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-          <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-emerald-400 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400 rounded-full blur-[120px]" />
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 relative z-10 text-center space-y-16">
-          <div className="max-w-2xl mx-auto space-y-3">
-            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest border border-emerald-400/30 px-3 py-1 rounded-full bg-emerald-450/10">
-              Metrik Keberhasilan
-            </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">Klinik Lebih Produktif Bersama Kami</h2>
-            <p className="text-slate-400 text-xs sm:text-sm font-semibold">Membantu mempercepat administrasi klinis dan mengotomatisasi retensi kedatangan pemilik hewan secara efektif.</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-emerald-400">10k+</h3>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Pasien Anabul</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-emerald-400">94.2%</h3>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Kepuasan CRM</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-emerald-400">99.9%</h3>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Uptime Sistem</p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl md:text-5xl font-black text-emerald-400">42%</h3>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Kenaikan Retensi</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ─── TESTIMONIALS SECTION ─── */}
-      <section id="testimoni" className="py-20 bg-slate-50 border-t border-gray-150">
+      <section id="testimoni" className="py-20 bg-slate-50 border-t border-gray-150 text-left">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
               Testimoni Pengguna
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Apa Kata Mereka?</h2>
-            <p className="text-slate-500 text-sm font-semibold">Telah dipercaya oleh dokter hewan klinik profesional dan ribuan pemilik anabul.</p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Apa Kata Pemilik Klinik & Pemilik Anabul?</h2>
+            <p className="text-slate-500 text-sm font-semibold">Telah dipercaya oleh dokter hewan klinik profesional dan ribuan pemilik anabul di Indonesia.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1420,7 +1690,7 @@ export default function LandingPage() {
                 {[1,2,3,4,5].map((s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
               </div>
               <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                "Sebelum pakai PetCare CRM, kami sering lupa mengabari pemilik kucing untuk jadwal vaksinasi booster. Sekarang semuanya terjadwal otomatis, loyalitas pelanggan kami meningkat drastis!"
+                "Sebelum menggunakan PetCare CRM, kami sering lupa mengabari pemilik kucing untuk jadwal vaksinasi booster. Sekarang semuanya terjadwal otomatis, retensi kunjungan klinik kami meningkat drastis!"
               </p>
               <div className="flex items-center gap-3 pt-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-xs">
@@ -1439,7 +1709,7 @@ export default function LandingPage() {
                 {[1,2,3,4,5].map((s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
               </div>
               <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                "Sebagai customer, saya suka sekali dengan dashboard-nya. Saya bisa melihat rekam medis Mochi langsung di HP dan tinggal klak-klik untuk buat janji temu konsultasi dokter gigi."
+                "Sebagai customer, saya suka sekali dengan portal member-nya. Saya bisa melihat rekam medis Mochi langsung di HP dan tinggal klak-klik untuk buat janji temu konsultasi dokter gigi."
               </p>
               <div className="flex items-center gap-3 pt-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-xs">
@@ -1458,7 +1728,7 @@ export default function LandingPage() {
                 {[1,2,3,4,5].map((s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
               </div>
               <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                "Keamanan datanya luar biasa. Modul RLS Supabase memastikan data medis rekam penyakit hanya bisa diakses oleh dokter yang bertugas dan pemilik hewan bersangkutan secara aman."
+                "Keamanan datanya luar biasa. Modul RLS Supabase memastikan data medis penyakit hanya bisa diakses oleh dokter yang bertugas dan pemilik hewan bersangkutan secara aman dan rahasia."
               </p>
               <div className="flex items-center gap-3 pt-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
@@ -1474,9 +1744,65 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── FAQ SECTION ─── */}
+      <section id="faq" className="py-20 bg-white border-t border-gray-150 relative text-left">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full animate-pulse">
+              Pertanyaan Umum
+            </span>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Ada Pertanyaan Mengenai PetCare CRM?
+            </h2>
+            <p className="text-slate-500 text-xs sm:text-sm font-semibold">Kami telah mengumpulkan jawaban atas kendala teknis dan cara penggunaan platform.</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              { q: "Apakah ada masa uji coba gratis?", a: "Ya, kami menyediakan masa uji coba gratis selama 14 hari penuh dengan akses ke semua fitur tanpa perlu memasukkan informasi kartu kredit." },
+              { q: "Bagaimana data rekam medis anabul diamankan?", a: "Seluruh data medis dan profil personal dilindungi oleh modul Row Level Security (RLS) Supabase dan enkripsi data end-to-end, memastikan hanya dokter yang bertugas dan pemilik hewan bersangkutan yang dapat melihat data tersebut." },
+              { q: "Apakah pendaftaran anabul otomatis terintegrasi saat booking?", a: "Ya, sistem kami memiliki alur autopilot. Saat pengunjung guest mengisi form booking janji temu atau membeli obat di landing page, sistem akan mendaftarkan akun secara otomatis dengan kata sandi bawaan 'PetCare123!'." },
+              { q: "Apakah ada pengingat otomatis untuk vaksinasi?", a: "Ya, PetCare CRM terintegrasi dengan WhatsApp Gateway dan Email Engine untuk mengirimkan notifikasi pengingat jadwal booster vaksinasi anabul secara berkala kepada pemilik." },
+              { q: "Bagaimana sistem loyalitas membership bekerja?", a: "Sistem menghitung total transaksi belanja obat/grooming pemilik secara akumulatif. Anggota akan otomatis naik tingkatan dari Bronze, Silver, hingga Gold dengan persentase potongan harga belanja obat." },
+              { q: "Apakah saya bisa mengekspor data medis pasien?", a: "Ya, dokter hewan atau pemilik hewan dapat mengunduh riwayat rekam medis lengkap dalam format dokumen PDF atau Excel dalam satu klik dari portal masing-masing." },
+              { q: "Apakah sistem kasir apotek tersambung dengan stok?", a: "Ya, modul apotek cepat kami otomatis mengurangi stok obat-obatan di gudang inventori utama setiap kali customer melakukan checkout pesanan obat." },
+              { q: "Bagaimana jika anabul memiliki banyak pemilik?", a: "Satu anabul terikat pada satu email utama pemilik. Namun, detail catatan medis dapat dibagikan atau dicetak oleh pemilik utama untuk diserahkan ke pihak keluarga lainnya." },
+              { q: "Apakah ada biaya tambahan tersembunyi?", a: "Tidak ada biaya tersembunyi. Biaya langganan bulanan SaaS kami transparan sesuai pilihan paket operasional klinik Anda." },
+              { q: "Bagaimana cara menjadwalkan demo gratis dengan tim PetCare?", a: "Anda cukup mengeklik tombol 'Mulai Uji Coba' atau menghubungi layanan pelanggan kami via email/WhatsApp untuk menjadwalkan demo virtual via Zoom." }
+            ].map((item, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <div
+                  key={index}
+                  className="bg-slate-50 border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-300"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? null : index)}
+                    className="w-full px-6 py-5 flex justify-between items-center font-bold text-xs text-slate-800 hover:bg-slate-100/50 transition cursor-pointer text-left gap-4"
+                  >
+                    <span>{item.q}</span>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-emerald-500 shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                    )}
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-5 pt-1 text-xs text-slate-550 leading-relaxed font-semibold border-t border-gray-150 animate-in fade-in slide-in-from-top-1 duration-200">
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* ─── CALL TO ACTION SECTION ─── */}
-      <section className="py-20 bg-white border-t border-gray-150 text-center relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-6 space-y-8 relative z-10">
+      <section className="py-20 bg-white border-t border-gray-150 text-center relative overflow-hidden text-left">
+        <div className="max-w-4xl mx-auto px-6 space-y-8 relative z-10 text-center">
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             Siap Mengoptimalkan Manajemen <br />
             Klinik Hewan Anda?
@@ -1489,7 +1815,7 @@ export default function LandingPage() {
               onClick={handleCTA}
               className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm px-8 py-4 rounded-2xl shadow-lg shadow-emerald-500/15 transition active:scale-[0.98] cursor-pointer"
             >
-              {user ? "Masuk ke Dashboard" : "Daftar Akun Sekarang"}
+              {user ? "Masuk ke Dashboard Saya" : "Daftar Akun Sekarang"}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -1497,7 +1823,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-slate-950 text-slate-450 border-t border-slate-900 py-12">
+      <footer className="bg-slate-950 text-slate-450 border-t border-slate-900 py-12 text-left">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs font-semibold">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -1506,7 +1832,7 @@ export default function LandingPage() {
               </div>
               <span className="text-base font-bold text-white tracking-tight">PetCare CRM</span>
             </div>
-            <p className="text-slate-400 leading-relaxed font-medium">Sistem CRM & manajemen klinis terpadu terbaik untuk kesehatan anabul pelanggan Anda.</p>
+            <p className="text-slate-450 leading-relaxed font-medium">Sistem CRM & manajemen klinis terpadu terbaik untuk kesehatan anabul pelanggan Anda.</p>
           </div>
 
           <div>
@@ -1515,7 +1841,8 @@ export default function LandingPage() {
               <li><a href="#fitur" className="hover:text-emerald-500 transition">Fitur Utama</a></li>
               <li><a href="#simulator" className="hover:text-emerald-500 transition">Simulator Klinik</a></li>
               <li><a href="#crm" className="hover:text-emerald-500 transition">Otomatisasi CRM</a></li>
-              <li><a href="#statistik" className="hover:text-emerald-500 transition">Statistik</a></li>
+              <li><a href="#alur" className="hover:text-emerald-500 transition">Alur Kerja</a></li>
+              <li><a href="#faq" className="hover:text-emerald-500 transition">FAQ</a></li>
               <li><a href="#testimoni" className="hover:text-emerald-500 transition">Testimoni Pengguna</a></li>
             </ul>
           </div>

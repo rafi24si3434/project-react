@@ -1,0 +1,77 @@
+========================================================================
+PENJELASAN PRD V2 (INTERMEDIATE VERSION) - PETCARE CRM
+========================================================================
+
+1. TUJUAN BISNIS PRD V2 (BUSINESS GOAL)
+---------------------------------------
+Tujuan utama versi V2 adalah mendorong akuisisi pelanggan (lead generation) 
+secara masif melalui pendaftaran uji coba gratis (Free Trial) dan 
+pemesanan sesi demo produk (Demo Booking).
+
+  2. STRUKTUR LANDING PAGE YANG DIBUAT (SCOPE)
+  --------------------------------------------
+  PRD V2 mewajibkan adanya peningkatan fitur interaktif dan pembuktian sosial:
+  - STICKY NAVBAR: Navbar melayang dengan tombol pendaftaran gratis.
+  - DASHBOARD PREVIEW: Representasi antarmuka dashboard CRM yang sesungguhnya.
+  - SOCIAL PROOF: Statistik jumlah anabul terawat dan klinik yang bergabung.
+  - MASALAH & SOLUSI: Perbandingan kendala administrasi vs otomatisasi CRM.
+  - SIMULATOR LAYANAN: Form janji temu mandiri & Toko Obat cepat.
+  - SISTEM KUPON PROMO: Validasi kupon diskon dan kalkulator harga instan.
+  - TESTIMONIALS: Minimal 3 testimoni pengguna dengan rating bintang emas.
+  - FAQ SECTION: Minimal 10 pertanyaan populer dengan sistem akordeon.
+  - FINAL CTA: Kalimat ajakan penutup mencolok dengan tombol aksi ganda.
+
+3. RINCIAN IMPLEMENTASI KODE (CODINGAN) PADA LANDINGPAGE.JSX
+------------------------------------------------------------
+Penerapan kode dilakukan pada file: src/pages/LandingPage.jsx
+
+A. STICKY GLASSMORPHIC NAVBAR (Baris 520 - 570)
+- CSS: "fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b..."
+- Menghadirkan efek transisi melayang transparan (blur kaca) yang rapi 
+  dan mewah saat halaman digulir ke bawah.
+
+B. DASHBOARD PREVIEW MOCKUP & SOCIAL PROOF (Baris 626 - 737)
+- Panel Gelap Interaktif (Baris 628): Menggunakan tema gelap kontras 
+  (bg-slate-900) untuk menampilkan cuplikan dashboard admin.
+- Komponen Data Mockup:
+  * Total Transaksi CRM: Rp 48,250,000.
+  * Status Sentimen Feedback: 94.2% Positif (Visualisasi progress bar).
+  * Antrean Poli Aktif: Menampilkan anabul "Mochi" (Booster Vaksin - AKTIF 
+    dengan efek pulse) dan "Rex" (Dermatologi - ANTRI).
+- Floating Badge (Baris 700): Badge "10,000+ Anabul Terlayani" dengan 
+  efek melayang naik turun (animate-bounce).
+- Baris Social Proof (Baris 714): Horizontal bar yang memuat data 
+  12k+ Pemilik, 18.5k+ Anabul, 25k+ Kunjungan, dan 450+ Klinik partner.
+
+C. KENDALA & VALUE PROPOSAL SOLUSI (Baris 739 - 846)
+- Grid Masalah: Kartu kendala visual (Data Tersebar, Jadwal Kacau, dll).
+- Value Proposal Card (Baris 816): Grafik progress bar pencapaian CRM:
+  * Efisiensi Waktu Administrasi: Hemat 70% (warna hijau emerald).
+  * Peningkatan Retensi Kunjungan: Naik 42% (warna hijau emerald).
+  * Keamanan Data Medis (RLS): 100% Secure (warna hijau emerald).
+
+D. TAB SIMULATOR LAYANAN MANDIRI (Baris 1029 - 1518)
+Menggunakan tab switcher dinamis (state activeTab: "booking" | "shop"):
+- Tab Booking (Baris 1071): Formulir pemesanan kunjungan klinik yang 
+  mengakomodasi input pemilik, data hewan, dokter pilihan, dan tanggal.
+- Tab Toko Obat (Baris 1324): Katalog apotek obat cepat (kategori Obat, 
+  Makanan, Vaksin) yang terhubung ke database produk.
+- Kalkulator Diskon & Kupon:
+  * Input kupon promo (PAWSOME20 = 20% OFF, FIRSTNEW = 15% OFF, dll).
+  * Menghitung subtotal secara dinamis (useMemo untuk kalkulasi instan).
+  * Menampilkan visualisasi 4 Tahapan Penanganan Medis sesuai tipe 
+    perawatan yang dipilih (Grooming, Vaksin, Operasi, Konsultasi).
+
+E. TESTIMONI & FAQ ACCORDION (Baris 1675 - 1801)
+- Testimoni (Baris 1675): Grid 3 kolom memuat ulasan drh. Nisa Putri 
+  (Klinik Paws & Care), Budi Santoso (Customer), dan drh. Aditya (Happy Pets).
+- FAQ Accordion (Baris 1748): Sistem akordeon dinamis menggunakan 
+  state React (openFaq). Ketika pertanyaan dik  lik, isi jawaban terbuka 
+  dengan efek fade-in dan ikon panah berputar (ChevronUp/ChevronDown).
+
+F. FINAL CTA CARD (Baris 1803 - 1824)
+- Banner persuasif bersih di bagian bawah halaman sebelum footer, memuat 
+  tombol "Daftar Akun Sekarang" untuk memicu pendaftaran uji coba.
+
+STATUS REALISASI: 100% Selesai, berfungsi penuh, dan lolos uji kompilasi (build).
+========================================================================
