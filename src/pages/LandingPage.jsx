@@ -2,6 +2,11 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
+import LandingClinicJourney from "../components/LandingClinicJourney";
+import LandingPhotoHero from "../components/LandingPhotoHero";
+import LandingSymptomChecker from "../components/LandingSymptomChecker";
+import LandingVetSpotlight from "../components/LandingVetSpotlight";
+import LandingVisualShowcase from "../components/LandingVisualShowcase";
 import { 
   PawPrint, ArrowRight, ShieldCheck, CalendarCheck, 
   Megaphone, Star, ClipboardList, Users, 
@@ -569,8 +574,10 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <LandingPhotoHero user={user} onPrimaryAction={handleCTA} />
+
       {/* ─── HERO SECTION ─── */}
-      <section className="relative pt-36 pb-20 lg:pt-44 lg:pb-32 overflow-hidden bg-gradient-to-br from-white to-emerald-50/20">
+      <section aria-hidden="true" className="hidden relative pt-36 pb-20 lg:pt-44 lg:pb-32 overflow-hidden bg-gradient-to-br from-white to-emerald-50/20">
         {/* Glow patterns */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/15 blur-[120px] animate-pulse" />
@@ -732,6 +739,11 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PROBLEM SECTION ─── */}
+      <LandingVisualShowcase />
+      <LandingSymptomChecker />
+      <LandingClinicJourney />
+      <LandingVetSpotlight />
+
       <section className="py-24 bg-white/50 relative text-left">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
