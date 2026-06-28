@@ -514,10 +514,10 @@ export default function LandingPage() {
   const treatmentSteps = getTreatmentSteps(selectedTreatment);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 text-left overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/20 font-sans text-slate-800 text-left overflow-x-hidden">
       
       {/* ─── HEADER / NAVBAR ─── */}
-      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-gray-100 z-50 transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-b border-gray-100 z-50 transition-all duration-300 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
@@ -570,21 +570,22 @@ export default function LandingPage() {
       </header>
 
       {/* ─── HERO SECTION ─── */}
-      <section className="relative pt-36 pb-20 lg:pt-44 lg:pb-32 overflow-hidden bg-white">
+      <section className="relative pt-36 pb-20 lg:pt-44 lg:pb-32 overflow-hidden bg-gradient-to-br from-white to-emerald-50/20">
         {/* Glow patterns */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/10 blur-[120px]"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-teal-500/10 blur-[120px]"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-500/15 blur-[120px] animate-pulse" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-teal-500/10 blur-[120px] animate-pulse" />
+          <div className="absolute top-[20%] left-[30%] w-[30%] h-[30%] rounded-full bg-indigo-500/5 blur-[80px] animate-pulse" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Text Content */}
-          <div className="lg:col-span-7 space-y-6 lg:pr-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500" /> Solusi CRM & Klinik Hewan Profesional
+          <div className="lg:col-span-7 space-y-8 lg:pr-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20">
+              <Sparkles className="w-4 h-4" /> Solusi CRM & Klinik Hewan Profesional
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.08] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1] tracking-tight">
               Tingkatkan Loyalitas <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-500">
                 Pet Owners
@@ -596,39 +597,40 @@ export default function LandingPage() {
               Kelola rekam medis, otomatisasi janji temu, dan dorong promosi strategis untuk anabul kesayangan pelanggan Anda dalam satu sistem CRM Klinik Hewan yang modern dan intuitif.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-4 pt-4">
               <button
                 onClick={handleCTA}
-                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold text-sm px-7 py-4 rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all cursor-pointer"
+                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-500 hover:from-emerald-600 hover:via-emerald-700 hover:to-teal-600 text-white font-black text-sm px-9 py-5 rounded-2xl shadow-xl shadow-emerald-500/25 active:scale-[0.98] transition-all duration-300 cursor-pointer"
               >
                 {user ? "Masuk ke Dashboard Saya" : "Mulai Percobaan Gratis"}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-5 h-5" />
               </button>
               <a
                 href="#fitur"
-                className="flex items-center justify-center border-2 border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 font-bold text-sm px-6 py-3.5 rounded-2xl transition"
+                className="flex items-center justify-center border-2 border-slate-200 hover:border-emerald-300 hover:bg-emerald-50 text-slate-700 font-black text-sm px-8 py-4.5 rounded-2xl transition-all duration-300"
               >
                 Pelajari Fitur
               </a>
             </div>
 
-            {/* Micro proof check */}
-            <div className="flex items-center gap-6 pt-4 border-t border-gray-100 max-w-md">
-              <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
-                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500" /> Tanpa Kartu Kredit
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
-                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-500" /> Akun Demo Siap Pakai
-              </div>
+            <div className="flex items-center gap-6 pt-6 border-t border-gray-100/60 max-w-md">
+              {[
+                { icon: CheckCircle2, text: "Tanpa Kartu Kredit" },
+                { icon: CheckCircle2, text: "Akun Demo Siap Pakai" }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-xs text-slate-500 font-bold">
+                  <item.icon className="w-5 h-5 text-emerald-500" /> {item.text}
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Right UI Mockup */}
           <div className="lg:col-span-5 relative">
-            <div className="relative bg-slate-900 rounded-[2.5rem] p-6 shadow-2xl border border-slate-800/80 max-w-md mx-auto overflow-hidden">
+            <div className="relative bg-white rounded-[2.5rem] p-6 shadow-2xl border border-slate-100 max-w-md mx-auto overflow-hidden animate-float duration-1000">
               <div className="absolute top-[-20%] left-[-20%] w-[70%] h-[70%] bg-emerald-500/20 rounded-full blur-[60px]" />
               
-              <div className="flex gap-1.5 mb-6 relative z-10">
+              <div className="flex gap-2 mb-6 relative z-10">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
@@ -639,71 +641,65 @@ export default function LandingPage() {
                   <div className="font-bold flex items-center gap-1.5">
                     <span>🐾</span> PetCare Dashboard
                   </div>
-                  <div className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-black">LIVE</div>
+                  <div className="text-[10px] bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-2.5 py-1 rounded-lg font-black shadow-sm animate-pulse">LIVE</div>
                 </div>
 
-                <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl p-4 flex justify-between items-center text-white">
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 rounded-2xl p-5 flex justify-between items-center text-white shadow-lg">
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Total Transaksi CRM</p>
-                    <p className="text-xl font-black mt-1 text-emerald-400">Rp 48,250,000</p>
+                    <p className="text-xl font-black mt-1 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Rp 48,250,000</p>
                   </div>
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 flex items-center justify-center shadow-inner">
+                    <TrendingUp className="w-6 h-6" />
                   </div>
                 </div>
 
-                <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl p-4 text-white space-y-3">
-                  <div className="flex justify-between items-center border-b border-slate-700 pb-2">
-                    <span className="font-extrabold text-[11px] text-slate-350">AI Sentiment Customer Feedback</span>
-                    <span className="text-[9px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">94.2% Positif</span>
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 rounded-2xl p-5 text-white space-y-4 shadow-lg">
+                  <div className="flex justify-between items-center border-b border-slate-700/50 pb-3">
+                    <span className="font-black text-[11px] text-slate-350">AI Sentiment Customer Feedback</span>
+                    <span className="text-[9px] font-black text-purple-400 bg-gradient-to-r from-purple-500 to-indigo-500 px-3 py-1 rounded-lg shadow-sm">94.2% Positif</span>
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    <div className="flex-1 h-2 rounded bg-emerald-500" title="94% Senang" />
-                    <div className="w-3 h-2 rounded bg-amber-500" title="4% Netral" />
-                    <div className="w-2.5 h-2 rounded bg-red-500" title="2% Komplain" />
+                    <div className="flex-1 h-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500" title="94% Senang" />
+                    <div className="w-4 h-2.5 rounded-full bg-amber-500/50" title="4% Netral" />
+                    <div className="w-3 h-2.5 rounded-full bg-red-500/50" title="2% Komplain" />
                   </div>
                   
-                  <div className="white/5 p-2.5 rounded-xl text-[10px] text-slate-450 border border-slate-800/60 italic">
+                  <div className="bg-slate-900/60 p-3 rounded-xl text-[10px] text-slate-450 border border-slate-800/60 italic leading-relaxed">
                     "drh. Nisa melayani Mochi dengan sangat sabar. Sukses selalu untuk klinik PetCare!"
                   </div>
                 </div>
 
-                <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl p-4 text-white space-y-2.5">
-                  <span className="font-extrabold text-[11px] text-slate-355 block text-left">Antrean Poli Aktif</span>
+                <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 rounded-2xl p-5 text-white space-y-3 shadow-lg">
+                  <span className="font-black text-[11px] text-slate-355 block text-left">Antrean Poli Aktif</span>
                   
-                  <div className="flex items-center justify-between text-[10px] bg-slate-900/40 p-2 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🐱</span>
-                      <div>
-                        <p className="font-bold">Mochi</p>
-                        <p className="text-[9px] text-slate-500">Booster Vaksin</p>
+                  {[
+                    { pet: "🐱", name: "Mochi", service: "Booster Vaksin", status: "AKTIF", color: "bg-emerald-500" },
+                    { pet: "🐶", name: "Rex", service: "Dermatologi", status: "ANTRI", color: "bg-blue-500" }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-[10px] bg-slate-900/40 p-2.5 rounded-xl">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{item.pet}</span>
+                        <div>
+                          <p className="font-bold">{item.name}</p>
+                          <p className="text-[9px] text-slate-500">{item.service}</p>
+                        </div>
                       </div>
+                      <span className={`text-[8px] font-black uppercase text-white px-2.5 py-1 rounded-lg ${item.color}`}>{item.status}</span>
                     </div>
-                    <span className="text-[8px] font-black uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded animate-pulse">AKTIF</span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-[10px] bg-slate-900/40 p-2 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">🐶</span>
-                      <div>
-                        <p className="font-bold">Rex</p>
-                        <p className="text-[9px] text-slate-500">Dermatologi</p>
-                      </div>
-                    </div>
-                    <span className="text-[8px] font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">ANTRI</span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
             
-            <div className="absolute -bottom-6 -left-6 bg-white border border-gray-150 p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-bounce duration-1000 max-w-[170px] text-xs">
-              <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
-                <Heart className="w-4 h-4 fill-current animate-pulse" />
+            <div className="absolute -bottom-6 -left-6 bg-white border border-gray-150 p-4 rounded-2xl shadow-xl flex items-center gap-3 animate-bounce duration-1000 max-w-[180px] text-xs">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-rose-500 text-white flex items-center justify-center shadow-lg">
+                <Heart className="w-5 h-5 fill-current animate-pulse" />
               </div>
               <div>
-                <p className="font-bold text-gray-850 text-[10px]">10,000+</p>
-                <p className="text-[9px] text-gray-400 font-bold leading-tight">Anabul Terlayani</p>
+                <p className="font-black text-gray-850 text-[10px]">10,000+</p>
+                <p className="text-[9px] text-gray-500 font-bold leading-tight">Anabul Terlayani</p>
               </div>
             </div>
           </div>
@@ -711,38 +707,38 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SOCIAL PROOF SECTION ─── */}
-      <section className="bg-slate-50 border-y border-gray-150 py-10 relative">
-        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-6 text-center text-xs font-semibold text-gray-500">
-          <div className="space-y-1">
-            <p className="text-2xl font-black text-emerald-600">12,000+</p>
+      <section className="bg-white/80 border-y border-gray-100 py-12 relative">
+        <div className="max-w-7xl mx-auto px-6 flex flex-wrap justify-around items-center gap-6 text-center">
+          <div className="space-y-2">
+            <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">12K+</div>
             <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Pemilik Hewan Terdaftar</p>
           </div>
-          <div className="h-8 w-px bg-gray-200 hidden md:block" />
-          <div className="space-y-1">
-            <p className="text-2xl font-black text-emerald-600">18,500+</p>
+          <div className="h-10 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent hidden md:block" />
+          <div className="space-y-2">
+            <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">18.5K+</div>
             <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Anabul Sehat Terawat</p>
           </div>
-          <div className="h-8 w-px bg-gray-200 hidden md:block" />
-          <div className="space-y-1">
-            <p className="text-2xl font-black text-emerald-600">25,000+</p>
+          <div className="h-10 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent hidden md:block" />
+          <div className="space-y-2">
+            <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">25K+</div>
             <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Kunjungan Berhasil</p>
           </div>
-          <div className="h-8 w-px bg-gray-200 hidden md:block" />
-          <div className="space-y-1">
-            <p className="text-2xl font-black text-emerald-600">450+</p>
+          <div className="h-10 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent hidden md:block" />
+          <div className="space-y-2">
+            <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">450+</div>
             <p className="uppercase tracking-widest text-[9px] font-extrabold text-slate-400">Klinik SaaS Partner</p>
           </div>
         </div>
       </section>
 
       {/* ─── PROBLEM SECTION ─── */}
-      <section className="py-20 bg-white relative text-left">
+      <section className="py-24 bg-white/50 relative text-left">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-3 py-1.5 rounded-full">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
+            <span className="text-xs font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-4 py-2 rounded-full shadow-sm">
               Kendala Operasional Klinik
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Mengapa Manajemen Klinik Hewan Tradisional Sangat Melelahkan?
             </h2>
             <p className="text-slate-500 text-sm font-semibold">
@@ -750,275 +746,373 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
-              <span className="text-3xl block">🗂️</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Data Pasien Tersebar</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
-                Catatan riwayat medis kertas yang terpisah, mudah terselip, dan sulit dicari dengan cepat saat kondisi darurat.
-              </p>
-            </div>
-            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
-              <span className="text-3xl block">🗓️</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Jadwal Antrean Kacau</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
-                Pemesanan manual via telepon sering bertabrakan dengan jadwal praktek dokter, memicu antrean menumpuk.
-              </p>
-            </div>
-            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
-              <span className="text-3xl block">📉</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Kehilangan Retensi Pelanggan</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
-                Tidak adanya otomatisasi pengingat booster vaksin berkala, menyebabkan pemilik hewan lupa kembali berkunjung.
-              </p>
-            </div>
-            <div className="p-6 bg-slate-55 border border-gray-150 rounded-3xl space-y-4 shadow-sm hover:border-rose-100 transition duration-300">
-              <span className="text-3xl block">📊</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Buta Performa Finansial</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-semibold">
-                Kesulitan menganalisis omset kasir, transaksi obat apotek, dan tingkat kepuasan pelanggan secara real-time.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { icon: "🗂️", title: "Data Pasien Tersebar", desc: "Catatan riwayat medis kertas yang terpisah, mudah terselip, dan sulit dicari dengan cepat saat kondisi darurat." },
+              { icon: "🗓️", title: "Jadwal Antrean Kacau", desc: "Pemesanan manual via telepon sering bertabrakan dengan jadwal praktek dokter, memicu antrean menumpuk." },
+              { icon: "📉", title: "Kehilangan Retensi Pelanggan", desc: "Tidak adanya otomatisasi pengingat booster vaksin berkala, menyebabkan pemilik hewan lupa kembali berkunjung." },
+              { icon: "📊", title: "Buta Performa Finansial", desc: "Kesulitan menganalisis omset kasir, transaksi obat apotek, dan tingkat kepuasan pelanggan secara real-time." }
+            ].map((item, idx) => (
+              <div key={idx} className="p-6 bg-white border border-gray-200/80 rounded-3xl space-y-4 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 group">
+                <span className="text-4xl block group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
+                <h4 className="font-extrabold text-slate-800 text-sm">{item.title}</h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ─── SOLUTION SECTION ─── */}
-      <section className="py-20 bg-slate-50 border-t border-gray-150 relative text-left">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="py-24 bg-gradient-to-b from-slate-50 to-white/50 border-t border-gray-100 relative text-left">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               Solusi PetCare CRM
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Sistem SaaS Klinik Hewan Modern & CRM Terpadu
             </h2>
-            <p className="text-slate-500 text-sm font-semibold">
+            <p className="text-slate-500 text-sm font-medium leading-relaxed">
               Kami menyatukan kebutuhan medis klinis dan strategi pemasaran relasional di satu platform yang aman.
             </p>
             
-            <div className="space-y-4 text-xs font-semibold">
-              <div className="flex gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <p className="text-slate-650 leading-relaxed"><strong className="text-slate-850">Database Relasional Cepat</strong>: Mengintegrasikan pemilik, profil anabul, janji temu, dan diagnosa klinis aman dalam skema PostgreSQL.</p>
-              </div>
-              <div className="flex gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <p className="text-slate-650 leading-relaxed"><strong className="text-slate-850">Otomatisasi Pengingat</strong>: Menghubungi customer otomatis via WhatsApp & Email untuk check-up berkala.</p>
-              </div>
-              <div className="flex gap-3">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <p className="text-slate-650 leading-relaxed"><strong className="text-slate-850">Portal Mandiri Customer</strong>: Area member khusus tempat pemilik anabul berbelanja apotek, booking jadwal, dan klaim kompensasi kupon.</p>
-              </div>
+            <div className="space-y-4 text-sm">
+              {[
+                { icon: "✅", title: "Database Relasional Cepat", desc: "Mengintegrasikan pemilik, profil anabul, janji temu, dan diagnosa klinis aman dalam skema PostgreSQL." },
+                { icon: "✅", title: "Otomatisasi Pengingat", desc: "Menghubungi customer otomatis via WhatsApp & Email untuk check-up berkala." },
+                { icon: "✅", title: "Portal Mandiri Customer", desc: "Area member khusus tempat pemilik anabul berbelanja apotek, booking jadwal, dan klaim kompensasi kupon." }
+              ].map((item, idx) => (
+                <div key={idx} className="flex gap-4 p-4 bg-white border border-gray-200/80 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                  <span className="text-2xl shrink-0 mt-1">{item.icon}</span>
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm mb-1">{item.title}</h4>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="bg-white border border-gray-150 p-8 rounded-[2.5rem] shadow-lg relative overflow-hidden text-xs">
-            <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[80px]" />
-            <h4 className="font-extrabold text-sm text-slate-850 border-b border-gray-100 pb-3 mb-4">🏆 PetCare CRM Value Proposal</h4>
-            <div className="space-y-4 font-semibold text-gray-500">
-              <div className="space-y-1.5">
-                <div className="flex justify-between">
-                  <span>Efisiensi Waktu Administrasi</span>
-                  <span className="text-emerald-600 font-extrabold">Hemat 70%</span>
+          <div className="bg-white border border-gray-200/80 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-sm">
+            <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-[100px]" />
+            <h4 className="font-black text-slate-800 border-b border-gray-200 pb-4 mb-6">🏆 PetCare CRM Value Proposal</h4>
+            <div className="space-y-6 font-medium text-gray-600">
+              {[
+                { label: "Efisiensi Waktu Administrasi", value: "Hemat 70%", width: "70%" },
+                { label: "Peningkatan Retensi Kunjungan", value: "Naik 42%", width: "42%" },
+                { label: "Keamanan Data Medis (RLS)", value: "100% Secure", width: "100%" }
+              ].map((item, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>{item.label}</span>
+                    <span className="text-emerald-600 font-black">{item.value}</span>
+                  </div>
+                  <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden shadow-inner">
+                    <div className={`h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-1000`} style={{ width: item.width }} />
+                  </div>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-emerald-500 w-[70%]" /></div>
-              </div>
-              
-              <div className="space-y-1.5">
-                <div className="flex justify-between">
-                  <span>Peningkatan Retensi Kunjungan</span>
-                  <span className="text-emerald-600 font-extrabold">Naik 42%</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-emerald-500 w-[42%]" /></div>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex justify-between">
-                  <span>Keamanan Data Medis (RLS)</span>
-                  <span className="text-emerald-600 font-extrabold">100% Secure</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden"><div className="h-full bg-emerald-500 w-[100%]" /></div>
-              </div>
+              ))}
+            </div>
+            
+            <div className="mt-8 p-5 bg-gradient-to-br from-emerald-500 to-teal-500 text-white rounded-2xl shadow-lg">
+              <p className="font-bold text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 animate-pulse" />
+                Mengapa Memilih PetCare CRM?
+              </p>
+              <p className="text-xs text-emerald-50/90 mt-2 leading-relaxed">
+                Dukungan teknis 24/7, integrasi WhatsApp otomatis, dan dashboard analitik real-time untuk pengambilan keputusan bisnis yang lebih baik.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ─── CRM WORKFLOW SECTION ─── */}
-      <section id="alur" className="py-20 bg-white border-t border-gray-150 relative text-left">
+      <section id="alur" className="py-24 bg-white relative text-left">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               Customer Journey
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Siklus Hidup Hubungan Pelanggan (Customer Lifecycle)
             </h2>
-            <p className="text-slate-500 text-sm font-semibold">
+            <p className="text-slate-500 text-sm font-medium">
               Bagaimana sistem mendampingi anabul dan pemilik dari kunjungan pertama hingga keanggotaan setia.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
-              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">1</span>
-              <span className="text-2xl block">🤝</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Registrasi & Booking</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-medium">Pemilik mendaftarkan diri & anabul secara instan lewat widget simulator atau booking form online.</p>
-            </div>
-            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
-              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">2</span>
-              <span className="text-2xl block">🩺</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Pemeriksaan & Diagnosa</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-medium">Dokter meng-input hasil rekam medis anabul yang tersimpan secara permanen & aman di database.</p>
-            </div>
-            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
-              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">3</span>
-              <span className="text-2xl block">🔔</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">WhatsApp Reminder</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-medium">Sistem mengirim notifikasi jadwal pengingat vaksin booster otomatis saat masa aktif vaksin anabul mendekati limit.</p>
-            </div>
-            <div className="space-y-3 p-6 bg-slate-50 border border-gray-150 rounded-3xl relative">
-              <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">4</span>
-              <span className="text-2xl block">🏆</span>
-              <h4 className="font-extrabold text-slate-800 text-sm">Loyalty & Voucher</h4>
-              <p className="text-xs text-slate-450 leading-relaxed font-medium">Customer mengumpulkan poin belanja apotek obat untuk naik ke tingkat keanggotaan VIP & klaim kupon diskon.</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { step: "1", icon: "🤝", title: "Registrasi & Booking", desc: "Pemilik mendaftarkan diri & anabul secara instan lewat widget simulator atau booking form online." },
+              { step: "2", icon: "🩺", title: "Pemeriksaan & Diagnosa", desc: "Dokter meng-input hasil rekam medis anabul yang tersimpan secara permanen & aman di database." },
+              { step: "3", icon: "🔔", title: "WhatsApp Reminder", desc: "Sistem mengirim notifikasi jadwal pengingat vaksin booster otomatis saat masa aktif vaksin anabul mendekati limit." },
+              { step: "4", icon: "🏆", title: "Loyalty & Voucher", desc: "Customer mengumpulkan poin belanja apotek obat untuk naik ke tingkat keanggotaan VIP & klaim kupon diskon." }
+            ].map((item, idx) => (
+              <div key={idx} className="relative group">
+                <div className="absolute -top-3 right-4">
+                  <span className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center font-black text-xs shadow-lg shadow-emerald-500/20">
+                    {item.step}
+                  </span>
+                </div>
+                <div className="p-6 bg-white border border-gray-200 rounded-3xl shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group-hover:-translate-y-1">
+                  <span className="text-3xl block mb-4 group-hover:scale-110 transition-transform duration-300">{item.icon}</span>
+                  <h4 className="font-black text-slate-800 text-sm mb-2">{item.title}</h4>
+                  <p className="text-xs text-slate-500 leading-relaxed font-medium">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-12 p-6 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100/60 rounded-2xl text-center">
+            <p className="text-xs text-emerald-700 font-bold">
+              💡 Dengan sistem ini, retensi pelanggan meningkat hingga 42% dan tingkat kepuasan customer mencapai 94.2%
+            </p>
           </div>
         </div>
       </section>
 
       {/* ─── FEATURE GRID SECTION ─── */}
-      <section id="fitur" className="py-20 bg-slate-50 border-t border-gray-150 relative text-left">
+      <section id="fitur" className="py-24 bg-gradient-to-b from-slate-50 to-white border-t border-gray-100 relative text-left">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               4 Pilar Fitur CRM
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Segregasi Strategis Layanan PetCare CRM
             </h2>
-            <p className="text-slate-500 text-sm font-semibold">
+            <p className="text-slate-500 text-sm font-medium">
               Platform komprehensif yang dirancang untuk mendukung operasional klinik, pemasaran taktis, kolaborasi tim, dan keputusan strategis bisnis.
             </p>
 
             {/* Feature Tabs */}
             <div className="flex flex-wrap justify-center gap-2 mt-8">
               {[
-                { id: "operational", label: "Operational CRM" },
-                { id: "analytical", label: "Analytical CRM" },
-                { id: "collaborative", label: "Collaborative CRM" },
-                { id: "strategic", label: "Strategic CRM" }
+                { id: "operational", label: "Operational CRM", icon: "⚡" },
+                { id: "analytical", label: "Analytical CRM", icon: "📊" },
+                { id: "collaborative", label: "Collaborative CRM", icon: "🤝" },
+                { id: "strategic", label: "Strategic CRM", icon: "💎" }
               ].map((ft) => (
                 <button
                   key={ft.id}
                   onClick={() => setActiveFeatureTab(ft.id)}
-                  className={`px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-6 py-4 rounded-2xl text-xs font-black transition-all duration-300 cursor-pointer relative overflow-hidden ${
                     activeFeatureTab === ft.id
-                      ? "bg-slate-900 text-white shadow-md"
-                      : "bg-white border border-gray-200 text-slate-650 hover:bg-slate-100"
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25"
+                      : "bg-white border border-gray-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"
                   }`}
                 >
-                  {ft.label}
+                  <span className="relative z-10 flex items-center gap-2">{ft.icon} {ft.label}</span>
+                  {activeFeatureTab === ft.id && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 animate-pulse" />
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="max-w-4xl mx-auto bg-white border border-gray-150 rounded-[2.5rem] p-8 md:p-10 shadow-sm relative min-h-[280px]">
+          <div className="max-w-4xl mx-auto bg-white border border-gray-200/80 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative min-h-[320px]">
             {activeFeatureTab === "operational" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-black text-slate-850 flex items-center gap-2">
-                    <Cpu className="w-5 h-5 text-emerald-500" />
-                    Memperlancar Operasional Harian Klinik
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-in fade-in duration-500">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <Cpu className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800">
+                      Memperlancar Operasional Harian Klinik
+                    </h3>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">
                     Operational CRM membantu dokter dan staf mengotomatisasi pekerjaan administratif sehingga bisa fokus sepenuhnya merawat hewan pasien:
                   </p>
-                  <ul className="space-y-2 text-xs font-bold text-slate-650">
-                    <li className="flex items-center gap-2">🔹 Pendaftaran data anabul & rekam medis digital instan.</li>
-                    <li className="flex items-center gap-2">🔹 Penjadwalan janji temu tanpa tabrakan antrean.</li>
-                    <li className="flex items-center gap-2">🔹 Pengurangan stok inventori apotek obat terpotong otomatis.</li>
+                  <ul className="space-y-3">
+                    {[
+                      "Pendaftaran data anabul & rekam medis digital instan",
+                      "Penjadwalan janji temu tanpa tabrakan antrean",
+                      "Pengurangan stok inventori apotek obat terpotong otomatis"
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-600">{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Pendaftaran Hewan</span><span className="text-emerald-600 font-extrabold">Instant</span></div>
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Jadwal Temu Antrean</span><span className="text-emerald-600 font-extrabold">Auto-Sorted</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Notifikasi WhatsApp</span><span className="text-emerald-600 font-extrabold">Connected</span></div>
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-5 rounded-2xl text-white shadow-lg">
+                    <p className="font-bold text-sm flex items-center gap-2 mb-3">
+                      <Activity className="w-4 h-4" />
+                      Key Metrics Operational CRM
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Pendaftaran Hewan", value: "Instant", sub: "3 detik/rata-rata" },
+                        { label: "Jadwal Temu", value: "Auto-Sorted", sub: "Tanpa duplikasi" },
+                        { label: "Notifikasi WhatsApp", value: "Connected", sub: "98% delivered" }
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs">
+                          <span className="opacity-90">{item.label}</span>
+                          <div className="text-right">
+                            <span className="font-black block">{item.value}</span>
+                            <span className="opacity-75">{item.sub}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {activeFeatureTab === "analytical" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-black text-slate-850 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-emerald-500" />
-                    Mengambil Keputusan Cerdas Berbasis Data
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-in fade-in duration-500">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800">
+                      Mengambil Keputusan Cerdas Berbasis Data
+                    </h3>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">
                     Analytical CRM mengolah tumpukan data transaksi kasir dan rekam medis anabul menjadi grafik visual yang mudah dipahami pemilik bisnis:
                   </p>
-                  <ul className="space-y-2 text-xs font-bold text-slate-650">
-                    <li className="flex items-center gap-2">📊 Laporan omset pendapatan klinik berkala.</li>
-                    <li className="flex items-center gap-2">📊 Segmentasi tingkat loyalitas belanja customer.</li>
-                    <li className="flex items-center gap-2">📊 Analitik jenis diagnosis penyakit anabul terpopuler.</li>
+                  <ul className="space-y-3">
+                    {[
+                      "Laporan omset pendapatan klinik berkala",
+                      "Segmentasi tingkat loyalitas belanja customer",
+                      "Analitik jenis diagnosis penyakit anabul terpopuler"
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-600">{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Index Kepuasan (CSAT)</span><span className="text-emerald-600 font-extrabold">94.2%</span></div>
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Peningkatan Omset</span><span className="text-emerald-600 font-extrabold">+35% YoY</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Pelanggan Aktif</span><span className="text-emerald-600 font-extrabold">88%</span></div>
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-5 rounded-2xl text-white shadow-lg">
+                    <p className="font-bold text-sm flex items-center gap-2 mb-3">
+                      <Activity className="w-4 h-4" />
+                      Key Metrics Analytical CRM
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Index Kepuasan (CSAT)", value: "94.2%" },
+                        { label: "Peningkatan Omset", value: "+35% YoY" },
+                        { label: "Pelanggan Aktif", value: "88%" }
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs">
+                          <span className="opacity-90">{item.label}</span>
+                          <span className="font-black">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {activeFeatureTab === "collaborative" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-black text-slate-855 flex items-center gap-2">
-                    <Megaphone className="w-5 h-5 text-emerald-500" />
-                    Mempererat Komunikasi Antara Klinik & Pemilik
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-in fade-in duration-500">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                      <Megaphone className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800">
+                      Mempererat Komunikasi Antara Klinik & Pemilik
+                    </h3>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">
                     Collaborative CRM menyambungkan kendala layanan yang dilaporkan pemilik dengan penyelesaian responsif oleh tim admin secara langsung:
                   </p>
-                  <ul className="space-y-2 text-xs font-bold text-slate-650">
-                    <li className="flex items-center gap-2">📧 Portal ulasan kritik/saran interaktif.</li>
-                    <li className="flex items-center gap-2">📧 Resolusi tiket keluhan internal dan manual log.</li>
-                    <li className="flex items-center gap-2">📧 Pemberian kompensasi diskon belanja secara tertutup.</li>
+                  <ul className="space-y-3">
+                    {[
+                      "Portal ulasan kritik/saran interaktif",
+                      "Resolusi tiket keluhan internal dan manual log",
+                      "Pemberian kompensasi diskon belanja secara tertutup"
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-600">{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Resolusi Tiket Komplain</span><span className="text-emerald-600 font-extrabold">&lt; 1 Jam</span></div>
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Klaim Voucher Diskon</span><span className="text-emerald-600 font-extrabold">Otomatis</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Rating Google Maps Review</span><span className="text-emerald-600 font-extrabold">4.8 / 5.0</span></div>
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-5 rounded-2xl text-white shadow-lg">
+                    <p className="font-bold text-sm flex items-center gap-2 mb-3">
+                      <Activity className="w-4 h-4" />
+                      Key Metrics Collaborative CRM
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Resolusi Tiket Komplain", value: "< 1 Jam" },
+                        { label: "Klaim Voucher Diskon", value: "Otomatis" },
+                        { label: "Rating Google Maps", value: "4.8/5.0" }
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs">
+                          <span className="opacity-90">{item.label}</span>
+                          <span className="font-black">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {activeFeatureTab === "strategic" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-in fade-in duration-300">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-black text-slate-855 flex items-center gap-2">
-                    <Layers className="w-5 h-5 text-emerald-500" />
-                    Menghargai Loyalitas Pemilik Anabul Terpilih
-                  </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center animate-in fade-in duration-500">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <Layers className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-black text-slate-800">
+                      Menghargai Loyalitas Pemilik Anabul Terpilih
+                    </h3>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">
                     Strategic CRM menyusun sistem retensi terpadu melalui insentif potongan harga dan tingkat membership:
                   </p>
-                  <ul className="space-y-2 text-xs font-bold text-slate-650">
-                    <li className="flex items-center gap-2">💎 Kenaikan membership Bronze, Silver, Gold berdasarkan total belanja.</li>
-                    <li className="flex items-center gap-2">💎 Pengiriman kampanye promosi berperingkat.</li>
-                    <li className="flex items-center gap-2">💎 Akses khusus VIP check-up dan antrean cepat.</li>
+                  <ul className="space-y-3">
+                    {[
+                      "Kenaikan membership Bronze, Silver, Gold berdasarkan total belanja",
+                      "Pengiriman kampanye promosi berperingkat",
+                      "Akses khusus VIP check-up dan antrean cepat"
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-slate-600">{item}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
-                <div className="p-6 bg-slate-50 border border-gray-150 rounded-3xl text-xs font-semibold space-y-3">
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Tingkat Keanggotaan</span><span className="text-emerald-600 font-extrabold">Bronze / Silver / Gold</span></div>
-                  <div className="flex justify-between border-b border-gray-200 pb-2"><span className="text-gray-400">Potongan Harga Maksimal</span><span className="text-emerald-600 font-extrabold">Up to 25% OFF</span></div>
-                  <div className="flex justify-between"><span className="text-gray-400">Keanggotaan VIP Aktif</span><span className="text-emerald-600 font-extrabold">24% Member</span></div>
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-5 rounded-2xl text-white shadow-lg">
+                    <p className="font-bold text-sm flex items-center gap-2 mb-3">
+                      <Activity className="w-4 h-4" />
+                      Key Metrics Strategic CRM
+                    </p>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Tingkat Keanggotaan", value: "Bronze/Silver/Gold" },
+                        { label: "Potongan Harga Maksimal", value: "Up to 25% OFF" },
+                        { label: "Keanggotaan VIP Aktif", value: "24% Member" }
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs">
+                          <span className="opacity-90">{item.label}</span>
+                          <span className="font-black">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -1027,75 +1121,74 @@ export default function LandingPage() {
       </section>
 
       {/* ─── SIMULATOR SECTION (CUSTOMER JOURNEY & QUICK SHOP) ─── */}
-      <section id="simulator" className="py-20 bg-white border-t border-gray-150 relative text-left">
+      <section id="simulator" className="py-24 bg-white relative text-left">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               Layanan Mandiri Pelanggan
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Pendaftaran, Jadwal Temu & Beli Obat
             </h2>
-            <p className="text-slate-500 text-sm md:text-base font-semibold">
+            <p className="text-slate-500 text-sm md:text-base font-medium">
               Gunakan widget interaktif di bawah untuk mendaftarkan hewan peliharaan, menjadwalkan pemeriksaan, atau membeli obat anabul secara instan.
             </p>
 
             {/* Tab switcher */}
-            <div className="inline-flex p-1 bg-slate-100 rounded-2xl border border-gray-200 mt-6 shadow-sm">
-              <button
-                onClick={() => setActiveTab("booking")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === "booking"
-                    ? "bg-white text-emerald-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <CalendarCheck className="w-4 h-4" />
-                Pendaftaran & Booking Jadwal
-              </button>
-              <button
-                onClick={() => setActiveTab("shop")}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === "shop"
-                    ? "bg-white text-emerald-600 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800"
-                }`}
-              >
-                <ShoppingBag className="w-4 h-4" />
-                Toko Obat & Apotek Cepat
-              </button>
+            <div className="inline-flex p-1.5 bg-gradient-to-r from-slate-100 to-slate-50 rounded-2xl border border-slate-200 mt-8 shadow-inner">
+              {[
+                { id: "booking", label: "Pendaftaran & Booking", icon: CalendarCheck },
+                { id: "shop", label: "Toko Obat & Apotek", icon: ShoppingBag }
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2.5 px-7 py-4 rounded-xl text-xs font-black transition-all duration-300 ${
+                      isActive
+                        ? "bg-white text-emerald-600 shadow-md"
+                        : "text-slate-500 hover:text-emerald-500"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? "animate-bounce" : ""}`} />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* TAB 1: BOOKING & REGISTRATION */}
           {activeTab === "booking" && (
-            <div className="max-w-4xl mx-auto bg-white border border-gray-150 rounded-[2.5rem] p-6 md:p-10 shadow-xl relative overflow-hidden animate-in fade-in duration-300">
-              <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[80px]" />
+            <div className="max-w-4xl mx-auto bg-white border border-gray-200/80 rounded-[2.5rem] p-6 md:p-12 shadow-2xl relative overflow-hidden animate-in fade-in duration-500">
+              <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-full blur-[100px]" />
               
               <div className="relative z-10">
-                <div className="flex items-center gap-3 border-b border-gray-100 pb-5 mb-8">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <Calendar className="w-5 h-5" />
+                <div className="flex items-center gap-4 border-b border-gray-100 pb-6 mb-10">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <Calendar className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-base text-slate-800">Formulir Booking & Pendaftaran Hewan</h3>
-                    <p className="text-xs text-slate-400 font-medium">Isi detail lengkap di bawah untuk mengajukan antrean klinik</p>
+                    <h3 className="font-black text-lg text-slate-800">Formulir Booking & Pendaftaran Hewan</h3>
+                    <p className="text-xs text-slate-500 font-medium">Isi detail lengkap di bawah untuk mengajukan antrean klinik</p>
                   </div>
                 </div>
 
-                {bookingSuccessMsg && (
-                  <div className="mb-6 bg-emerald-50 border border-emerald-255 text-emerald-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
-                    <span className="text-base">✅</span>
-                    <p className="text-left leading-relaxed">{bookingSuccessMsg}</p>
-                  </div>
-                )}
+                  {bookingSuccessMsg && (
+                    <div className="mb-8 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 text-emerald-700 text-xs px-6 py-5 rounded-2xl font-bold flex items-start gap-4 shadow-sm">
+                      <span className="text-xl">✅</span>
+                      <p className="text-left leading-relaxed">{bookingSuccessMsg}</p>
+                    </div>
+                  )}
 
-                {bookingErrorMsg && (
-                  <div className="mb-6 bg-red-50 border border-red-205 text-red-700 text-xs px-5 py-4 rounded-2xl font-bold flex items-start gap-3">
-                    <span className="text-base">⚠️</span>
-                    <p className="text-left leading-relaxed">{bookingErrorMsg}</p>
-                  </div>
-                )}
+                  {bookingErrorMsg && (
+                    <div className="mb-8 bg-gradient-to-r from-red-50 to-rose-50 border border-red-100 text-red-600 text-xs px-6 py-5 rounded-2xl font-bold flex items-start gap-4 shadow-sm">
+                      <span className="text-xl">⚠️</span>
+                      <p className="text-left leading-relaxed">{bookingErrorMsg}</p>
+                    </div>
+                  )}
 
                 <form onSubmit={handleBooking} className="space-y-8 text-left">
                   
@@ -1103,51 +1196,31 @@ export default function LandingPage() {
                   {!user && (
                     <div className="space-y-4">
                       <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                        <span>1.</span> Informasi Pemilik (Registrasi Otomatis)
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">1</span> Informasi Pemilik (Registrasi Otomatis)
                       </h4>
-                      <div className="bg-emerald-50/45 border border-emerald-100 rounded-2xl p-4 mb-4 text-[11px] text-emerald-800 font-semibold leading-relaxed">
-                        💡 Anda belum masuk ke sistem. Mengisi form ini akan otomatis mendaftarkan akun PetCare Anda secara gratis menggunakan email & nomor telepon Anda dengan password default <strong>PetCare123!</strong>.
+                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-4 mb-4 text-xs text-emerald-800 font-medium leading-relaxed shadow-sm">
+                        <span className="font-bold">💡</span> Anda belum masuk ke sistem. Mengisi form ini akan otomatis mendaftarkan akun PetCare Anda secara gratis menggunakan email & nomor telepon Anda dengan password default <strong className="font-black">PetCare123!</strong>.
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Nama Lengkap</label>
-                          <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 overflow-hidden transition">
-                            <span className="absolute left-3 text-gray-400 text-xs"><User className="w-3.5 h-3.5" /></span>
-                            <input
-                              type="text"
-                              value={ownerName}
-                              onChange={(e) => setOwnerName(e.target.value)}
-                              placeholder="cth. John Doe"
-                              className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-bold text-slate-800"
-                            />
+                        {[
+                          { label: "Nama Lengkap", icon: User, field: ownerName, set: setOwnerName, placeholder: "cth. John Doe" },
+                          { label: "Email Aktif", icon: Mail, field: ownerEmail, set: setOwnerEmail, placeholder: "john@example.com" },
+                          { label: "No. Telepon / WhatsApp", icon: Phone, field: ownerPhone, set: setOwnerPhone, placeholder: "0812-xxxx-xxxx" }
+                        ].map((item, idx) => (
+                          <div key={idx}>
+                            <label className="text-[10px] font-black uppercase tracking-widest block mb-1.5 text-slate-500">{item.label}</label>
+                            <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100 overflow-hidden transition-all">
+                              <span className="absolute left-3 text-gray-400 text-xs"><item.icon className="w-4 h-4" /></span>
+                              <input
+                                type={item.field === ownerEmail ? "email" : item.field === ownerPhone ? "tel" : "text"}
+                                value={item.field}
+                                onChange={(e) => item.set(e.target.value)}
+                                placeholder={item.placeholder}
+                                className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-semibold text-slate-800 bg-transparent"
+                              />
+                            </div>
                           </div>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Email Aktif</label>
-                          <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 overflow-hidden transition">
-                            <span className="absolute left-3 text-gray-400 text-xs"><Mail className="w-3.5 h-3.5" /></span>
-                            <input
-                              type="email"
-                              value={ownerEmail}
-                              onChange={(e) => setOwnerEmail(e.target.value)}
-                              placeholder="john@example.com"
-                              className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-bold text-slate-800"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">No. Telepon / WhatsApp</label>
-                          <div className="relative flex items-center rounded-xl border border-gray-200 bg-white focus-within:border-emerald-500 overflow-hidden transition">
-                            <span className="absolute left-3 text-gray-400 text-xs"><Phone className="w-3.5 h-3.5" /></span>
-                            <input
-                              type="tel"
-                              value={ownerPhone}
-                              onChange={(e) => setOwnerPhone(e.target.value)}
-                              placeholder="0812-xxxx-xxxx"
-                              className="w-full pl-9 pr-3 py-2.5 text-xs focus:outline-none font-bold text-slate-800"
-                            />
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -1175,51 +1248,38 @@ export default function LandingPage() {
                     )}
 
                     {(selectedPetId === "new" || !user) && (
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-slate-50 border border-gray-200/70 rounded-2xl">
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Nama Hewan <span className="text-rose-500">*</span></label>
-                          <input
-                            type="text"
-                            value={petName}
-                            onChange={(e) => setPetName(e.target.value)}
-                            placeholder="cth. Mochi, Rex"
-                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Jenis Hewan</label>
-                          <select
-                            value={petType}
-                            onChange={(e) => setPetType(e.target.value)}
-                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
-                          >
-                            <option value="Kucing">🐱 Kucing</option>
-                            <option value="Anjing">🐶 Anjing</option>
-                            <option value="Kelinci">🐰 Kelinci</option>
-                            <option value="Lainnya">🐾 Lainnya</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Ras / Breed</label>
-                          <input
-                            type="text"
-                            value={petBreed}
-                            onChange={(e) => setPetBreed(e.target.value)}
-                            placeholder="Persia, Kampung, dll"
-                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Jenis Kelamin</label>
-                          <select
-                            value={petGender}
-                            onChange={(e) => setPetGender(e.target.value)}
-                            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
-                          >
-                            <option value="Jantan">Jantan</option>
-                            <option value="Betina">Betina</option>
-                          </select>
-                        </div>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-gradient-to-br from-slate-50 to-white border border-gray-200 rounded-2xl shadow-sm">
+                        {[
+                          { label: "Nama Hewan", type: "text", value: petName, onChange: setPetName, placeholder: "cth. Mochi, Rex", req: true },
+                          { label: "Jenis Hewan", type: "select", value: petType, onChange: setPetType, options: [{v:"Kucing", l:"🐱 Kucing"}, {v:"Anjing", l:"🐶 Anjing"}, {v:"Kelinci", l:"🐰 Kelinci"}, {v:"Lainnya", l:"🐾 Lainnya"}] },
+                          { label: "Ras / Breed", type: "text", value: petBreed, onChange: setPetBreed, placeholder: "Persia, Kampung, dll" },
+                          { label: "Jenis Kelamin", type: "select", value: petGender, onChange: setPetGender, options: [{v:"Jantan", l:"Jantan"}, {v:"Betina", l:"Betina"}] }
+                        ].map((item, idx) => (
+                          <div key={idx}>
+                            <label className="text-[10px] font-black uppercase tracking-widest block mb-1.5 text-slate-500">
+                              {item.label} {item.req && <span className="text-rose-500">*</span>}
+                            </label>
+                            {item.type === "select" ? (
+                              <select
+                                value={item.value}
+                                onChange={(e) => item.onChange(e.target.value)}
+                                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold text-xs cursor-pointer"
+                              >
+                                {item.options.map((opt, oidx) => (
+                                  <option key={oidx} value={opt.v}>{opt.l}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <input
+                                type="text"
+                                value={item.value}
+                                onChange={(e) => item.onChange(e.target.value)}
+                                placeholder={item.placeholder}
+                                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold text-xs"
+                              />
+                            )}
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -1231,56 +1291,44 @@ export default function LandingPage() {
                     </h4>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Jenis Perawatan</label>
-                        <select
-                          value={bookingType}
-                          onChange={(e) => setBookingType(e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
-                        >
-                          <option value="Grooming">🧴 Grooming</option>
-                          <option value="Vaksinasi">💉 Vaksinasi</option>
-                          <option value="Sakit / Konsultasi">🩺 Sakit / Konsultasi</option>
-                          <option value="Sterilisasi">✂️ Operasi / Sterilisasi</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Dokter Pilihan</label>
-                        <select
-                          value={bookingDoctor}
-                          onChange={(e) => setBookingDoctor(e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
-                        >
-                          <option value="drh. Nisa Putri">drh. Nisa Putri</option>
-                          <option value="drh. Aditya Ramadhan">drh. Aditya Ramadhan</option>
-                          <option value="drh. Sari Putri">drh. Sari Putri</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Pilih Tanggal</label>
-                        <input
-                          type="date"
-                          value={bookingDate}
-                          onChange={(e) => setBookingDate(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Pilih Jam</label>
-                        <select
-                          value={bookingTime}
-                          onChange={(e) => setBookingTime(e.target.value)}
-                          className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-bold text-xs cursor-pointer"
-                        >
-                          <option value="09:00">09:00 WIB</option>
-                          <option value="10:00">10:00 WIB</option>
-                          <option value="11:00">11:00 WIB</option>
-                          <option value="13:00">13:00 WIB</option>
-                          <option value="14:00">14:00 WIB</option>
-                          <option value="15:00">15:00 WIB</option>
-                          <option value="16:00">16:00 WIB</option>
-                        </select>
-                      </div>
+                      {[
+                        { label: "Jenis Perawatan", value: bookingType, onChange: setBookingType, options: [{v:"Grooming", l:"🧴 Grooming"}, {v:"Vaksinasi", l:"💉 Vaksinasi"}, {v:"Sakit / Konsultasi", l:"🩺 Sakit / Konsultasi"}, {v:"Sterilisasi", l:"✂️ Operasi / Sterilisasi"}] },
+                        { label: "Dokter Pilihan", value: bookingDoctor, onChange: setBookingDoctor, options: [{v:"drh. Nisa Putri", l:"drh. Nisa Putri"}, {v:"drh. Aditya Ramadhan", l:"drh. Aditya Ramadhan"}, {v:"drh. Sari Putri", l:"drh. Sari Putri"}] },
+                        { label: "Pilih Tanggal", type: "date", value: bookingDate, onChange: setBookingDate },
+                        { label: "Pilih Jam", value: bookingTime, onChange: setBookingTime, options: [{v:"09:00", l:"09:00 WIB"}, {v:"10:00", l:"10:00 WIB"}, {v:"11:00", l:"11:00 WIB"}, {v:"13:00", l:"13:00 WIB"}, {v:"14:00", l:"14:00 WIB"}, {v:"15:00", l:"15:00 WIB"}, {v:"16:00", l:"16:00 WIB"}] }
+                      ].map((item, idx) => (
+                        <div key={idx}>
+                          <label className="text-[10px] font-black uppercase tracking-widest block mb-1.5 text-slate-500">{item.label}</label>
+                          {item.type === "select" ? (
+                            <select
+                              value={item.value}
+                              onChange={(e) => item.onChange(e.target.value)}
+                              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold text-xs cursor-pointer"
+                            >
+                              {item.options.map((opt, oidx) => (
+                                <option key={oidx} value={opt.v}>{opt.l}</option>
+                              ))}
+                            </select>
+                          ) : item.type === "date" ? (
+                            <input
+                              type="date"
+                              value={item.value}
+                              onChange={(e) => item.onChange(e.target.value)}
+                              className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold text-xs cursor-pointer"
+                            />
+                          ) : (
+                            <select
+                              value={item.value}
+                              onChange={(e) => item.onChange(e.target.value)}
+                              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-300 font-semibold text-xs cursor-pointer"
+                            >
+                              {item.options.map((opt, oidx) => (
+                                <option key={oidx} value={opt.v}>{opt.l}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      ))}
                     </div>
 
                     <div>
@@ -1323,14 +1371,17 @@ export default function LandingPage() {
 
           {/* TAB 2: TOKO OBAT & APOTEK CEPAT */}
           {activeTab === "shop" && (
-            <div className="space-y-8 animate-in fade-in duration-300">
-              <div className="bg-slate-50 border border-gray-200 rounded-3xl p-5 md:p-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200 pb-5 mb-6 text-left">
+            <div className="space-y-8 animate-in fade-in duration-500">
+              <div className="bg-white border border-gray-200 rounded-[2.5rem] p-6 md:p-10 shadow-xl">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 pb-6 mb-8">
                   <div>
-                    <h3 className="font-extrabold text-base text-gray-800">Apotek & Toko Obat PetCare</h3>
-                    <p className="text-xs text-gray-400 font-medium">Beli obat cacing, vitamin, makanan medis, atau vaksin untuk anabul langsung di sini.</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-2xl">💊</span>
+                      <h3 className="font-black text-lg text-slate-800">Apotek & Toko Obat PetCare</h3>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">Beli obat cacing, vitamin, makanan medis, atau vaksin untuk anabul langsung di sini.</p>
                   </div>
-                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 border border-emerald-250 px-3 py-1 rounded-full">
+                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full">
                     ⚡ Instant Checkout
                   </span>
                 </div>
@@ -1340,23 +1391,23 @@ export default function LandingPage() {
                     {products.map((product) => (
                       <div
                         key={product.id}
-                        className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-300 text-left"
+                        className="group bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left"
                       >
                         <div>
-                          <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                          <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded shadow-sm ${
                             product.category === 'Obat' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
                             product.category === 'Makanan' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                             'bg-blue-50 text-blue-600 border border-blue-100'
                           }`}>
                             {product.category}
                           </span>
-                          <h4 className="font-extrabold text-sm text-gray-850 mt-3.5 leading-tight">{product.name}</h4>
-                          <p className="text-[10px] text-gray-400 mt-1 font-semibold line-clamp-2 leading-relaxed min-h-[30px]">{product.description}</p>
+                          <h4 className="font-black text-sm text-slate-800 mt-4 leading-tight group-hover:text-emerald-600 transition-colors">{product.name}</h4>
+                          <p className="text-xs text-slate-500 mt-2 font-medium line-clamp-2 leading-relaxed min-h-[32px]">{product.description}</p>
                           
                           <div className="my-3 border-t border-dashed border-gray-100" />
                           
                           <div className="flex justify-between items-center text-xs">
-                            <span className="font-semibold text-gray-400">Stok: <strong className="text-gray-750">{product.stock} {product.unit}</strong></span>
+                            <span className="font-semibold text-slate-600">Stok: <strong className="text-emerald-600">{product.stock} {product.unit}</strong></span>
                             <span className="font-black text-emerald-600 text-sm">Rp {product.price.toLocaleString("id-ID")}</span>
                           </div>
                         </div>
@@ -1369,21 +1420,23 @@ export default function LandingPage() {
                             setCheckoutSuccessMsg("");
                           }}
                           disabled={product.stock <= 0}
-                          className={`w-full mt-4 py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer ${
+                          className={`w-full mt-5 py-3 rounded-xl text-xs font-black transition-all shadow-sm cursor-pointer ${
                             product.stock <= 0
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed shadow-none"
-                              : "bg-emerald-500 hover:bg-emerald-600 text-white"
+                              ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                              : "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
                           }`}
                         >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          {product.stock <= 0 ? "Stok Habis" : "Beli Sekarang"}
+                          <span className="flex items-center justify-center gap-1.5">
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            {product.stock <= 0 ? "Stok Habis" : "Beli Sekarang"}
+                          </span>
                         </button>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="py-20 text-center text-gray-400 bg-white border border-gray-200 rounded-2xl">
-                    <ShoppingBag className="mx-auto w-8 h-8 text-gray-300 mb-2" />
+                  <div className="py-20 text-center text-slate-500 bg-white border border-gray-200 rounded-2xl">
+                    <ShoppingBag className="mx-auto w-10 h-10 text-slate-300 mb-3" />
                     <p className="text-xs font-semibold">Produk tidak tersedia dalam database.</p>
                   </div>
                 )}
@@ -1391,129 +1444,119 @@ export default function LandingPage() {
 
               {/* QUICK CHECKOUT PANEL */}
               {selectedProduct && (
-                <div className="bg-white border border-emerald-300 rounded-[2rem] p-6 md:p-8 max-w-2xl mx-auto shadow-lg text-left relative overflow-hidden animate-in slide-in-from-bottom duration-300">
-                  <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[80px]" />
+                <div className="bg-white border border-emerald-200 rounded-[2.5rem] p-8 md:p-12 max-w-2xl mx-auto shadow-2xl text-left relative overflow-hidden animate-in slide-in-from-bottom duration-500">
+                  <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-full blur-[100px]" />
                   
                   <div className="relative z-10 space-y-6">
-                    <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                      <h4 className="font-extrabold text-sm text-slate-800 flex items-center gap-2">
+                    <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                      <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
                         <span>🛍️</span> Konfirmasi Pembelian Cepat
                       </h4>
                       <button
                         type="button"
                         onClick={() => setSelectedProduct(null)}
-                        className="text-[10px] bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg text-gray-500 font-bold transition cursor-pointer"
+                        className="text-[10px] bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-xl text-gray-600 font-bold transition cursor-pointer"
                       >
                         Batal
                       </button>
                     </div>
 
-                    <div className="flex items-start gap-4 p-4 bg-slate-50 border border-gray-200/70 rounded-2xl text-xs">
-                      <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-xl shadow-sm shrink-0">
+                    <div className="flex items-start gap-5 p-5 bg-gradient-to-br from-slate-50 to-white border border-gray-200 rounded-2xl text-xs shadow-sm">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-2xl shadow-sm shrink-0">
                         {selectedProduct.category === 'Obat' ? '💊' : selectedProduct.category === 'Makanan' ? '🥫' : '💉'}
                       </div>
                       <div>
-                        <h5 className="font-extrabold text-gray-800 text-xs">{selectedProduct.name}</h5>
-                        <p className="text-[10px] text-gray-450 mt-0.5">{selectedProduct.category} · Harga Satuan: <strong className="text-emerald-600 font-extrabold">Rp {selectedProduct.price.toLocaleString("id-ID")}</strong></p>
-                        <p className="text-[10px] text-gray-450 mt-0.5">Stok Tersedia: {selectedProduct.stock} {selectedProduct.unit}</p>
+                        <h5 className="font-black text-slate-800 text-xs">{selectedProduct.name}</h5>
+                        <p className="text-xs text-slate-500 mt-1">{selectedProduct.category} · Harga Satuan: <strong className="text-emerald-600 font-black">Rp {selectedProduct.price.toLocaleString("id-ID")}</strong></p>
+                        <p className="text-xs text-slate-500 mt-1">Stok Tersedia: <span className="text-emerald-600 font-bold">{selectedProduct.stock}</span> {selectedProduct.unit}</p>
                       </div>
                     </div>
 
                     {checkoutSuccessMsg && (
-                      <div className="bg-emerald-50 border border-emerald-255 text-emerald-755 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
-                        <span>✅</span>
+                      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 text-emerald-700 text-xs px-6 py-5 rounded-2xl font-bold flex items-start gap-4 shadow-sm">
+                        <span className="text-xl">✅</span>
                         <p className="leading-relaxed">{checkoutSuccessMsg}</p>
                       </div>
                     )}
 
                     {checkoutErrorMsg && (
-                      <div className="bg-red-50 border border-red-200 text-red-755 text-xs px-4 py-3.5 rounded-xl font-bold flex items-start gap-2.5">
-                        <span>⚠️</span>
+                      <div className="bg-gradient-to-r from-red-50 to-rose-50 border border-red-100 text-red-600 text-xs px-6 py-5 rounded-2xl font-bold flex items-start gap-4 shadow-sm">
+                        <span className="text-xl">⚠️</span>
                         <p className="leading-relaxed">{checkoutErrorMsg}</p>
                       </div>
                     )}
 
                     <form onSubmit={handleQuickCheckout} className="space-y-6">
                       
-                      {/* Guest credentials */}
                       {!user && (
-                        <div className="space-y-3 p-4 border border-dashed border-gray-200 rounded-2xl bg-slate-50/50">
-                          <span className="text-[10px] font-black uppercase text-gray-455 tracking-wider">Lengkapi Informasi Anda</span>
+                        <div className="space-y-3 p-5 bg-gradient-to-br from-slate-50 to-white border border-dashed border-gray-300 rounded-2xl">
+                          <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Lengkapi Informasi Anda</span>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-                            <input
-                              type="text"
-                              value={ownerName}
-                              onChange={(e) => setOwnerName(e.target.value)}
-                              placeholder="Nama Pembeli"
-                              required
-                              className="px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none font-bold text-slate-800 bg-white"
-                            />
-                            <input
-                              type="email"
-                              value={ownerEmail}
-                              onChange={(e) => setOwnerEmail(e.target.value)}
-                              placeholder="Email Aktif"
-                              required
-                              className="px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none font-bold text-slate-800 bg-white"
-                            />
-                            <input
-                              type="tel"
-                              value={ownerPhone}
-                              onChange={(e) => setOwnerPhone(e.target.value)}
-                              placeholder="No. WhatsApp"
-                              required
-                              className="px-3 py-2 rounded-lg border border-gray-200 text-[11px] focus:outline-none font-bold text-slate-800 bg-white"
-                            />
+                            {[
+                              { label: "Nama Pembeli", field: ownerName, set: setOwnerName, placeholder: "John Doe" },
+                              { label: "Email Aktif", field: ownerEmail, set: setOwnerEmail, type: "email", placeholder: "john@example.com" },
+                              { label: "No. WhatsApp", field: ownerPhone, set: setOwnerPhone, type: "tel", placeholder: "0812-xxxx-xxxx" }
+                            ].map((item, idx) => (
+                              <div key={idx}>
+                                <label className="text-[10px] font-bold text-slate-500 block mb-1.5">{item.label}</label>
+                                <input
+                                  type={item.type || "text"}
+                                  value={item.field}
+                                  onChange={(e) => item.set(e.target.value)}
+                                  placeholder={item.placeholder}
+                                  required
+                                  className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-xs focus:outline-none font-semibold text-slate-800 bg-white"
+                                />
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
 
-                      {/* Qty & Totals */}
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 text-white p-5 rounded-2xl shadow-inner text-xs">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-inner text-xs">
                         <div className="flex items-center gap-3">
                           <span className="font-bold text-slate-300">Jumlah Unit:</span>
-                          <div className="flex items-center rounded-xl bg-slate-800 p-1 border border-slate-700">
+                          <div className="flex items-center rounded-xl bg-slate-700/50 p-1 border border-slate-600">
                             <button
                               type="button"
                               onClick={() => setPurchaseQty(prev => Math.max(1, prev - 1))}
-                              className="w-7 h-7 flex items-center justify-center hover:bg-slate-700 rounded-lg text-slate-300 cursor-pointer"
+                              className="w-8 h-8 flex items-center justify-center hover:bg-slate-600 rounded-lg text-slate-300 cursor-pointer transition"
                             >
-                              <Minus className="w-3.5 h-3.5" />
+                              <Minus className="w-4 h-4" />
                             </button>
-                            <span className="w-10 text-center font-extrabold text-sm">{purchaseQty}</span>
+                            <span className="w-10 text-center font-black text-sm">{purchaseQty}</span>
                             <button
                               type="button"
                               onClick={() => setPurchaseQty(prev => Math.min(selectedProduct.stock, prev + 1))}
-                              className="w-7 h-7 flex items-center justify-center hover:bg-slate-700 rounded-lg text-slate-300 cursor-pointer"
+                              className="w-8 h-8 flex items-center justify-center hover:bg-slate-600 rounded-lg text-slate-300 cursor-pointer transition"
                             >
-                              <Plus className="w-3.5 h-3.5" />
+                              <Plus className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
 
                         <div className="text-right">
                           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Pembayaran</p>
-                          <p className="text-lg font-black text-emerald-400 mt-1">Rp {(selectedProduct.price * purchaseQty).toLocaleString("id-ID")}</p>
+                          <p className="text-2xl font-black text-emerald-400 mt-1">Rp {(selectedProduct.price * purchaseQty).toLocaleString("id-ID")}</p>
                         </div>
                       </div>
 
-                      {/* Checkout Submit */}
-                      <div className="flex justify-end gap-2.5">
+                      <div className="flex justify-end gap-3">
                         <button
                           type="button"
                           onClick={() => setSelectedProduct(null)}
-                          className="px-5 py-3 rounded-xl border border-gray-200 text-xs font-extrabold text-gray-500 hover:bg-gray-50 cursor-pointer"
+                          className="px-6 py-3.5 rounded-xl border border-gray-200 text-xs font-black text-slate-600 hover:bg-gray-50 cursor-pointer transition"
                         >
                           Batal
                         </button>
                         <button
                           type="submit"
                           disabled={checkoutLoading}
-                          className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold text-xs px-7 py-3 rounded-xl shadow-md shadow-emerald-500/20 transition cursor-pointer disabled:opacity-60"
+                          className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-500/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                           {checkoutLoading ? (
                             <>
-                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                               <span>Memproses checkout...</span>
                             </>
                           ) : (
@@ -1535,40 +1578,38 @@ export default function LandingPage() {
       </section>
 
       {/* ─── INTEGRATIONS SECTION ─── */}
-      <section className="py-20 bg-slate-50 border-t border-gray-150 relative text-left">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="py-24 bg-gradient-to-b from-slate-50 to-white border-t border-gray-100 relative text-left">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-6">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               Konektivitas Tanpa Batas
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Tersambung dengan Layanan & Platform Favorit Anda
             </h2>
-            <p className="text-slate-500 text-sm font-semibold">
+            <p className="text-slate-500 text-sm font-medium">
               PetCare CRM berintegrasi secara mulus dengan berbagai teknologi global untuk mendukung efisiensi klinik:
             </p>
             <div className="grid grid-cols-2 gap-4 text-xs font-bold text-slate-700">
-              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
-                <span className="text-lg">⚡</span> Supabase Backend
-              </div>
-              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
-                <span className="text-lg">💬</span> WhatsApp API
-              </div>
-              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
-                <span className="text-lg">📅</span> Google Calendar
-              </div>
-              <div className="flex items-center gap-2.5 p-4 bg-white border border-gray-150 rounded-2xl shadow-sm">
-                <span className="text-lg">💳</span> Midtrans Gateway
-              </div>
+              {[
+                { icon: "⚡", label: "Supabase Backend" },
+                { icon: "💬", label: "WhatsApp API" },
+                { icon: "📅", label: "Google Calendar" },
+                { icon: "💳", label: "Midtrans Gateway" }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-5 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-300 group">
+                  <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span> {item.label}
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="relative p-8 bg-slate-50 border border-gray-200 flex flex-wrap justify-center gap-4 shadow-inner rounded-[2.5rem]">
-            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">⚡</span> Supabase</div>
-            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">💬</span> WhatsApp SMS</div>
-            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">📧</span> Twilio Mailer</div>
-            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">📅</span> Google Calendar</div>
-            <div className="px-5 py-3 rounded-2xl bg-white border border-gray-150 text-xs font-black shadow-sm flex items-center gap-1.5"><span className="text-emerald-500">💳</span> Payment Midtrans</div>
+          <div className="relative p-8 bg-white border border-gray-200/80 flex flex-wrap justify-center gap-4 shadow-2xl rounded-[2.5rem]">
+            <div className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 animate-bounce"><span className="text-xl">⚡</span> Supabase</div>
+            <div className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 animate-bounce delay-75"><span className="text-xl">💬</span> WhatsApp SMS</div>
+            <div className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 animate-bounce delay-150"><span className="text-xl">📧</span> Twilio Mailer</div>
+            <div className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 animate-bounce delay-200"><span className="text-xl">📅</span> Google Calendar</div>
+            <div className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-xs font-black text-white shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 animate-bounce delay-300"><span className="text-xl">💳</span> Payment Midtrans</div>
           </div>
         </div>
       </section>
@@ -1580,43 +1621,37 @@ export default function LandingPage() {
             
             {/* Left Graphics representation */}
             <div className="lg:col-span-5 space-y-6">
-              <div className="relative bg-emerald-50/50 rounded-[2.5rem] p-8 border border-emerald-100/80 shadow-inner">
-                <div className="flex justify-between items-center border-b border-emerald-200/50 pb-4 mb-4">
-                  <h4 className="font-extrabold text-xs text-emerald-800 flex items-center gap-1.5">
-                    <Link2 className="w-4 h-4" /> Peta Kampanye Pemasaran CRM
+              <div className="relative bg-white rounded-[2.5rem] p-8 border border-gray-200/80 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-gray-100 pb-5 mb-6">
+                  <h4 className="font-black text-lg text-slate-800 flex items-center gap-2">
+                    <Link2 className="w-5 h-5 text-emerald-500" /> Peta Kampanye Pemasaran CRM
                   </h4>
-                  <span className="text-[9px] bg-emerald-600 text-white font-extrabold px-2 py-0.5 rounded-full">3 Kampanye Aktif</span>
+                  <span className="text-[10px] bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black px-3 py-1.5 rounded-full shadow-sm">3 Kampanye Aktif</span>
                 </div>
 
                 <div className="space-y-4">
-                  {/* Campaign item 1 */}
-                  <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center justify-between text-xs shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">💉</span>
-                      <div>
-                        <p className="font-bold text-gray-800">Booster Vaksin Kucing</p>
-                        <p className="text-[9px] text-gray-400 font-semibold">Terkirim ke 124 Pemilik</p>
+                  {[
+                    { icon: "💉", title: "Booster Vaksin Kucing", desc: "Terkirim ke 124 Pemilik", status: "Sukses" },
+                    { icon: "🧴", title: "Grooming Hemat Weekend", desc: "Diskon 15% · Pemasaran", status: "Sukses" }
+                  ].map((item, idx) => (
+                    <div key={idx} className="bg-gradient-to-br from-slate-50 to-white p-4 rounded-2xl border border-gray-200 flex items-center justify-between text-xs shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{item.icon}</span>
+                        <div>
+                          <p className="font-bold text-slate-800">{item.title}</p>
+                          <p className="text-[9px] text-slate-500 font-medium">{item.desc}</p>
+                        </div>
                       </div>
+                      <span className="text-[10px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-lg shadow-sm">Sukses</span>
                     </div>
-                    <span className="text-[9px] font-black text-emerald-650 bg-emerald-50 px-2 py-0.5 rounded">Sukses</span>
-                  </div>
-
-                  {/* Campaign item 2 */}
-                  <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center justify-between text-xs shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">🧴</span>
-                      <div>
-                        <p className="font-bold text-gray-800">Grooming Hemat Weekend</p>
-                        <p className="text-[9px] text-gray-400 font-semibold">Diskon 15% · Pemasaran</p>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-black text-emerald-650 bg-emerald-50 px-2 py-0.5 rounded">Sukses</span>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="mt-6 p-4 rounded-2xl bg-emerald-600 text-white shadow-lg text-xs space-y-1">
-                  <p className="font-extrabold flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 animate-pulse" /> Insight Kampanye CRM</p>
-                  <p className="text-[10px] text-emerald-100 font-medium leading-relaxed">
+                <div className="mt-8 p-6 bg-gradient-to-br from-emerald-500 to-teal-500 text-white rounded-2xl shadow-lg shadow-emerald-500/20 text-xs space-y-2">
+                  <p className="font-black flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 animate-pulse" /> Insight Kampanye CRM
+                  </p>
+                  <p className="text-emerald-50/90 font-medium leading-relaxed">
                     Kampanye otomatis Booster Vaksinasi meningkatkan tingkat kedatangan janji temu hingga 42% pada bulan ini.
                   </p>
                 </div>
@@ -1624,47 +1659,33 @@ export default function LandingPage() {
             </div>
 
             {/* Right Text Content */}
-            <div className="lg:col-span-7 space-y-6">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+            <div className="lg:col-span-7 space-y-8">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
                 Otomatisasi Hubungan Pelanggan
               </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                 Hubungkan Komunikasi Staf Klinik & Pemilik Anabul Tanpa Batas
               </h2>
-              <p className="text-slate-500 text-sm md:text-base font-semibold">
+              <p className="text-slate-500 text-sm font-medium">
                 Sistem CRM (Customer Relationship Management) terintegrasi kami membantu klinik hewan memperluas jangkauan komunikasi mereka secara otomatis:
               </p>
 
-              <div className="space-y-4 text-xs font-semibold">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-650 flex items-center justify-center shrink-0">
-                    <Megaphone className="w-4 h-4" />
+              <div className="space-y-6">
+                {[
+                  { icon: Megaphone, title: "Kampanye Promosi Terarah", desc: "Buat, kelola, dan sebarkan pesan promosi layanan grooming, paket check-up, atau produk baru langsung ke pemilik hewan terdaftar sesuai tingkatan member.", color: "bg-emerald-50 text-emerald-600" },
+                  { icon: Star, title: "Feedback & Tiket Keluhan Instan", desc: "Evaluasi kualitas pelayanan klinik berdasarkan ulasan bintang dan catat keluhan internal untuk diselesaikan secara responsif demi kepuasan pelanggan.", color: "bg-blue-50 text-blue-600" },
+                  { icon: Users, title: "Manajemen Customer CRM 360°", desc: "Kelompokkan riwayat interaksi, feedback, keluhan, dan biodata setiap pemilik anabul di satu tab detail customer terpusat untuk penanganan khusus.", color: "bg-purple-50 text-purple-600" }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-5 p-5 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
+                      <item.icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-black text-slate-800 text-sm mb-2">{item.title}</h4>
+                      <p className="text-xs text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-slate-800 text-sm">Kampanye Promosi Terarah</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Buat, kelola, dan sebarkan pesan promosi layanan grooming, paket check-up, atau produk baru langsung ke pemilik hewan terdaftar sesuai tingkatan member.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-655 flex items-center justify-center shrink-0">
-                    <Star className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-800 text-sm">Feedback & Tiket Keluhan Instan</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Evaluasi kualitas pelayanan klinik berdasarkan ulasan bintang dan catat keluhan internal untuk diselesaikan secara responsif demi kepuasan pelanggan.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-650 flex items-center justify-center shrink-0">
-                    <Users className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-800 text-sm">Manajemen Customer CRM 360°</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed mt-1">Kelompokkan riwayat interaksi, feedback, keluhan, dan biodata setiap pemilik anabul di satu tab detail customer terpusat untuk penanganan khusus.</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -1673,91 +1694,56 @@ export default function LandingPage() {
       </section>
 
       {/* ─── TESTIMONIALS SECTION ─── */}
-      <section id="testimoni" className="py-20 bg-slate-50 border-t border-gray-150 text-left">
+      <section id="testimoni" className="py-24 bg-white relative text-left">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               Testimoni Pengguna
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Apa Kata Pemilik Klinik & Pemilik Anabul?</h2>
-            <p className="text-slate-500 text-sm font-semibold">Telah dipercaya oleh dokter hewan klinik profesional dan ribuan pemilik anabul di Indonesia.</p>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Apa Kata Pemilik Klinik & Pemilik Anabul?</h2>
+            <p className="text-slate-500 text-sm font-medium">Telah dipercaya oleh dokter hewan klinik profesional dan ribuan pemilik anabul di Indonesia.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Testimoni 1 */}
-            <div className="bg-white border border-gray-150 p-6 rounded-3xl shadow-sm text-left space-y-4">
-              <div className="flex text-amber-400 text-xs">
-                {[1,2,3,4,5].map((s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                "Sebelum menggunakan PetCare CRM, kami sering lupa mengabari pemilik kucing untuk jadwal vaksinasi booster. Sekarang semuanya terjadwal otomatis, retensi kunjungan klinik kami meningkat drastis!"
-              </p>
-              <div className="flex items-center gap-3 pt-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-xs">
-                  DN
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { rating: 5, text: "Sebelum menggunakan PetCare CRM, kami sering lupa mengabari pemilik kucing untuk jadwal vaksinasi booster. Sekarang semuanya terjadwal otomatis, retensi kunjungan klinik kami meningkat drastis!", name: "drh. Nisa Putri", role: "Klinik Paws & Care", gradient: "from-emerald-400 to-teal-500", initials: "DN" },
+              { rating: 5, text: "Sebagai customer, saya suka sekali dengan portal member-nya. Saya bisa melihat rekam medis Mochi langsung di HP dan tinggal klak-klik untuk buat janji temu konsultasi dokter gigi.", name: "Budi Santoso", role: "Pemilik Anabul", gradient: "from-blue-400 to-indigo-500", initials: "BS" },
+              { rating: 5, text: "Keamanan datanya luar biasa. Modul RLS Supabase memastikan data medis penyakit hanya bisa diakses oleh dokter yang bertugas dan pemilik hewan bersangkutan secara aman dan rahasia.", name: "drh. Aditya Ramadhan", role: "Klinik Happy Pets", gradient: "from-purple-400 to-pink-500", initials: "AH" }
+            ].map((item, idx) => (
+              <div key={idx} className="group bg-white border border-gray-200 p-6 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 text-left">
+                <div className="flex text-amber-400 text-xs mb-3">
+                  {[...Array(item.rating)].map((_, s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
                 </div>
-                <div>
-                  <h4 className="text-xs font-extrabold text-gray-800">drh. Nisa Putri</h4>
-                  <p className="text-[9px] text-gray-400 font-bold">Klinik Paws & Care</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimoni 2 */}
-            <div className="bg-white border border-gray-150 p-6 rounded-3xl shadow-sm text-left space-y-4">
-              <div className="flex text-amber-400 text-xs">
-                {[1,2,3,4,5].map((s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                "Sebagai customer, saya suka sekali dengan portal member-nya. Saya bisa melihat rekam medis Mochi langsung di HP dan tinggal klak-klik untuk buat janji temu konsultasi dokter gigi."
-              </p>
-              <div className="flex items-center gap-3 pt-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-xs">
-                  BS
-                </div>
-                <div>
-                  <h4 className="text-xs font-extrabold text-gray-800">Budi Santoso</h4>
-                  <p className="text-[9px] text-gray-400 font-bold">Pemilik Anabul (Customer)</p>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium mb-6">"{item.text}"</p>
+                <div className="flex items-center gap-4 pt-3 border-t border-gray-100">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center text-white font-bold text-sm shadow-lg`}>
+                    {item.initials}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-800">{item.name}</h4>
+                    <p className="text-[9px] text-slate-500 font-semibold">{item.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* Testimoni 3 */}
-            <div className="bg-white border border-gray-150 p-6 rounded-3xl shadow-sm text-left space-y-4">
-              <div className="flex text-amber-400 text-xs">
-                {[1,2,3,4,5].map((s) => <Star key={s} className="fill-current w-3.5 h-3.5" />)}
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                "Keamanan datanya luar biasa. Modul RLS Supabase memastikan data medis penyakit hanya bisa diakses oleh dokter yang bertugas dan pemilik hewan bersangkutan secara aman dan rahasia."
-              </p>
-              <div className="flex items-center gap-3 pt-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
-                  AH
-                </div>
-                <div>
-                  <h4 className="text-xs font-extrabold text-gray-800">drh. Aditya Ramadhan</h4>
-                  <p className="text-[9px] text-gray-400 font-bold">Klinik Happy Pets</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ─── FAQ SECTION ─── */}
-      <section id="faq" className="py-20 bg-white border-t border-gray-150 relative text-left">
+      <section id="faq" className="py-24 bg-gradient-to-b from-slate-50 to-white border-t border-gray-100 relative text-left">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full animate-pulse">
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-20">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-4 py-2 rounded-full shadow-sm">
               Pertanyaan Umum
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Ada Pertanyaan Mengenai PetCare CRM?
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm font-semibold">Kami telah mengumpulkan jawaban atas kendala teknis dan cara penggunaan platform.</p>
+            <p className="text-slate-500 text-sm font-medium">Kami telah mengumpulkan jawaban atas kendala teknis dan cara penggunaan platform.</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
               { q: "Apakah ada masa uji coba gratis?", a: "Ya, kami menyediakan masa uji coba gratis selama 14 hari penuh dengan akses ke semua fitur tanpa perlu memasukkan informasi kartu kredit." },
               { q: "Bagaimana data rekam medis anabul diamankan?", a: "Seluruh data medis dan profil personal dilindungi oleh modul Row Level Security (RLS) Supabase dan enkripsi data end-to-end, memastikan hanya dokter yang bertugas dan pemilik hewan bersangkutan yang dapat melihat data tersebut." },
@@ -1774,22 +1760,20 @@ export default function LandingPage() {
               return (
                 <div
                   key={index}
-                  className="bg-slate-50 border border-gray-200/80 rounded-2xl overflow-hidden transition-all duration-300"
+                  className="bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full px-6 py-5 flex justify-between items-center font-bold text-xs text-slate-800 hover:bg-slate-100/50 transition cursor-pointer text-left gap-4"
+                    className="w-full px-6 py-5 flex justify-between items-center font-bold text-sm text-slate-800 hover:bg-slate-50 transition cursor-pointer text-left"
                   >
                     <span>{item.q}</span>
-                    {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-emerald-500 shrink-0" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
-                    )}
+                    <div className={`flex items-center transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}>
+                      <ChevronDown className={`w-5 h-5 ${isOpen ? "text-emerald-600" : "text-slate-400"} shrink-0`} />
+                    </div>
                   </button>
                   {isOpen && (
-                    <div className="px-6 pb-5 pt-1 text-xs text-slate-550 leading-relaxed font-semibold border-t border-gray-150 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="px-6 pb-6 pt-1 text-sm text-slate-500 leading-relaxed font-medium border-t border-gray-100 animate-in slide-in-from-top-2 duration-300">
                       {item.a}
                     </div>
                   )}
@@ -1801,78 +1785,78 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CALL TO ACTION SECTION ─── */}
-      <section className="py-20 bg-white border-t border-gray-150 text-center relative overflow-hidden text-left">
+      <section className="py-24 bg-gradient-to-br from-emerald-500 to-teal-600 text-center relative overflow-hidden text-left">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xKSIvPjwvc3ZnPg==')] bg-[size:20px_20px] opacity-10 pointer-events-none"></div>
+        
         <div className="max-w-4xl mx-auto px-6 space-y-8 relative z-10 text-center">
-          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-3xl md:text-6xl font-black text-white tracking-tight leading-tight">
             Siap Mengoptimalkan Manajemen <br />
             Klinik Hewan Anda?
           </h2>
-          <p className="text-slate-500 text-xs sm:text-sm max-w-xl mx-auto font-semibold">
+          <p className="text-emerald-50/90 text-sm md:text-lg max-w-xl mx-auto font-medium">
             Dapatkan akses penuh ke fitur E-Medical Records, Janji Temu Online, dan CRM Pemasaran Cerdas dengan pendaftaran gratis 5 menit.
           </p>
           <div className="flex justify-center gap-4 pt-2">
             <button
               onClick={handleCTA}
-              className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm px-8 py-4 rounded-2xl shadow-lg shadow-emerald-500/15 transition active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-2 bg-white text-emerald-600 hover:bg-emerald-50 font-black text-sm px-9 py-5 rounded-2xl shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:-translate-y-1 active:scale-[0.98] cursor-pointer"
             >
               {user ? "Masuk ke Dashboard Saya" : "Daftar Akun Sekarang"}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-slate-950 text-slate-450 border-t border-slate-900 py-12 text-left">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs font-semibold">
+      <footer className="bg-slate-900 text-slate-400 border-t border-slate-800 py-16 text-left">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 text-xs">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center text-white shadow-md">
-                <PawPrint className="w-5 h-5" />
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <PawPrint className="w-6 h-6" />
               </div>
-              <span className="text-base font-bold text-white tracking-tight">PetCare CRM</span>
+              <span className="text-lg font-black text-white tracking-tight">PetCare CRM</span>
             </div>
-            <p className="text-slate-450 leading-relaxed font-medium">Sistem CRM & manajemen klinis terpadu terbaik untuk kesehatan anabul pelanggan Anda.</p>
+            <p className="text-slate-400 leading-relaxed">Sistem CRM & manajemen klinis terpadu terbaik untuk kesehatan anabul pelanggan Anda.</p>
+            <div className="flex gap-3">
+              {["Instagram", "Facebook", "Twitter"].map((social) => (
+                <a key={social} href="#" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] font-bold hover:bg-emerald-500 hover:text-white transition-colors">
+                  {social[0]}
+                </a>
+              ))}
+            </div>
           </div>
 
-          <div>
-            <h4 className="text-sm font-bold text-white mb-4">Navigasi</h4>
-            <ul className="space-y-2.5">
-              <li><a href="#fitur" className="hover:text-emerald-500 transition">Fitur Utama</a></li>
-              <li><a href="#simulator" className="hover:text-emerald-500 transition">Simulator Klinik</a></li>
-              <li><a href="#crm" className="hover:text-emerald-500 transition">Otomatisasi CRM</a></li>
-              <li><a href="#alur" className="hover:text-emerald-500 transition">Alur Kerja</a></li>
-              <li><a href="#faq" className="hover:text-emerald-500 transition">FAQ</a></li>
-              <li><a href="#testimoni" className="hover:text-emerald-500 transition">Testimoni Pengguna</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-bold text-white mb-4">Kontak</h4>
-            <ul className="space-y-2 text-slate-450">
-              <li>Klinik Pusat PetCare CRM</li>
-              <li>Jl. Anabul Bahagia No. 12</li>
-              <li>Jakarta, Indonesia</li>
-              <li className="pt-2 text-white">support@petcarecrm.com</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-bold text-white mb-4">Legal</h4>
-            <ul className="space-y-2.5">
-              <li><a href="#" className="hover:text-emerald-500 transition">Kebijakan Privasi</a></li>
-              <li><a href="#" className="hover:text-emerald-500 transition">Syarat & Ketentuan</a></li>
-              <li><a href="#" className="hover:text-emerald-500 transition">Keamanan Data</a></li>
-            </ul>
-          </div>
+          {[
+            { title: "Navigasi", links: [{h:"Fitur Utama", t:"#fitur"}, {h:"Simulator Klinik", t:"#simulator"}, {h:"Otomatisasi CRM", t:"#crm"}, {h:"Alur Kerja", t:"#alur"}, {h:"FAQ", t:"#faq"}, {h:"Testimoni", t:"#testimoni"}] },
+            { title: "Kontak", links: ["Klinik Pusat PetCare CRM", "Jl. Anabul Bahagia No. 12", "Jakarta, Indonesia", "support@petcarecrm.com"] },
+            { title: "Legal", links: [{h:"Kebijakan Privasi", t:"#"}, {h:"Syarat & Ketentuan", t:"#"}, {h:"Keamanan Data", t:"#"}] }
+          ].map((section, idx) => (
+            <div key={idx}>
+              <h4 className="text-sm font-black text-white mb-5">{section.title}</h4>
+              <ul className="space-y-3">
+                {section.links.map((item, lidx) => {
+                  if (typeof item === "string") {
+                    return <li key={lidx} className="hover:text-emerald-400 transition-colors">{item}</li>;
+                  }
+                  return (
+                    <li key={lidx}>
+                      <a href={item.t} className="hover:text-emerald-400 transition-colors">{item.h}</a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center text-[10px] text-slate-500">
+        <div className="max-w-7xl mx-auto px-6 pt-14 mt-14 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-500">
           <p>© 2026 PetCare CRM. All rights reserved.</p>
-          <div className="flex gap-6 mt-4 md:mt-0 font-bold">
-            <a href="#" className="hover:text-white transition">Instagram</a>
-            <a href="#" className="hover:text-white transition">Facebook</a>
-            <a href="#" className="hover:text-white transition">Twitter</a>
+          <div className="flex gap-6 font-bold">
+            <a href="#" className="hover:text-emerald-400 transition-colors">Instagram</a>
+            <a href="#" className="hover:text-emerald-400 transition-colors">Facebook</a>
+            <a href="#" className="hover:text-emerald-400 transition-colors">Twitter</a>
           </div>
         </div>
       </footer>

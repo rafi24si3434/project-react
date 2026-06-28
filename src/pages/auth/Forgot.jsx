@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaEnvelope, FaArrowLeft, FaKey } from "react-icons/fa";
+import { ShieldCheck, ArrowLeft, Mail } from "lucide-react";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [focusField, setFocusField] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess(false);
 
     if (!email) {
       setError("Alamat email wajib diisi.");
@@ -29,118 +29,83 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div>
-      {/* Icon */}
-      <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 rounded-[1.2rem] bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/25">
-          <FaKey className="text-white text-2xl" />
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 text-white shadow-2xl shadow-amber-500/30 mb-6 animate-pulse-slow">
+          <ShieldCheck className="w-10 h-10" />
         </div>
+        <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-3">Lupa Password?</h2>
+        <p className="text-slate-500 font-medium text-lg">Jangan khawatir, kami akan bantu Anda mereset password.</p>
       </div>
 
-      {/* Heading */}
-      <div className="mb-8 text-center">
-        <h2 className="text-[1.7rem] font-extrabold text-gray-900 tracking-tight leading-tight">
-          Lupa Password?
-        </h2>
-        <p className="text-gray-500 text-sm mt-2 font-medium leading-relaxed max-w-xs mx-auto">
-          Jangan khawatir! Masukkan email Anda dan kami akan mengirimkan instruksi reset.
-        </p>
-      </div>
-
-      {/* Error */}
       {error && (
-        <div className="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 text-red-600 text-sm px-5 py-3.5 rounded-2xl font-semibold flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
-            <span className="text-sm">⚠️</span>
+        <div className="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-4 shadow-lg shadow-red-500/10 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-6 h-6" />
           </div>
-          {error}
+          <div>
+            <p className="font-black text-red-900">{error}</p>
+            <p className="text-xs text-red-600/80">Mohon periksa kembali data Anda</p>
+          </div>
         </div>
       )}
 
-      {/* Success State */}
       {success ? (
-        <div className="text-center">
-          <div className="mb-6 bg-gradient-to-b from-emerald-50 to-teal-50/50 border border-emerald-100 p-8 rounded-3xl">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-4xl mx-auto mb-5 shadow-lg shadow-emerald-200/40 border border-emerald-100">
-              💌
-            </div>
-            <h3 className="font-extrabold text-lg text-emerald-800 mb-2">Cek Email Anda!</h3>
-            <p className="text-sm font-medium text-emerald-600/80 leading-relaxed">
-              Link untuk mereset password telah dikirim ke
-            </p>
-            <div className="inline-block mt-3 px-4 py-2 rounded-xl bg-white border border-emerald-200 text-sm font-bold text-emerald-700 shadow-sm">
-              {email}
-            </div>
+        <div className="text-center py-8">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-500 text-white text-5xl mb-6 shadow-xl shadow-emerald-500/30 animate-bounce">
+            💌
           </div>
-
-          <p className="text-xs text-gray-500 font-medium mb-5 mt-4">
-            Tidak menerima email? Periksa folder <strong>spam</strong> Anda.
+          <h3 className="text-2xl font-black text-emerald-700 mb-2">Cek Email Anda!</h3>
+          <p className="text-slate-600 font-medium mb-4">Link reset password telah dikirim ke:</p>
+          <div className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 text-slate-800 font-bold shadow-lg shadow-emerald-500/10">
+            {email}
+          </div>
+          <p className="text-xs text-slate-500 mt-6 font-medium">
+            Tidak menerima email? Periksa folder <strong>spam</strong>.
           </p>
-
-          <button
-            onClick={() => { setSuccess(false); setEmail(""); }}
-            className="text-emerald-600 font-bold text-sm hover:text-emerald-700 transition-colors underline underline-offset-2 decoration-emerald-300"
-          >
-            Kirim ulang ke email lain
-          </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
-          <div>
-            <label className="text-[11px] font-bold text-gray-600 uppercase tracking-widest mb-2.5 block">
-              Alamat Email
-            </label>
-            <div className={`relative flex items-center rounded-2xl border-2 transition-all duration-300 overflow-hidden ${
-              focusField === "email"
-                ? "border-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.08)]"
-                : "border-gray-100 hover:border-gray-200"
-            }`}>
-              <div className={`absolute left-0 top-0 bottom-0 w-12 flex items-center justify-center transition-colors duration-300 ${
-                focusField === "email" ? "bg-emerald-50 text-emerald-500" : "bg-gray-50 text-gray-400"
-              }`}>
-                <FaEnvelope className="text-sm" />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <label className="text-xs font-black text-slate-700 uppercase tracking-widest ml-1">Alamat Email</label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-amber-500 transition-colors duration-300" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocusField("email")}
-                onBlur={() => setFocusField("")}
-                placeholder="dokter@petcare.com"
-                className="w-full pl-14 pr-4 py-3.5 bg-transparent text-sm text-gray-800 focus:outline-none placeholder-gray-400 font-medium"
+                placeholder="contoh@email.com"
+                className="w-full pl-12 pr-5 py-4 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-6 focus:ring-amber-500/10 bg-slate-50 focus:bg-white transition-all duration-300 font-medium text-slate-800 placeholder-slate-400 group-hover:border-amber-300/50"
               />
             </div>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-500 to-teal-500 hover:from-emerald-600 hover:via-emerald-600 hover:to-teal-600 active:scale-[0.98] text-white font-bold text-[15px] shadow-[0_10px_30px_-8px_rgba(16,185,129,0.5)] hover:shadow-[0_14px_35px_-8px_rgba(16,185,129,0.6)] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-1"
+            className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 hover:from-amber-600 hover:via-amber-700 hover:to-orange-600 text-white font-black text-lg shadow-2xl shadow-amber-500/30 hover:shadow-amber-500/40 hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-4"
           >
             {loading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Mengirim Link...</span>
+                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="text-lg font-black">Mengirim Link...</span>
               </>
             ) : (
               <>
-                Kirim Link Reset
-                <span className="text-lg">📨</span>
+                <span className="text-lg font-black">Kirim Link Reset</span>
+                <ArrowLeft className="w-6 h-6 rotate-180" />
               </>
             )}
           </button>
         </form>
       )}
 
-      {/* Back to Login */}
-      <div className="mt-8 text-center">
+      <div className="mt-8 pt-8 border-t border-slate-100">
         <Link
           to="/login"
-          className="inline-flex items-center justify-center gap-2.5 text-sm text-gray-500 hover:text-emerald-600 font-bold transition-all py-2.5 px-5 rounded-xl hover:bg-emerald-50 group"
+          className="flex items-center justify-center gap-3 text-sm text-slate-500 font-black hover:text-emerald-600 transition-colors py-3 px-4 rounded-xl hover:bg-emerald-50 transition-all duration-300"
         >
-          <FaArrowLeft className="text-xs transition-transform group-hover:-translate-x-1" /> Kembali ke Halaman Masuk
+          <ArrowLeft className="w-5 h-5" /> Kembali ke Halaman Masuk
         </Link>
       </div>
     </div>
